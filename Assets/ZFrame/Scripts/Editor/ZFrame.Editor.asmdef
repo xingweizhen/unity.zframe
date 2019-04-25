@@ -1,0 +1,13 @@
+{
+    "name": "ZFrame.Editor",
+    "references": [
+        "ZFrame",
+        "ZFrame.UGUI"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

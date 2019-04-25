@@ -1,0 +1,8 @@
+{
+    "name": "ZFrame.UGUI",
+    "references": [
+        "ZFrame"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}
