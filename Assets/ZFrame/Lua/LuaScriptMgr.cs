@@ -194,8 +194,8 @@ namespace ZFrame
         // Lua脚本全部准备就绪
 		public static void OnScriptsFinish()
         {
-            // var txt = Resources.Load<TextAsset>("luacoding");
-            // CLZF2.Decrypt(txt.bytes, txt.bytes.Length);
+            var txt = Resources.Load<TextAsset>("luacoding");
+            CLZF2.Decrypt(txt.bytes, txt.bytes.Length);
 
             UIManager.Instance.gameObject.AddComponent<LuaScriptMgr>();
 
