@@ -16,26 +16,32 @@ public class AssetsMgrEditor : MonoBehaviorEditor
         useAssetBundleLoader = serializedObject.FindProperty("m_UseAssetBundleLoader");
     }
 
+	private bool OnEditorPrefGUI(string label, string prefKey)
+	{
+		EditorGUI.BeginChangeCheck();
+		var tglValue = EditorGUILayout.Toggle(label, EditorPrefs.GetBool(prefKey));
+		if (EditorGUI.EndChangeCheck()) {
+			EditorPrefs.SetBool(prefKey, tglValue);
+		}
+
+		return tglValue;
+	}
+
 	public override void OnInspectorGUI ()
 	{
-		base.OnInspectorGUI();        
-        EditorGUILayout.PropertyField(printLoadedLuaStack, new GUIContent("显示Lua脚本加载顺序"));
-		if (Application.isPlaying) {
+		base.OnInspectorGUI();
+
+		OnEditorPrefGUI("显示Lua脚本加载顺序", AssetsMgr.kPrintLuaLoading);
+		
+		EditorGUI.BeginDisabledGroup(Application.isPlaying);
+		var useLuaAb = OnEditorPrefGUI("使用打包的Lua脚本", AssetsMgr.kUseLuaAssetBundle);
+		if (useLuaAb) {
 			EditorGUI.BeginDisabledGroup(true);
-		}
-        EditorGUILayout.PropertyField(useLuaAssetBundle, new GUIContent("使用打包的Lua脚本"));
-		if (useLuaAssetBundle.boolValue) {
-			EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.Toggle(new GUIContent("使用打包的资源"), true);
+            EditorGUILayout.Toggle("使用打包的资源", true);
 			EditorGUI.EndDisabledGroup();
 		} else {
-            EditorGUILayout.PropertyField(useAssetBundleLoader, new GUIContent("使用打包的资源"));
+			OnEditorPrefGUI("使用打包的资源", AssetsMgr.kUseAssetBundleLoader);
 		}
-		serializedObject.ApplyModifiedProperties();
-		if (Application.isPlaying) {			
-			EditorGUI.EndDisabledGroup();
-		}
-		
-		
+		EditorGUI.EndDisabledGroup();
 	}
 }

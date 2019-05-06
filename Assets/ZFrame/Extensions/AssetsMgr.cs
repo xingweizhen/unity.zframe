@@ -11,20 +11,19 @@ public class AssetsMgr : MonoSingleton<AssetsMgr>
     private string m_LaunchPrefab;
 
 #if UNITY_EDITOR
-    [SerializeField, HideInInspector]
-    private bool m_PrintLoadedLuaStack = false;
-    public bool printLoadedLuaStack { get { return m_PrintLoadedLuaStack; } }
-    [SerializeField, HideInInspector]
-    private bool m_UseLuaAssetBundle = false;
-    public bool useLuaAssetBundle {
-        get { return m_UseLuaAssetBundle; }
-        set { m_UseLuaAssetBundle = value; }
+    public const string kPrintLuaLoading = "zframe.printLuaLoading";
+    public bool printLoadedLuaStack {
+        get { return UnityEditor.EditorPrefs.GetBool(kPrintLuaLoading); }
     }
-    [SerializeField, HideInInspector]
-    private bool m_UseAssetBundleLoader = false;
+
+    public const string kUseLuaAssetBundle = "zframe.useLuaAssetBundle";
+    public bool useLuaAssetBundle {
+        get { return UnityEditor.EditorPrefs.GetBool(kUseLuaAssetBundle); }
+    }
+    
+    public const string kUseAssetBundleLoader = "zframe.useAssetBundleLoader";
     public bool useAssetBundleLoader {
-        get { return m_UseLuaAssetBundle || m_UseAssetBundleLoader; }
-        set { m_UseAssetBundleLoader = value; }
+        get { return useLuaAssetBundle || UnityEditor.EditorPrefs.GetBool(kUseAssetBundleLoader); }
     }
 #elif UNITY_STANDALONE
 	public bool printLoadedLuaStack { get { return false; } }
