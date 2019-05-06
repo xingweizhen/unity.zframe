@@ -104,19 +104,6 @@ public static class MetaMethods
     }
 
     public static LuaCSFunction GC = new LuaCSFunction(StaticLuaCallbacks.LuaGC);
-    //[MonoPInvokeCallback(typeof(LuaCSFunction))]
-    //private static int __gc(ILuaState L)
-    //{
-        
-    //    int udata = LuaDLL.luanet_rawnetobj(L, 1);
-
-    //    if (udata != -1) {
-    //        var ls = LuaEnv.Get(L).ls;
-    //        ls.translator.collectObject(udata);
-    //    }
-
-    //    return 0;
-    //}
 
     public static LuaCSFunction Index = new LuaCSFunction(__index);
     [MonoPInvokeCallback(typeof(LuaCSFunction))]

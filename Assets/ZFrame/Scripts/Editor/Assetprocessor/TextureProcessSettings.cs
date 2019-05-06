@@ -30,10 +30,13 @@ namespace ZFrame.Asset
             public bool MipmapEnabled;
             public TextureImporterType TextureType;
             public List<string> folders;
-
+            [SerializeField]
+            private bool m_Disable;
 
             public void OnPreprocess(TextureImporter ti)
             {
+                if (m_Disable) return;
+
                 if (ContainsAsset(folders, ti.assetPath)) {
                     if (ContainsFlag(flags, (int)Prop.MaxTextureSize)) ti.maxTextureSize = MaxTextureSize;
                     if (ContainsFlag(flags, (int)Prop.CompressionQuality)) ti.compressionQuality = CompressionQuality;

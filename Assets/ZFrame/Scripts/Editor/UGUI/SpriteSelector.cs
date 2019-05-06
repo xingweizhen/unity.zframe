@@ -14,248 +14,200 @@ using UnityEngine.U2D;
 
 namespace ZFrame.UGUI
 {
-	public class SpriteSelector : ScriptableWizard
-	{
-		public static UIAtlas atlas;
-		private static SpriteAtlas spriteAtlas;
-		public static string partialSprite;
-		public static string selectedSprite;
-		private static List<Sprite> sprites;
-		
-		static public SpriteSelector instance;
+    public class SpriteSelector : ScriptableWizard
+    {
+        public static UIAtlas atlas;
+        private static SpriteAtlas spriteAtlas;
+        public static string partialSprite;
+        public static string selectedSprite;
+        private static List<Sprite> sprites;
 
-		void OnEnable()
-		{
-			instance = this;
-		}
+        static public SpriteSelector instance;
 
-		void OnDisable()
-		{
-			instance = null;
-		}
+        void OnEnable()
+        {
+            instance = this;
+        }
 
-		public delegate void Callback(string sprite);
+        void OnDisable()
+        {
+            instance = null;
+        }
 
-		SerializedObject mObject;
-		SerializedProperty mProperty;
+        public delegate void Callback(string sprite);
 
-		UISprite mSprite;
-		Vector2 mPos = Vector2.zero;
-		Callback mCallback;
-		float mClickTime = 0f;
+        SerializedObject mObject;
 
-		/// <summary>
-		/// Draw the custom wizard.
-		/// </summary>
+        UISprite mSprite;
+        Vector2 mPos = Vector2.zero;
+        Callback mCallback;
+        float mClickTime = 0f;
 
-		void OnGUI()
-		{
-			EditorGUIUtility.labelWidth = 80;
-			
-			if (spriteAtlas == null) {
-				if (atlas != null) spriteAtlas = atlas.atlas;
-			}
-			
-			if (spriteAtlas == null) {
-				GUILayout.Label("No Atlas selected.", "LODLevelNotifyText");
-			} else {
-				bool close = false;
-				GUILayout.Label(spriteAtlas.name + " Sprites", "LODLevelNotifyText");
-				EditorGUILayout.Separator();
+        /// <summary>
+        /// Draw the custom wizard.
+        /// </summary>
 
-				GUILayout.BeginHorizontal();
-				GUILayout.Space(84f);
+        void OnGUI()
+        {
+            EditorGUIUtility.labelWidth = 80;
 
-				string before = partialSprite;
-				string after = EditorGUILayout.TextField("", before, "SearchTextField");
-				if (before != after) partialSprite = after;
+            if (spriteAtlas == null) {
+                if (atlas != null) spriteAtlas = atlas.atlas;
+            }
 
-				if (GUILayout.Button("", "SearchCancelButton", GUILayout.Width(18f))) {
-					partialSprite = "";
-					GUIUtility.keyboardControl = 0;
-				}
+            if (spriteAtlas == null) {
+                GUILayout.Label("No Atlas selected.", "LODLevelNotifyText");
+            } else {
+                bool close = false;
+                GUILayout.Label(spriteAtlas.name + " Sprites", "LODLevelNotifyText");
+                EditorGUILayout.Separator();
 
-				GUILayout.Space(84f);
-				GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(84f);
 
-				if (sprites == null) {
-					sprites = new List<Sprite>();
-					var spritePaths = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(spriteAtlas));
-					foreach (var path in spritePaths) {
-						var sp = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-						if (sp) sprites.Add(sp);
-					}
-				}
-				
-				float size = 80f;
-				float padded = size + 10f;
-				
-				int columns = Mathf.FloorToInt(position.width / padded);
-				if (columns < 1) columns = 1;
+                string before = partialSprite;
+                string after = EditorGUILayout.TextField("", before, "SearchTextField");
+                if (before != after) partialSprite = after;
 
-				int offset = 0;
-				Rect rect = new Rect(10f, 0, size, size);
+                if (GUILayout.Button("", "SearchCancelButton", GUILayout.Width(18f))) {
+                    partialSprite = "";
+                    GUIUtility.keyboardControl = 0;
+                }
 
-				GUILayout.Space(10f);
-				mPos = GUILayout.BeginScrollView(mPos);
-				int rows = 1;
+                GUILayout.Space(84f);
+                GUILayout.EndHorizontal();
 
-				while (offset < sprites.Count) {
-					GUILayout.BeginHorizontal();
-					{
-						int col = 0;
-						rect.x = 10f;
+                if (sprites == null) {
+                    sprites = new List<Sprite>();
+                    var spritePaths = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(spriteAtlas));
+                    foreach (var path in spritePaths) {
+                        var sp = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                        if (sp) sprites.Add(sp);
+                    }
+                }
 
-						for (; offset < sprites.Count; ++offset) {
-							var sprite = sprites[offset];
-							if (sprite == null) continue;
+                float size = 80f;
+                float padded = size + 10f;
 
-							var spriteName = sprite.name;
-							
-							if (!string.IsNullOrEmpty(partialSprite) && !spriteName.Contains(partialSprite)) continue;
+                int columns = Mathf.FloorToInt(position.width / padded);
+                if (columns < 1) columns = 1;
 
-							// Button comes first
-							if (GUI.Button(rect, "", GUIStyle.none)) {
-								if (Event.current.button == 0) {
-									float delta = Time.realtimeSinceStartup - mClickTime;
-									mClickTime = Time.realtimeSinceStartup;
+                int offset = 0;
+                Rect rect = new Rect(10f, 0, size, size);
 
-									if (selectedSprite != spriteName) {
-										if (mSprite != null) {
-											Undo.RecordObject(mSprite, "Atlas Selection");
-											EditorUtility.SetDirty(mSprite.gameObject);
-										}
+                GUILayout.Space(10f);
+                mPos = GUILayout.BeginScrollView(mPos);
+                int rows = 1;
 
-										SpriteSelector.selectedSprite = spriteName;
-										if (mCallback != null) mCallback(spriteName);
-									} else if (delta < 0.5f) close = true;
-								} else {
-									//NGUIContextMenu.AddItem("Edit", false, EditSprite, sprite);
-									//NGUIContextMenu.AddItem("Delete", false, DeleteSprite, sprite);
-									//NGUIContextMenu.Show();
-								}
-							}
+                while (offset < sprites.Count) {
+                    GUILayout.BeginHorizontal();
+                    {
+                        int col = 0;
+                        rect.x = 10f;
 
-							if (Event.current.type == EventType.Repaint) {
-								UISpriteEditor.DrawSprite(sprite, rect, Color.white, GUIStyle.none);
+                        for (; offset < sprites.Count; ++offset) {
+                            var sprite = sprites[offset];
+                            if (sprite == null) continue;
 
-								// Draw the selection
-								if (SpriteSelector.selectedSprite == spriteName) {
-									DrawOutline(rect, new Color(0.4f, 1f, 0f, 1f));
-								}
-							}
+                            var spriteName = sprite.name;
 
-							GUI.backgroundColor = new Color(1f, 1f, 1f, 0.5f);
-							GUI.contentColor = new Color(1f, 1f, 1f, 0.7f);
-							GUI.Label(new Rect(rect.x, rect.y + rect.height, rect.width, 32f), spriteName,
-								"ProgressBarBack");
-							GUI.contentColor = Color.white;
-							GUI.backgroundColor = Color.white;
+                            if (!string.IsNullOrEmpty(partialSprite) && !spriteName.Contains(partialSprite)) continue;
 
-							if (++col >= columns) {
-								++offset;
-								break;
-							}
+                            // Button comes first
+                            if (GUI.Button(rect, "", GUIStyle.none)) {
+                                if (Event.current.button == 0) {
+                                    float delta = Time.realtimeSinceStartup - mClickTime;
+                                    mClickTime = Time.realtimeSinceStartup;
 
-							rect.x += padded;
-						}
-					}
-					GUILayout.EndHorizontal();
-					GUILayout.Space(padded);
-					rect.y += padded + 26;
-					++rows;
-				}
+                                    if (selectedSprite != spriteName) {
+                                        if (mSprite != null) {
+                                            Undo.RecordObject(mSprite, "Atlas Selection");
+                                            EditorUtility.SetDirty(mSprite.gameObject);
+                                        }
 
-				GUILayout.Space(rows * 26);
-				GUILayout.EndScrollView();
+                                        SpriteSelector.selectedSprite = spriteName;
+                                        if (mCallback != null) mCallback(spriteName);
+                                    } else if (delta < 0.5f) close = true;
+                                } else {
+                                    //NGUIContextMenu.AddItem("Edit", false, EditSprite, sprite);
+                                    //NGUIContextMenu.AddItem("Delete", false, DeleteSprite, sprite);
+                                    //NGUIContextMenu.Show();
+                                }
+                            }
 
-				if (close) Close();
-			}
-		}
+                            if (Event.current.type == EventType.Repaint) {
+                                UISpriteEditor.DrawSprite(sprite, rect, Color.white, GUIStyle.none);
 
-		/// <summary>
-		/// Edit the sprite (context menu selection)
-		/// </summary>
+                                // Draw the selection
+                                if (SpriteSelector.selectedSprite == spriteName) {
+                                    DrawOutline(rect, new Color(0.4f, 1f, 0f, 1f));
+                                }
+                            }
 
-		void EditSprite(object obj)
-		{
-//			if (this == null) return;
-//			UISpriteData sd = obj as UISpriteData;
-//			NGUIEditorTools.SelectSprite(sd.name);
-//			Close();
-		}
+                            GUI.backgroundColor = new Color(1f, 1f, 1f, 0.5f);
+                            GUI.contentColor = new Color(1f, 1f, 1f, 0.7f);
+                            GUI.Label(new Rect(rect.x, rect.y + rect.height, rect.width, 32f), spriteName,
+                                "ProgressBarBack");
+                            GUI.contentColor = Color.white;
+                            GUI.backgroundColor = Color.white;
 
-		/// <summary>
-		/// Delete the sprite (context menu selection)
-		/// </summary>
+                            if (++col >= columns) {
+                                ++offset;
+                                break;
+                            }
 
-		void DeleteSprite(object obj)
-		{
-//			if (this == null) return;
-//			UISpriteData sd = obj as UISpriteData;
-//
-//			List<UIAtlasMaker.SpriteEntry> sprites = new List<UIAtlasMaker.SpriteEntry>();
-//			UIAtlasMaker.ExtractSprites(NGUISettings.atlas, sprites);
-//
-//			for (int i = sprites.Count; i > 0;) {
-//				UIAtlasMaker.SpriteEntry ent = sprites[--i];
-//				if (ent.name == sd.name)
-//					sprites.RemoveAt(i);
-//			}
-//
-//			UIAtlasMaker.UpdateAtlas(NGUISettings.atlas, sprites);
-//			NGUIEditorTools.RepaintSprites();
-		}
+                            rect.x += padded;
+                        }
+                    }
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(padded);
+                    rect.y += padded + 26;
+                    ++rows;
+                }
 
-		/// <summary>
-		/// Property-based selection result.
-		/// </summary>
+                GUILayout.Space(rows * 26);
+                GUILayout.EndScrollView();
 
-		void OnSpriteSelection(string sp)
-		{
-			if (mObject != null && mProperty != null) {
-				mObject.Update();
-				mProperty.stringValue = sp;
-				mObject.ApplyModifiedProperties();
-			}
-		}
+                if (close) Close();
+            }
+        }
 
-		public static void DrawOutline(Rect rect, Color color)
-		{
-			if (Event.current.type == EventType.Repaint) {
-				var outlineWidth = 2f;
-				Texture2D tex = EditorGUIUtility.whiteTexture;
-				GUI.color = color;
-				GUI.DrawTexture(new Rect(rect.xMin, rect.yMin, outlineWidth, rect.height), tex);
-				GUI.DrawTexture(new Rect(rect.xMax, rect.yMin, outlineWidth, rect.height), tex);
-				GUI.DrawTexture(new Rect(rect.xMin, rect.yMin, rect.width, outlineWidth), tex);
-				GUI.DrawTexture(new Rect(rect.xMin, rect.yMax, rect.width, outlineWidth), tex);
-				GUI.color = Color.white;
-			}
-		}
+        public static void DrawOutline(Rect rect, Color color)
+        {
+            if (Event.current.type == EventType.Repaint) {
+                var outlineWidth = 2f;
+                Texture2D tex = EditorGUIUtility.whiteTexture;
+                GUI.color = color;
+                GUI.DrawTexture(new Rect(rect.xMin, rect.yMin, outlineWidth, rect.height), tex);
+                GUI.DrawTexture(new Rect(rect.xMax, rect.yMin, outlineWidth, rect.height), tex);
+                GUI.DrawTexture(new Rect(rect.xMin, rect.yMin, rect.width, outlineWidth), tex);
+                GUI.DrawTexture(new Rect(rect.xMin, rect.yMax, rect.width, outlineWidth), tex);
+                GUI.color = Color.white;
+            }
+        }
 
-		/// <summary>
-		/// Show the selection wizard.
-		/// </summary>
+        /// <summary>
+        /// Show the selection wizard.
+        /// </summary>
 
-		static public void Show(Callback callback)
-		{
-			if (instance != null) {
-				instance.Close();
-				instance = null;
-			}
+        static public void Show(Callback callback)
+        {
+            if (instance != null) {
+                instance.Close();
+                instance = null;
+            }
 
-			SpriteSelector comp = ScriptableWizard.DisplayWizard<SpriteSelector>("Select a Sprite");
-			comp.mSprite = null;
-			comp.mCallback = callback;
-		}
+            SpriteSelector comp = ScriptableWizard.DisplayWizard<SpriteSelector>("Select a Sprite");
+            comp.mSprite = null;
+            comp.mCallback = callback;
+        }
 
-		public static void Show(SpriteAtlas spriteAtlas, string selectedSprite, Callback callback)
-		{
-			SpriteSelector.spriteAtlas = spriteAtlas;
-			SpriteSelector.selectedSprite = selectedSprite;
-			sprites = null;
-			Show(callback);
-		}
-	}
+        public static void Show(SpriteAtlas spriteAtlas, string selectedSprite, Callback callback)
+        {
+            SpriteSelector.spriteAtlas = spriteAtlas;
+            SpriteSelector.selectedSprite = selectedSprite;
+            sprites = null;
+            Show(callback);
+        }
+    }
 }

@@ -40,10 +40,6 @@ namespace ZFrame.Asset
             }
         }
 
-#if UNITY_EDITOR
-        public const string DIR_ASSETS = "RefAssets";
-#endif
-
         public const string MD5 = "md5";
         public const string FILE_LIST = "filelist";
 
@@ -92,7 +88,7 @@ namespace ZFrame.Asset
         {
             return m_ExistBundles.Contains(bundleName);
         }
-        
+
         public bool AddBundle(string bundleName, string md5)
         {
             if (md5 != null) {
@@ -128,7 +124,7 @@ namespace ZFrame.Asset
             // 不移除记录，表示该资源是待更新状态
             // m_ExistBundles.Remove(bundleName);
         }
-        
+
         protected override void Awaking()
         {
             base.Awaking();
@@ -264,7 +260,7 @@ namespace ZFrame.Asset
 
             return bundleListDirty;
         }
-        
+
         protected override BundleStat GetBundleStat(string bundleName, out string md5)
         {
             md5 = null;
@@ -276,7 +272,7 @@ namespace ZFrame.Asset
             if (m_RemoteBundles.TryGetValue(bundleName, out md5)) {
                 stat |= BundleStat.Remote;
             }
-            
+
             if (m_ExistBundles.Contains(bundleName)) {
                 stat |= BundleStat.Local;
             }
@@ -466,7 +462,7 @@ namespace ZFrame.Asset
 #else
                 yield return LoadingAsset(typeof(TextAsset), GetFilePath(FILE_LIST), loaded);
 #endif
-                
+
                 var asset = loaded.asset as string;
                 var joList = JSON.Load(asset);
                 bool dirty = false;
