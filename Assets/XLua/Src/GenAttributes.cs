@@ -93,12 +93,16 @@ namespace XLua
     public enum HotfixFlag
     {
         Stateless = 0,
+        [Obsolete("use xlua.util.state instead!", true)]
         Stateful = 1,
         ValueTypeBoxing = 2,
         IgnoreProperty = 4,
         IgnoreNotPublic = 8,
         Inline = 16,
-        IntKey = 32
+        IntKey = 32,
+        AdaptByDelegate = 64,
+        IgnoreCompilerGenerated = 128,
+        NoBaseProxy = 256,
     }
 
     public class HotfixAttribute : Attribute
@@ -123,7 +127,7 @@ namespace XLua
     {
     }
 
-#if !XLUA_GENERAL
+#if false //!XLUA_GENERAL
     public static class SysGenConfig
     {
         [GCOptimize]
@@ -132,13 +136,13 @@ namespace XLua
             get
             {
                 return new List<Type>() {
-                    //typeof(UnityEngine.Vector2),
-                    //typeof(UnityEngine.Vector3),
-                    //typeof(UnityEngine.Vector4),
-                    //typeof(UnityEngine.Color),
-                    //typeof(UnityEngine.Quaternion),
+                    typeof(UnityEngine.Vector2),
+                    typeof(UnityEngine.Vector3),
+                    typeof(UnityEngine.Vector4),
+                    typeof(UnityEngine.Color),
+                    typeof(UnityEngine.Quaternion),
                     typeof(UnityEngine.Ray),
-                    //typeof(UnityEngine.Bounds),
+                    typeof(UnityEngine.Bounds),
                     typeof(UnityEngine.Ray2D),
                 };
             }

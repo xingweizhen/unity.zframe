@@ -21,3 +21,4 @@ MonoBehaviour:
     TextureType: 8
     folders:
     - Assets/__SANDBOX/BattleIcon
+    m_Disable: 0

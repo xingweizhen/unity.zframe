@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using ZFrame.Asset;
 
-public class GameEntry : MonoBehaviour
+namespace ZFrame
 {
-    // Use this for initialization
-    void Start()
+    using Asset;
+
+    public class Main : MonoBehaviour
     {
-        if (AssetLoader.Instance == null) {
-            InitEntry();
-        } else {
+        // Use this for initialization
+        void Start()
+        {
+            if (AssetLoader.Instance == null) {
+                Launch();
+            } else {
 #if UNITY_EDITOR && !UNITY_STANDALONE
             if (AssetBundleLoader.I) {
                 var objs = FindObjectsOfType(typeof(Renderer));
@@ -23,14 +26,13 @@ public class GameEntry : MonoBehaviour
                 }
             }
 #endif
+            }
         }
 
-        //GameSettings.Instance.GetSettings();
-    }
-
-    public static void InitEntry()
-    {
-        var obj = Resources.Load("AssetsMgr");
-        GoTools.NewChild(null, obj as GameObject);
+        public static void Launch()
+        {
+            var obj = Resources.Load("AssetsMgr");
+            GoTools.NewChild(null, obj as GameObject);
+        }
     }
 }

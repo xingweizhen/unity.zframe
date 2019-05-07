@@ -489,7 +489,7 @@ public class LuaUIGenerator : EditorWindow
             Object prefab = null;
             if (type == PrefabType.None) {
                 prefabPath = string.Format("Assets/{0}/BUNDLE/UI/{1}.prefab",
-                    ZFrame.Asset.AssetBundleLoader.DIR_ASSETS, selectedObj.name);
+                    ZFrame.Asset.AssetPacker.DIR_ASSETS, selectedObj.name);
                 prefab = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
             } else {
 #if UNITY_2018

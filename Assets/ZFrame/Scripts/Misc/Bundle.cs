@@ -136,11 +136,6 @@ END:
             private readonly byte[] m_NameBuffer = new byte[TMP_SIZE];
             
             /// <summary>
-            /// 每次读取的缓冲区大小
-            /// </summary>
-            private readonly int m_BlockSize;
-
-            /// <summary>
             /// 临时缓冲区的使用大小
             /// </summary>
             private int m_TmpSize = 0;
@@ -180,7 +175,6 @@ END:
 
             public Unpacker(int blockSize)
             {
-                m_BlockSize = blockSize;
                 m_Buffer = new byte[TMP_SIZE + blockSize];
                 m_HashQueue = new Queue<FileInf>();
 
@@ -258,6 +252,7 @@ END:
                 System.Array.Copy(m_Buffer, offset, m_Buffer, TMP_SIZE - m_TmpSize, m_TmpSize);
             }
 
+#if false
             private void Handling(int buffSize)
             {
                 buffSize += TMP_SIZE;
@@ -325,7 +320,8 @@ END:
                     offset += nWrite;
                 }
             }
-            
+#endif
+
             private bool TestRead(byte[] buffer, int count)
             {
                 var nRead = m_Stream.Read(buffer, 0, count);

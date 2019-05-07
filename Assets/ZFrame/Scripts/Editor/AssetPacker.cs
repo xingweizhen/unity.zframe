@@ -96,10 +96,11 @@ namespace ZFrame.Asset
             get { return VersionMgr.GetAssetVer().code; }
         }
 
-        public static string DIR_ASSETS {
-            get { return AssetBundleLoader.DIR_ASSETS; }
-        }
-
+        /// <summary>
+        /// AssetBundle资源根目录
+        /// </summary>
+        public const string DIR_ASSETS = "RefAssets";
+        
         private const string OTHERS = "Others";
 
         public static readonly List<string> LaunchBundles = new List<string> {

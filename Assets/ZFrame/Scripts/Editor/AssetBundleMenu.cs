@@ -9,6 +9,13 @@ namespace ZFrame.Asset
 {
     public static class AssetBundleMenu
     {
+        /// <summary>
+        /// 定义AssetBundle命名规则
+        /// </summary>
+        public const string DIR_BUNDLE = "BUNDLE";
+        public const string DIR_OBO = "OBO";
+        public const string DIR_CATEGORY = "CATEGORY";
+
         // 资源目录结构
         // RefAssets
         // |- BUNDLE/                  # 目录下面内的资源打成一个包
@@ -24,10 +31,10 @@ namespace ZFrame.Asset
         //    |  +- e2                 -> eee/e2
         //    +- fff/
         //       +- f1                 -> fff/f1
-        
+
         private static string GetAssetsRoot(string path)
         {
-            return string.Format("Assets/{0}/{1}", AssetBundleLoader.DIR_ASSETS, path);
+            return string.Format("Assets/{0}/{1}", AssetPacker.DIR_ASSETS, path);
         }
 
         /// <summary>
@@ -101,14 +108,14 @@ namespace ZFrame.Asset
         public static void AutoMarkAssetBundle()
         {
             // 独立资源
-            var dirs = Directory.GetDirectories(GetAssetsRoot("OBO"));
+            var dirs = Directory.GetDirectories(GetAssetsRoot(DIR_OBO));
             foreach (var d in dirs) {
                 var dName = Path.GetFileNameWithoutExtension(d);
                 markSingleAssetName(d, dName, "*");
             }
 
             // 分类资源
-            dirs = Directory.GetDirectories(GetAssetsRoot("CATEGORY"));
+            dirs = Directory.GetDirectories(GetAssetsRoot(DIR_CATEGORY));
             foreach (var d in dirs) {
                 var dName = Path.GetFileNameWithoutExtension(d);
                 foreach (var d2 in Directory.GetDirectories(d)) {
@@ -119,15 +126,12 @@ namespace ZFrame.Asset
             }
 
             // 多资源包
-            dirs = Directory.GetDirectories(GetAssetsRoot("BUNDLE"));
+            dirs = Directory.GetDirectories(GetAssetsRoot(DIR_BUNDLE));
             foreach (var d in dirs) {
                 var dName = Path.GetFileNameWithoutExtension(d);
                 var abName = string.Format("{0}", dName).ToLower();
                 markPackedAssetName(d, abName, "*", SearchOption.AllDirectories);
             }
-
-            // FMOD资源
-            markSingleAssetName(GetAssetsRoot("FMOD"), "fmod", "*");
 
             // 场景依赖
             dirs = Directory.GetDirectories("Assets/Scenes");
@@ -152,6 +156,8 @@ namespace ZFrame.Asset
                 return dir.StartsWith("stage_");
             });
 
+            // FMOD资源
+            markSingleAssetName(GetAssetsRoot("FMOD"), "fmod", "*");
         }
 
         [MenuItem("Assets/资源/删除废弃的资源包")]

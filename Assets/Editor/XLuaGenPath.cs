@@ -5,5 +5,5 @@ using UnityEngine;
 public static class XLuaGenPath
 {
     [CSObjectWrapEditor.GenPath]
-    private static string genPath = "Assets/__SANDBOX/XLuaGen/";
+    public const string genPath = "Assets/__SANDBOX/XLuaGen/";
 }

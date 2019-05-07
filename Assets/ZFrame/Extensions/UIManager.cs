@@ -24,12 +24,7 @@ namespace ZFrame
         [SerializeField] private KeyCode[] m_Keys;
         public event System.Action<KeyCode> onKey;
 
-#if UNITY_EDITOR
-        private float m_fScreenHeight = Screen.height;
-        private float m_fScreenWidth = Screen.width;
-#endif
-        private DeviceOrientation m_CurScreenOrientation;
-        public event System.Action<DeviceOrientation> onScreenOrientationChanged;
+        // private DeviceOrientation m_CurScreenOrientation;
 
         public void UpdateCanvasScale(int width, int height)
         {
@@ -73,11 +68,6 @@ namespace ZFrame
                 wnd.depth = depth;
             }
 
-            var fitSafeScreen = go.GetComponent(typeof(UIFitSafeScreen)) as UIFitSafeScreen;
-            if (fitSafeScreen == null) {
-                fitSafeScreen = go.AddComponent(typeof(UIFitSafeScreen)) as UIFitSafeScreen;
-            }
-
             return go;
         }
 
@@ -100,7 +90,7 @@ namespace ZFrame
             var wndName = Path.GetFileName(prefab.name);
             UIWindow lc = UIWindow.FindByName(wndName);
             if (lc) {
-                var siblingIndex = CalcSiblingIndex(lc, canvasTransform, depth);                
+                var siblingIndex = CalcSiblingIndex(lc, canvasTransform, depth);
                 lc.transform.SetSiblingIndex(siblingIndex);
                 lc.depth = depth;
                 return lc.gameObject;
@@ -149,11 +139,6 @@ namespace ZFrame
         {
             base.Awaking();
 
-            // 测试IphoneX
-            Rect safeArea = Screen.safeArea;
-            //safeArea = new Rect(132, 0, 2172, 1125);
-            UIFitSafeScreen.SetSafeArea(safeArea);
-
             SpriteAtlasManager.atlasRequested += (t, a) => { };
 
             // UpdateCanvasScale(Screen.width, Screen.height);
@@ -163,7 +148,7 @@ namespace ZFrame
         // Use this for initialization
         private void Start()
         {
-            m_CurScreenOrientation = Input.deviceOrientation;
+            //m_CurScreenOrientation = Input.deviceOrientation;
 
             transform.position = m_Origin;
 
@@ -233,23 +218,6 @@ namespace ZFrame
 
         }
 
-        private void LateUpdate()
-        {
-//            if (Input.deviceOrientation != m_CurScreenOrientation
-//#if UNITY_EDITOR
-//            || Screen.height != m_fScreenHeight || Screen.width != m_fScreenWidth
-//#endif
-//            )
-//            {
-//                m_CurScreenOrientation = Input.deviceOrientation;
-//                UIFitSafeScreen.SetSafeArea(Screen.safeArea);
-//                if (onScreenOrientationChanged != null)
-//                {
-//                    onScreenOrientationChanged.Invoke(m_CurScreenOrientation);
-//                }
-//            }
-        }
-
         public void SendKey(KeyCode key)
         {
             if (onKey != null) onKey.Invoke(key);
@@ -289,7 +257,7 @@ namespace ZFrame
 
         public static void UpdateSiblingIndex(UIWindow lc, int depth)
         {
-            var siblingIndex = CalcSiblingIndex(lc, lc.transform.parent, depth);            
+            var siblingIndex = CalcSiblingIndex(lc, lc.transform.parent, depth);
             lc.transform.SetSiblingIndex(siblingIndex);
             lc.depth = depth;
         }

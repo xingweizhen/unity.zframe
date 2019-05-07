@@ -84,7 +84,6 @@ namespace ZFrame
                 .Where(s => s.EndsWith(".mat"))
                 .Select(s => AssetDatabase.LoadAssetAtPath<Material>(s));
 
-            var textProps = new Dictionary<string, Object>();
             foreach (var mat in mats) {
                 if (mat.shader == null) continue;
 

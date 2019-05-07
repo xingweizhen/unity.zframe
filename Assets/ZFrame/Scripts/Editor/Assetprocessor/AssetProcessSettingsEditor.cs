@@ -36,6 +36,17 @@ namespace ZFrame.Asset
             var enumType = self.props.GetType();
             var flags = settings.FindPropertyRelative("flags");
             self.props = (System.Enum)System.Enum.ToObject(enumType, flags.intValue);
+
+            var disableRule = false;
+            var disable = settings.FindPropertyRelative("m_Disable");
+            if (disable != null) {
+                EditorGUI.BeginChangeCheck();
+                disableRule = !EditorGUILayout.Toggle("是否启用规则", !disable.boolValue);
+                if (EditorGUI.EndChangeCheck()) {
+                    disable.boolValue = disableRule;
+                }
+            }
+            EditorGUI.BeginDisabledGroup(disableRule);
             flags.intValue = System.Convert.ToInt32(EditorGUILayout.EnumFlagsField("属性管理", self.props));
 
             EditorGUI.indentLevel++;
@@ -51,6 +62,7 @@ namespace ZFrame.Asset
             }
             EditorGUI.indentLevel--;
 
+            EditorGUI.EndDisabledGroup();
             EditorGUILayout.Separator();            
             var folder = EditorGUILayout.ObjectField("拖入文件夹", null, typeof(DefaultAsset), true);
             string path = folder != null ? AssetDatabase.GetAssetPath(folder) : null;

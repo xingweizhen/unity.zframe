@@ -1041,7 +1041,7 @@ public static class LibUnity
             if (func != null) {
                 var wait = lua.ToSingle(2);
                 var param = lua.ToAnyObject(4);
-                var tag = lua.OptString(5, null);
+                //var tag = lua.OptString(5, null);
                 mono.StartCoroutine(LuaInvoke(mono, func, wait, param));
             } else {
                 LogMgr.W("{0}: function is nil for Invoke", mono);
@@ -1062,7 +1062,7 @@ public static class LibUnity
                 var delay = lua.ToSingle(2);
                 var wait = lua.ToSingle(3);
                 var param = lua.ToAnyObject(5);
-                var tag = lua.OptString(6, null);
+                //var tag = lua.OptString(6, null);
                 mono.StartCoroutine(LuaInvokeRepeating(mono, func, delay, wait, param));
             } else {
                 LogMgr.W("{0}: function is nil for InvokeRepeating", mono);
