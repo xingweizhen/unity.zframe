@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 using ILuaState = System.IntPtr;
+using ZFrame;
 using ZFrame.Asset;
 
 public static class ChunkAPI  

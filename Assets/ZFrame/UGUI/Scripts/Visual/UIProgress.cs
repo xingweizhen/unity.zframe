@@ -192,7 +192,7 @@ namespace ZFrame.UGUI
 
             if (sendCallback) {
                 m_OnValueChanged.Invoke(m_CurrValue);
-                m_ValueChanged.Send(this, Wnd, NoBoxingFloat.Apply(value));
+                m_ValueChanged.Send(this, Wnd, NoBoxingValue<float>.Apply(value));
             }
 
             if (m_FadeBar) {

@@ -142,7 +142,7 @@ namespace ZFrame.UGUI
 
         private void DoValueChanged(float value)
         {
-            m_ValueChanged.Send(this, Wnd, NoBoxingFloat.Apply(value));
+            m_ValueChanged.Send(this, Wnd, NoBoxingValue<float>.Apply(value));
         }
 
         protected override void Awake()

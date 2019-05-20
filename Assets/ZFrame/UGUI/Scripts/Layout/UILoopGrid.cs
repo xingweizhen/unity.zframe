@@ -102,7 +102,7 @@ namespace ZFrame.UGUI
         protected void OnItemUpdate(GameObject go, int index)
         {
             if (onItemUpdate != null) onItemUpdate.Invoke(go, index);
-            m_Event.Send(go.transform, Wnd, NoBoxingInt.Apply(index));
+            m_Event.Send(go.transform, Wnd, NoBoxingValue<int>.Apply(index));
         }
 
         public event System.Action<GameObject, int> onItemUpdate; 

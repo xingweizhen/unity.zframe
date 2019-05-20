@@ -17,6 +17,7 @@ using Assert = ZFrame.Assertions.Assert;
 
 namespace ZFrame.NetEngine
 {
+    using Lua;
     public class NetworkMgr : MonoSingleton<NetworkMgr>
     {
         [SerializeField]

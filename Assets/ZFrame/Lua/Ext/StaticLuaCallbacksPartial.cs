@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using XLua;
+using LuaAPI = XLua.LuaDLL.Lua;
 using ILuaState = System.IntPtr;
 using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 
@@ -43,6 +43,43 @@ namespace XLua
             L.SetMetaTable(1);
             L.PushValue(1);
             return 1;
+        }
+        
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        public static int print(ILuaState L)
+        {
+            try
+            {
+                int n = LuaAPI.lua_gettop(L);
+                string s = System.String.Empty;
+
+                if (0 != LuaAPI.xlua_getglobal(L, "tostring"))
+                {
+                    return LuaAPI.luaL_error(L, "can not get tostring in print:");
+                }
+
+                for (int i = 1; i <= n; i++)
+                {
+                    LuaAPI.lua_pushvalue(L, -1);  /* function to be called */
+                    LuaAPI.lua_pushvalue(L, i);   /* value to print */
+                    if (0 != LuaAPI.lua_pcall(L, 1, 1, 0))
+                    {
+                        return LuaAPI.lua_error(L);
+                    }
+                    s += LuaAPI.lua_tostring(L, -1);
+
+                    if (i != n) s += "\t";
+
+                    LuaAPI.lua_pop(L, 1);  /* pop result */
+                }
+                
+                LogMgr.D("{0}: {1}", L.DebugCurrentLine(2), s);
+                return 0;
+            }
+            catch (System.Exception e)
+            {
+                return LuaAPI.luaL_error(L, "c# exception in print:" + e);
+            }
         }
     }
 }

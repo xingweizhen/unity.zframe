@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace ZFrame
 {
-	public abstract class NoBoxingValue<T> //where T : NoBoxingValue<T, V>, new()
-	{
-		protected NoBoxingValue() {}
-		
+	public abstract class NoBoxingValue<T>
+	{	
 		public static NoBoxingValue<T> Instance;
     
 		protected T m_Value;
@@ -17,26 +15,6 @@ namespace ZFrame
 			Instance.m_Value = value;
 			return Instance;
 		}
-	}
-
-	public class NoBoxingBool : NoBoxingValue<bool>
-	{
-		
-	}
-	
-	public class NoBoxingInt : NoBoxingValue<int>
-	{
-		
-	}
-	
-	public class NoBoxingFloat : NoBoxingValue<float>
-	{
-		
-	}
-	
-	public class NoBoxingVector2 : NoBoxingValue<Vector2>
-	{
-		
 	}
 }
 

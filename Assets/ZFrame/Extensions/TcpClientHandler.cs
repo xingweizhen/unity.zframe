@@ -4,16 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using clientlib.net;
 using NoToLua = XLua.BlackListAttribute;
 
 namespace ZFrame.NetEngine
 {
+    using Lua;
     public class NetMsgHandler
     {
         private readonly List<int> m_IDs = new List<int>();
-        private readonly UnityAction<TcpClientHandler, INetMsg> m_Handler;
-        public NetMsgHandler(UnityAction<TcpClientHandler, INetMsg> handler)
+        private readonly UnityAction<TcpClientHandler, clientlib.net.INetMsg> m_Handler;
+        public NetMsgHandler(UnityAction<TcpClientHandler, clientlib.net.INetMsg> handler)
         {
             m_Handler = handler;
         }
@@ -25,7 +25,7 @@ namespace ZFrame.NetEngine
         {
             m_IDs.Remove(msgId);
         }
-        public bool TryHandle(TcpClientHandler cli, INetMsg nm)
+        public bool TryHandle(TcpClientHandler cli, clientlib.net.INetMsg nm)
         {
             if (m_IDs.Contains(nm.type)) {
                 m_Handler.Invoke(cli, nm);
@@ -44,8 +44,8 @@ namespace ZFrame.NetEngine
         public delegate void DelegateNetMsgHandler(TcpClientHandler tcp, int type, int readSize, int writeSize);
 
         [Description("当前连接")]
-        private NetClient m_NC;
-        private Queue<INetMsg> m_Msgs = new Queue<INetMsg>();
+        private clientlib.net.NetClient m_NC;
+        private Queue<clientlib.net.INetMsg> m_Msgs = new Queue<clientlib.net.INetMsg>();
         private Coroutine m_Coro;
         private IPAddress m_BaseIp;
 
@@ -88,9 +88,9 @@ namespace ZFrame.NetEngine
 
         private void Awake()
         {
-            m_NC = new NetClient(m_Msgs, null, null, Logger);
+            m_NC = new clientlib.net.NetClient(m_Msgs, null, null, Logger);
             autoRecieve = true;
-            UnapckNetMsgs = new System.Action<NetMsg>(_UnapckNetMsgs);
+            UnapckNetMsgs = new System.Action<clientlib.net.NetMsg>(_UnapckNetMsgs);
         }
 
         private void Start()
@@ -201,15 +201,15 @@ namespace ZFrame.NetEngine
             }
         }
 
-        public void Send(INetMsg nm)
+        public void Send(clientlib.net.INetMsg nm)
         {
             if (m_NC != null && m_NC.Connected) {
                 m_NC.send(nm);
             }
         }
 
-        System.Action<NetMsg> UnapckNetMsgs;
-        private void _UnapckNetMsgs(NetMsg nm)
+        System.Action<clientlib.net.NetMsg> UnapckNetMsgs;
+        private void _UnapckNetMsgs(clientlib.net.NetMsg nm)
         {
             LibNetwork.readNm = nm;
             var read = false;

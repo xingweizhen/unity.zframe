@@ -53,7 +53,7 @@ namespace ZFrame.UGUI
 
         private void doValueChanged(int index)
         {
-            m_Event.Send(this, Wnd, NoBoxingInt.Apply(index));
+            m_Event.Send(this, Wnd, NoBoxingValue<int>.Apply(index));
         }
 
         protected override void Awake()

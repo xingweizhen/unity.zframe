@@ -52,7 +52,7 @@ namespace ZFrame.UGUI
 #if UNITY_EDITOR
             if (!Application.isPlaying) return;
 #endif
-            m_Event.Send(this, Wnd, NoBoxingBool.Apply(value));
+            m_Event.Send(this, Wnd, NoBoxingValue<bool>.Apply(value));
         }
         #endregion
 

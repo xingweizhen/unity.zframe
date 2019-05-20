@@ -68,12 +68,12 @@ namespace ZFrame.UGUI
                     var overlap = viewRect.Overlabs(trans, uiCamera);
                     if (overlap != m_ItemList[i].overlap) {
                         m_ItemList[i].overlap = overlap;
-                        m_ChildOverlap.Send(m_ItemList[i].transform, Wnd, NoBoxingBool.Apply(overlap));
+                        m_ChildOverlap.Send(m_ItemList[i].transform, Wnd, NoBoxingValue<bool>.Apply(overlap));
                     }
                     RectTransformUtility.CalculateRelativeRectTransformBounds(viewRect, trans);
                 }
             }
-            m_Event.Send(this, Wnd, NoBoxingVector2.Apply(value));
+            m_Event.Send(this, Wnd, NoBoxingValue<Vector2>.Apply(value));
         }
 
         #endregion
@@ -121,7 +121,7 @@ namespace ZFrame.UGUI
                 var overlap = viewRect.Overlabs((RectTransform)item.transform, uiCamera);
                 if (overlap != item.overlap) {
                     item.overlap = overlap;
-                    m_ChildOverlap.Send(item.transform, Wnd, NoBoxingBool.Apply(overlap));
+                    m_ChildOverlap.Send(item.transform, Wnd, NoBoxingValue<bool>.Apply(overlap));
                 }
             }
         }

@@ -4,12 +4,7 @@ using UnityEngine;
 using ZFrame;
 using ILuaState = System.IntPtr;
 
-//public abstract class Data2Lua<T, V> : NoBoxingValue<T, V>, IDataToLua where T : Data2Lua<T, V>, new()
-//{   
-//    public abstract void Push(ILuaState lua);
-//}
-
-public class BoolToLua : NoBoxingBool, IDataToLua
+public class BoolToLua : NoBoxingValue<bool>, IDataToLua
 {   
     public void Push(ILuaState lua)
     {
@@ -17,7 +12,7 @@ public class BoolToLua : NoBoxingBool, IDataToLua
     }
 }
 
-public class IntToLua : NoBoxingInt, IDataToLua //Data2Lua<IntToLua, int>
+public class IntToLua : NoBoxingValue<int>, IDataToLua
 {   
     public void Push(ILuaState lua)
     {
@@ -25,7 +20,7 @@ public class IntToLua : NoBoxingInt, IDataToLua //Data2Lua<IntToLua, int>
     }
 }
 
-public class FloatToLua : NoBoxingFloat, IDataToLua //Data2Lua<FloatToLua, float>
+public class FloatToLua : NoBoxingValue<float>, IDataToLua
 {
     public void Push(ILuaState lua)
     {
@@ -33,7 +28,7 @@ public class FloatToLua : NoBoxingFloat, IDataToLua //Data2Lua<FloatToLua, float
     }
 }
 
-public class Vector2ToLua : NoBoxingVector2, IDataToLua //Data2Lua<Vector2ToLua, Vector2>
+public class Vector2ToLua : NoBoxingValue<Vector2>, IDataToLua
 {
     public void Push(ILuaState lua)
     {

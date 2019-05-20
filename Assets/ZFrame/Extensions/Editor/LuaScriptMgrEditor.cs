@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-namespace ZFrame
+namespace ZFrame.Lua
 {
     [CustomEditor(typeof(LuaScriptMgr))]
     public class LuaScriptMgrEditor : Editor

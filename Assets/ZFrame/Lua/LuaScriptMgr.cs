@@ -13,7 +13,7 @@ using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 using NameFuncPair = LuaMethod;
 using ILuaState = System.IntPtr;
 
-namespace ZFrame
+namespace ZFrame.Lua
 {
     using Asset;
     public class LuaScriptMgr : MonoSingleton<LuaScriptMgr>
@@ -43,11 +43,10 @@ namespace ZFrame
                     m_Env.AddBuildin(LibNetwork.LIB_NAME, LibNetwork.OpenLib);
                     m_Env.AddBuildin(LibTool.LIB_NAME, LibTool.OpenLib);
                     m_Env.AddBuildin(LibCSharpIO.LIB_NAME, LibCSharpIO.OpenLib);
-                    // m_Env.AddBuildin(LibGame.LIB_NAME, LibGame.OpenLib);
-                    // m_Env.AddBuildin(LibGVoice.LIB_NAME, LibGVoice.OpenLib);
 
                     var L = m_Env.L;
                     L.GetGlobal("_G");
+                    L.SetDict("print", StaticLuaCallbacks.print);
                     L.SetDict("loadfile", StaticLuaCallbacks.loadfile);
                     L.SetDict("dofile", StaticLuaCallbacks.dofile);
                     L.SetDict("lsetmetatable", StaticLuaCallbacks.lsetmetatable);
@@ -77,10 +76,10 @@ namespace ZFrame
                     translator.RegisterPushAndGetAndUpdate(LuaIndexPush.PushX,
                         new ObjectTranslator.GetFunc<Variant>(I2V.ToJsonObj), null);
 
-                    NoBoxingBool.Instance = new BoolToLua();
-                    NoBoxingInt.Instance = new IntToLua();
-                    NoBoxingFloat.Instance = new FloatToLua();
-                    NoBoxingVector2.Instance = new NoBoxingVector2();
+                    NoBoxingValue<bool>.Instance = new BoolToLua();
+                    NoBoxingValue<int>.Instance = new IntToLua();
+                    NoBoxingValue<float>.Instance = new FloatToLua();
+                    NoBoxingValue<Vector2>.Instance = new Vector2ToLua();
                 }
                 return m_Env;
             }
@@ -197,7 +196,7 @@ namespace ZFrame
             var txt = Resources.Load<TextAsset>("luacoding");
             CLZF2.Decrypt(txt.bytes, txt.bytes.Length);
 
-            UIManager.Instance.gameObject.AddComponent<LuaScriptMgr>();
+            UIManager.Instance.gameObject.AddComponent(typeof(LuaScriptMgr));
 
             Application.runInBackground = true;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;

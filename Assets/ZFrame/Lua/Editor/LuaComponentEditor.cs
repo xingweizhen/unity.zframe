@@ -5,58 +5,60 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-[CustomEditor(typeof(LuaComponent), true)]
-public class LuaComponentEditor : ZFrame.UGUI.UIWindowEditor
+namespace ZFrame.Lua
 {
-    private ReorderableList m_MethodList;
-    private SerializedProperty LocalMethods;
-    
-    protected override void OnEnable()
+    [CustomEditor(typeof(LuaComponent), true)]
+    public class LuaComponentEditor : UGUI.UIWindowEditor
     {
-        base.OnEnable();
+        private ReorderableList m_MethodList;
+        private SerializedProperty LocalMethods;
 
-        LocalMethods = serializedObject.FindProperty("LocalMethods");
-        m_MethodList = new ReorderableList(serializedObject, LocalMethods, true, true, true, true) {
-            drawHeaderCallback = DrawHeader,
-            drawElementCallback = DrawElement
-        };
-    }
+        protected override void OnEnable()
+        {
+            base.OnEnable();
 
-    private void DrawHeader(Rect rect)
-    {
-        EditorGUI.LabelField(rect, "Lua脚本实现的函数列表");
-    }
+            LocalMethods = serializedObject.FindProperty("LocalMethods");
+            m_MethodList = new ReorderableList(serializedObject, LocalMethods, true, true, true, true) {
+                drawHeaderCallback = DrawHeader,
+                drawElementCallback = DrawElement
+            };
+        }
 
-    private void DrawElement(Rect rect, int index, bool selected, bool focused)
-    {
-        SerializedProperty element = LocalMethods.GetArrayElementAtIndex(index);
+        private void DrawHeader(Rect rect)
+        {
+            EditorGUI.LabelField(rect, "Lua脚本实现的函数列表");
+        }
 
-        rect.y += 2;
-        rect.height = EditorGUIUtility.singleLineHeight;
-        EditorGUI.PropertyField(rect, element, GUIContent.none);
-    }
+        private void DrawElement(Rect rect, int index, bool selected, bool focused)
+        {
+            SerializedProperty element = LocalMethods.GetArrayElementAtIndex(index);
 
-    public override void OnInspectorGUI()
-	{
-        base.OnInspectorGUI();
-        EditorGUILayout.Separator();
+            rect.y += 2;
+            rect.height = EditorGUIUtility.singleLineHeight;
+            EditorGUI.PropertyField(rect, element, GUIContent.none);
+        }
 
-        var self = (LuaComponent)target;
-
-        EditorGUI.BeginDisabledGroup(Application.isPlaying);
-
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("luaScript"));
-        m_MethodList.DoLayoutList();
-        EditorGUI.EndDisabledGroup();
-
-        serializedObject.ApplyModifiedProperties();
-
-        if (!Application.isPlaying) {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
             EditorGUILayout.Separator();
-            if (GUILayout.Button("生成脚本...", CustomEditorStyles.richTextBtn)) {
-                LuaUIGenerator.ShowWindow();
+
+            var self = (LuaComponent)target;
+
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("luaScript"));
+            m_MethodList.DoLayoutList();
+            EditorGUI.EndDisabledGroup();
+
+            serializedObject.ApplyModifiedProperties();
+
+            if (!Application.isPlaying) {
+                EditorGUILayout.Separator();
+                if (GUILayout.Button("生成脚本...", CustomEditorStyles.richTextBtn)) {
+                    LuaUIGenerator.ShowWindow();
+                }
             }
         }
-	}
+    }
 }
-
