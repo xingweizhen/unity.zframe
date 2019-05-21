@@ -26,7 +26,7 @@ namespace ZFrame.Lua
         public const string F_ON_ASSET_DOWNLOADED = "on_asset_downloaded";
         public const string F_ON_ASSET_DOWNLOADING = "on_asset_downloading";
         public const string S_APP_PERSISTENTDATA_PATH = "app_persistentdata_path";
-        public const string S_APP_STREAMINGASSETS_PATH = "app_streamingassets_Path";
+        public const string S_APP_STREAMINGASSETS_PATH = "app_streamingassets_path";
         public const string B_USING_ASSETBUNDLE = "using_assetbundle";
 
         private LuaTable m_Tb;
