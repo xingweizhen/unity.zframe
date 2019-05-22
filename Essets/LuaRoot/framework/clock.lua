@@ -1,6 +1,6 @@
 --
 -- @file    framework/clock.lua
--- @anthor  xing weizhen (xingweizhen@rongygame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-02-29 11:11:58
 -- @desc    描述
 --

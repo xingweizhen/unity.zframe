@@ -1,6 +1,6 @@
 --
 -- @file    framework/util/math.lua
--- @anthor  xingweizhen (weizhen.xing@funplus.com)
+-- @author  xingweizhen (weizhen.xing@funplus.com)
 -- @date    2018-07-04 18:27:36
 -- @desc    描述
 --

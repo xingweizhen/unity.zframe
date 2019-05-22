@@ -1,6 +1,6 @@
 --
 -- @file    framework/console/battletool.lua
--- @anthor  xing weizhen (xingweizhen@rongygame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2015-12-24 12:06:48
 -- @desc    描述
 --

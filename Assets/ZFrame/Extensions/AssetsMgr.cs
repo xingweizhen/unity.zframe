@@ -61,7 +61,7 @@ namespace ZFrame
 
 #if !UNITY_STANDALONE
 // 要设置的分辨率不能高于原始分辨率
-        if (height > RawResolution.height) return;
+            if (height > RawResolution.height) return;
 #endif
 
             var width = (int)(height * (float)RawResolution.width / RawResolution.height);

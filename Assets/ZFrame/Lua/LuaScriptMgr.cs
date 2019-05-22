@@ -27,63 +27,68 @@ namespace ZFrame.Lua
         public const string S_APP_STREAMINGASSETS_PATH = "app_streamingassets_path";
         public const string B_USING_ASSETBUNDLE = "using_assetbundle";
 
-        private LuaTable m_Tb;
-        private LuaEnv m_Env;
+        protected LuaTable m_Tb;
+        protected LuaEnv m_Env;
         public LuaEnv Env {
             get {
                 if (m_Env == null) {
                     m_Env = new LuaEnv();
-                    m_Env.AddLoader(ChunkAPI.__Loader);
-                    m_Env.AddBuildin(LibUnity.LIB_NAME, LibUnity.OpenLib);
-                    m_Env.AddBuildin(LibAsset.LIB_NAME, LibAsset.OpenLib);
-                    m_Env.AddBuildin(LibUGUI.LIB_NAME, LibUGUI.OpenLib);
-                    m_Env.AddBuildin(LibSystem.LIB_NAME, LibSystem.OpenLib);
-                    m_Env.AddBuildin(LibNetwork.LIB_NAME, LibNetwork.OpenLib);
-                    m_Env.AddBuildin(LibTool.LIB_NAME, LibTool.OpenLib);
-                    m_Env.AddBuildin(LibCSharpIO.LIB_NAME, LibCSharpIO.OpenLib);
-
-                    var L = m_Env.L;
-                    L.GetGlobal("_G");
-                    L.SetDict("print", StaticLuaCallbacks.print);
-                    L.SetDict("loadfile", StaticLuaCallbacks.loadfile);
-                    L.SetDict("dofile", StaticLuaCallbacks.dofile);
-                    L.SetDict("lsetmetatable", StaticLuaCallbacks.lsetmetatable);
-                    L.SetDict("lgetmetatable", StaticLuaCallbacks.lgetmetatable);
-                    L.Pop(1);
-
-                    UnityEngine_Vector2.Wrap(L);
-                    UnityEngine_Vector3.Wrap(L);
-                    UnityEngine_Vector4.Wrap(L);
-                    UnityEngine_Quaternion.Wrap(L);
-                    UnityEngine_Bounds.Wrap(L);
-                    UnityEngine_Color.Wrap(L);
-
-                    var translator = m_Env.translator;
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector2.PushX, 
-                        new ObjectTranslator.GetFunc<Vector2>(I2V.ToVector2), UnityEngine_Vector2.Update);
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector3.PushX, 
-                        new ObjectTranslator.GetFunc<Vector3>(I2V.ToVector3), UnityEngine_Vector3.Update);
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector4.PushX, 
-                        new ObjectTranslator.GetFunc<Vector4>(I2V.ToVector4), UnityEngine_Vector4.Update);
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Color.PushX, 
-                        new ObjectTranslator.GetFunc<Color>(I2V.ToColor), UnityEngine_Color.Update);
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Quaternion.PushX, 
-                        new ObjectTranslator.GetFunc<Quaternion>(I2V.ToQuaternion), UnityEngine_Quaternion.Update);
-                    translator.RegisterPushAndGetAndUpdate(UnityEngine_Bounds.PushX, 
-                        new ObjectTranslator.GetFunc<Bounds>(I2V.ToBounds), UnityEngine_Bounds.Update);
-                    translator.RegisterPushAndGetAndUpdate(LuaIndexPush.PushX,
-                        new ObjectTranslator.GetFunc<Variant>(I2V.ToJsonObj), null);
-
-                    NoBoxingValue<bool>.Instance = new BoolToLua();
-                    NoBoxingValue<int>.Instance = new IntToLua();
-                    NoBoxingValue<float>.Instance = new FloatToLua();
-                    NoBoxingValue<Vector2>.Instance = new Vector2ToLua();
+                    InitLuaEnv();
                 }
                 return m_Env;
             }
         }
         public ILuaState L { get { return Env.L; } }
         public bool IsLua { get { return Env != null; } }
+
+        protected virtual void InitLuaEnv()
+        {
+            m_Env.AddLoader(ChunkAPI.__Loader);
+            m_Env.AddBuildin(LibUnity.LIB_NAME, LibUnity.OpenLib);
+            m_Env.AddBuildin(LibAsset.LIB_NAME, LibAsset.OpenLib);
+            m_Env.AddBuildin(LibUGUI.LIB_NAME, LibUGUI.OpenLib);
+            m_Env.AddBuildin(LibSystem.LIB_NAME, LibSystem.OpenLib);
+            m_Env.AddBuildin(LibNetwork.LIB_NAME, LibNetwork.OpenLib);
+            m_Env.AddBuildin(LibTool.LIB_NAME, LibTool.OpenLib);
+            m_Env.AddBuildin(LibCSharpIO.LIB_NAME, LibCSharpIO.OpenLib);
+
+            var L = m_Env.L;
+            L.GetGlobal("_G");
+            L.SetDict("print", StaticLuaCallbacks.print);
+            L.SetDict("loadfile", StaticLuaCallbacks.loadfile);
+            L.SetDict("dofile", StaticLuaCallbacks.dofile);
+            L.SetDict("lsetmetatable", StaticLuaCallbacks.lsetmetatable);
+            L.SetDict("lgetmetatable", StaticLuaCallbacks.lgetmetatable);
+            L.Pop(1);
+
+            UnityEngine_Vector2.Wrap(L);
+            UnityEngine_Vector3.Wrap(L);
+            UnityEngine_Vector4.Wrap(L);
+            UnityEngine_Quaternion.Wrap(L);
+            UnityEngine_Bounds.Wrap(L);
+            UnityEngine_Color.Wrap(L);
+
+            var translator = m_Env.translator;
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector2.PushX,
+                new ObjectTranslator.GetFunc<Vector2>(I2V.ToVector2), UnityEngine_Vector2.Update);
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector3.PushX,
+                new ObjectTranslator.GetFunc<Vector3>(I2V.ToVector3), UnityEngine_Vector3.Update);
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Vector4.PushX,
+                new ObjectTranslator.GetFunc<Vector4>(I2V.ToVector4), UnityEngine_Vector4.Update);
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Color.PushX,
+                new ObjectTranslator.GetFunc<Color>(I2V.ToColor), UnityEngine_Color.Update);
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Quaternion.PushX,
+                new ObjectTranslator.GetFunc<Quaternion>(I2V.ToQuaternion), UnityEngine_Quaternion.Update);
+            translator.RegisterPushAndGetAndUpdate(UnityEngine_Bounds.PushX,
+                new ObjectTranslator.GetFunc<Bounds>(I2V.ToBounds), UnityEngine_Bounds.Update);
+            translator.RegisterPushAndGetAndUpdate(LuaIndexPush.PushX,
+                new ObjectTranslator.GetFunc<Variant>(I2V.ToJsonObj), null);
+
+            NoBoxingValue<bool>.Instance = new BoolToLua();
+            NoBoxingValue<int>.Instance = new IntToLua();
+            NoBoxingValue<float>.Instance = new FloatToLua();
+            NoBoxingValue<Vector2>.Instance = new Vector2ToLua();
+        }
 
         protected override void Awaking()
         {
@@ -104,7 +109,7 @@ namespace ZFrame.Lua
             m_Tb.CallFunc(0, "on_ui_click", go);
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             // 设定全局参数
             L.GetGlobal("ENV");
@@ -182,22 +187,6 @@ namespace ZFrame.Lua
 #if !UNITY_EDITOR
             //GameSettings.Instance.GetSettings();
 #endif
-        }
-
-        /*************************************************
-         * Prepare Lua Scripts. <IMPORTANT>
-         *************************************************/
-
-        // Lua脚本全部准备就绪
-		public static void OnScriptsFinish()
-        {
-            var txt = Resources.Load<TextAsset>("luacoding");
-            CLZF2.Decrypt(txt.bytes, txt.bytes.Length);
-
-            UIManager.Instance.gameObject.AddComponent(typeof(LuaScriptMgr));
-
-            Application.runInBackground = true;
-            Screen.sleepTimeout = SleepTimeout.NeverSleep;
         }
 
         private static void OnAssetBundleLoaded(string a, object o, object p)

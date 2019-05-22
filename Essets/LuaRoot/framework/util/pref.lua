@@ -1,6 +1,6 @@
 --
 -- @file    framework/util/pref.lua
--- @authors xing weizhen (xingweizhen@firedoggame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2018-05-20 12:58:41
 -- @desc    描述
 --

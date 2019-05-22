@@ -1,6 +1,6 @@
 --
 -- @file    ui/window.lua
--- @anthor  xingweizhen
+-- @author  xingweizhen
 -- @date    2015-04-08 19:19:23
 -- @desc    UI管理库
 --
@@ -95,11 +95,10 @@ local OBJDEF = {
 	libugui = libugui,
 	libasset = libasset,
 	libsystem = libsystem,
-	libgame = libgame,
 	cjson = cjson,
 	ui = ui, UI = UI, AUD = AUD,
 
-	setfenv = setfenv, getfenv = getfenv,
+	--setfenv = setfenv, getfenv = getfenv,
 	assert = assert, error = error,
 	getmetatable = getmetatable, setmetatable = setmetatable,
 	ipairs = ipairs, pairs = pairs,
@@ -120,8 +119,7 @@ local OBJDEF = {
 
 	CS = _G.CS, UE = _G.UE, UGUI = _G.UGUI,
 	DY_DATA = _G.DY_DATA, UI_DATA = _G.UI_DATA, DY_TIMER = _G.DY_TIMER,
-	TEXT = _G.TEXT, GO = _G.GO, SCENE = _G.SCENE, NW = _G.NW,
-	CTRL = _G.PKG["game/ctrl"], CVar = _G.CVar,
+	GO = _G.GO, SCENE = _G.SCENE, NW = _G.NW, CVar = _G.CVar,
 
 	config = _G.config,
 	cfgname = _G.cfgname,
@@ -848,11 +846,14 @@ function ui.seticon(sp, path, clip)
 	end
 end
 
+function ui.setenv(key, value)
+	rawset(OBJDEF, key, value)
+	rawset(_G, key, value)
+end
+
 function ui.setloc(preLang, lang)
 	rawset(_G, "lang", lang)
-	local TEXT = dofile("localize/_text")
-	OBJDEF.TEXT = TEXT
-	rawset(_G, "TEXT", TEXT)
+	ui.setenv("TEXT", dofile("localize/_text"))
 end
 
 return {

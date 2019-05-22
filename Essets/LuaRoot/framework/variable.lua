@@ -1,6 +1,6 @@
 --
 -- @file    framework/variable.lua
--- @anthor  xing weizhen (xingweizhen@rongygame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-02-29 11:11:58
 -- @desc    描述
 --
@@ -94,7 +94,7 @@ do
     _G.config = function (n) return _G.PKG[string.lower("data/parser/"..n)] end
 
     -- UI公共(MessageBox, Toast, Tip, ...)
-    _G.UI = {}
+    _G.UI = { KeyNotify = {}, }
 
 	-- 自定义TWEEN库
 	_G.TWEEN = {}

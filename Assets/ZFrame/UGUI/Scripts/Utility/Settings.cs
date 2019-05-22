@@ -62,7 +62,8 @@ namespace ZFrame.UGUI
         [SerializeField] private float m_LongpressTime = 0.5f;
         public float longpressTime { get { return m_LongpressTime; } }
 
-        [SerializeField] private string m_LocAssetPath;
+        [SerializeField, AssetRef(type: typeof(Localization))]
+        private string m_LocAssetPath;
         public string locAssetPath { get { return m_LocAssetPath; } }
 
         [SerializeField] private string m_DefLang = "cn";

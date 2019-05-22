@@ -1,6 +1,6 @@
 --
 -- @file 	framework/console/datatool.lua
--- @anthor  xing weizhen (xingweizhen@firedoggame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date	2016-05-12 14:31:21
 -- @desc    描述
 --

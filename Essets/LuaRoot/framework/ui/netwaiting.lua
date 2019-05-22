@@ -1,6 +1,6 @@
 --
 -- @file 	ui/_tool/netwaiting.lua
--- @anthor  xing weizhen (xingweizhen@firedoggame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date	2016-10-24 17:09:53
 -- @desc    描述
 --

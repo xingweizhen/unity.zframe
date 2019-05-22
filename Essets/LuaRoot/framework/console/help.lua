@@ -1,6 +1,6 @@
 --
 -- @file 	framework/console/help.lua
--- @anthor  xing weizhen (xingweizhen@firedoggame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date	2016-05-12 14:56:32
 -- @desc    描述
 --

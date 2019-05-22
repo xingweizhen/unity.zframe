@@ -1,6 +1,6 @@
 --
 -- @file    framework/util/class.lua
--- @anthor  xing weizhen (xingweizhen@rongygame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-01-14 13:28:08
 -- @desc    类管理
 --

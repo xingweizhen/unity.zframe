@@ -1,6 +1,6 @@
 --
 -- @file 	framework/ui/monotoast.lua
--- @anthor  xing weizhen (xingweizhen@rongygame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date	2016-03-16 10:19:34
 -- @desc    描述
 --

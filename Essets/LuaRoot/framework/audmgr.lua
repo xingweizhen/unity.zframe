@@ -1,6 +1,6 @@
 --
 -- @file    framework/audmgr.lua
--- @anthor  xingweizhen (weizhen.xing@funplus.com)
+-- @author  xingweizhen (weizhen.xing@funplus.com)
 -- @date    2018-06-02 15:06:46
 -- @desc    描述
 --

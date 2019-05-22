@@ -1,6 +1,6 @@
 --
 -- @file    datamgr/dytimer.lua
--- @anthor  xing weizhen (xingweizhen@firedoggame.com)
+-- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-11-30 15:48:39
 -- @desc    描述
 --

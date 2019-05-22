@@ -155,7 +155,9 @@ namespace ZFrame
             Tween.ZTween.Init();
 
             CLZF2.Decrypt(null, AssetLoader.VER + m_ResHeight);
-            Lua.LuaScriptMgr.OnScriptsFinish();
+            var txt = Resources.Load<TextAsset>("luacoding");
+            CLZF2.Decrypt(txt.bytes, txt.bytes.Length);
+            
 #if XWZ_DEBUG || UNITY_EDITOR || UNITY_STANDALONE
             m_WndRc = new Rect(0, 30, 200, 200);
             //编辑器工具管理类
