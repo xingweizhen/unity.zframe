@@ -15,6 +15,7 @@ namespace ZFrame.Asset
         public const string DIR_BUNDLE = "BUNDLE";
         public const string DIR_OBO = "OBO";
         public const string DIR_CATEGORY = "CATEGORY";
+        public const string DIR_SCENES = "Scenes";
 
         // 资源目录结构
         // RefAssets
@@ -107,57 +108,81 @@ namespace ZFrame.Asset
         [MenuItem("Assets/资源/自动标志资源(AssetBundle Name)")]
         public static void AutoMarkAssetBundle()
         {
-            // 独立资源
-            var dirs = Directory.GetDirectories(GetAssetsRoot(DIR_OBO));
-            foreach (var d in dirs) {
-                var dName = Path.GetFileNameWithoutExtension(d);
-                markSingleAssetName(d, dName, "*");
-            }
-
-            // 分类资源
-            dirs = Directory.GetDirectories(GetAssetsRoot(DIR_CATEGORY));
-            foreach (var d in dirs) {
-                var dName = Path.GetFileNameWithoutExtension(d);
-                foreach (var d2 in Directory.GetDirectories(d)) {
-                    var d2Name = Path.GetFileNameWithoutExtension(d2);
-                    var abName = string.Format("{0}/{1}", dName, d2Name).ToLower();
-                    markPackedAssetName(d2, abName, "*");
+            try {
+                // 独立资源
+                var dirs = Directory.GetDirectories(GetAssetsRoot(DIR_OBO));
+                foreach (var d in dirs) {
+                    var dName = Path.GetFileNameWithoutExtension(d);
+                    markSingleAssetName(d, dName, "*");
                 }
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
             }
 
-            // 多资源包
-            dirs = Directory.GetDirectories(GetAssetsRoot(DIR_BUNDLE));
-            foreach (var d in dirs) {
-                var dName = Path.GetFileNameWithoutExtension(d);
-                var abName = string.Format("{0}", dName).ToLower();
-                markPackedAssetName(d, abName, "*", SearchOption.AllDirectories);
+            try {
+                // 分类资源
+                var dirs = Directory.GetDirectories(GetAssetsRoot(DIR_CATEGORY));
+                foreach (var d in dirs) {
+                    var dName = Path.GetFileNameWithoutExtension(d);
+                    foreach (var d2 in Directory.GetDirectories(d)) {
+                        var d2Name = Path.GetFileNameWithoutExtension(d2);
+                        var abName = string.Format("{0}/{1}", dName, d2Name).ToLower();
+                        markPackedAssetName(d2, abName, "*");
+                    }
+                }
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
             }
 
-            // 场景依赖
-            dirs = Directory.GetDirectories("Assets/Scenes");
-            foreach (var d in dirs) {
-                var subdirs = Directory.GetDirectories(d);
-                var dname = Path.GetFileName(d);
-                if (dname.OrdinalIgnoreCaseStartsWith("stage")) {
-                    foreach (var sd in subdirs) {
-                        var sdname = Path.GetFileName(sd).ToLower();
-                        if (sdname == "prefabs" || sdname == "terrain_tx" || sdname == "textures") {
-                            //markPackedAssetName(sd, "scenes/" + dname, "*");
-                            var ai = AssetImporter.GetAtPath(sd);
-                            if (ai != null) ai.assetBundleName = "scenes/" + dname;
+            try {
+                // 多资源包
+                var dirs = Directory.GetDirectories(GetAssetsRoot(DIR_BUNDLE));
+                foreach (var d in dirs) {
+                    var dName = Path.GetFileNameWithoutExtension(d);
+                    var abName = string.Format("{0}", dName).ToLower();
+                    markPackedAssetName(d, abName, "*", SearchOption.AllDirectories);
+                }
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
+            }
+
+            try {
+                // 场景依赖
+                var dirs = Directory.GetDirectories("Assets/Scenes");
+                foreach (var d in dirs) {
+                    var subdirs = Directory.GetDirectories(d);
+                    var dname = Path.GetFileName(d);
+                    if (dname.OrdinalIgnoreCaseStartsWith("stage")) {
+                        foreach (var sd in subdirs) {
+                            var sdname = Path.GetFileName(sd).ToLower();
+                            if (sdname == "prefabs" || sdname == "terrain_tx" || sdname == "textures") {
+                                //markPackedAssetName(sd, "scenes/" + dname, "*");
+                                var ai = AssetImporter.GetAtPath(sd);
+                                if (ai != null) ai.assetBundleName = "scenes/" + dname;
+                            }
                         }
                     }
                 }
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
             }
 
-            // 战斗场景
-            markSingleAssetName("Assets/Scenes", "scenes", "*.unity", SearchOption.AllDirectories, (path) => {
-                var dir = Path.GetFileName(Path.GetDirectoryName(path));
-                return dir.StartsWith("stage_");
-            });
+            try {
+                // 战斗场景
+                markSingleAssetName("Assets/" + DIR_SCENES, "scenes", "*.unity", SearchOption.AllDirectories, (path) => {
+                    var dir = Path.GetFileName(Path.GetDirectoryName(path));
+                    return dir.StartsWith("stage_");
+                });
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
+            }
 
-            // FMOD资源
-            markSingleAssetName(GetAssetsRoot("FMOD"), "fmod", "*");
+            try {
+                // FMOD资源
+                markSingleAssetName(GetAssetsRoot("FMOD"), "fmod", "*");
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
+            }
         }
 
         [MenuItem("Assets/资源/删除废弃的资源包")]

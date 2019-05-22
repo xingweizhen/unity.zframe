@@ -15,10 +15,11 @@ public static class CallAPI
         return b;
     }
 
-    public static void ExecPCall(this ILuaState self, int nArgs, int nResult, int b)
+    public static bool ExecPCall(this ILuaState self, int nArgs, int nResult, int b)
     {
         if (self.PCall(nArgs, nResult, b) == LuaThreadStatus.LUA_OK) {
             self.Remove(b);
+            return true;
         } else {
             try {
                 var translator = self.ToTranslator();
@@ -26,6 +27,7 @@ public static class CallAPI
             } catch (System.Exception e) {
                 Debug.LogException(e);
             }
+            return false;
         }
     }
 
@@ -34,10 +36,10 @@ public static class CallAPI
     /// </summary>
     /// <param name="self">Lua状态及指针</param>
     /// <param name="nResult">返回值数量.</param>
-    public static void Func(this ILuaState self, int nResult)
+    public static bool Func(this ILuaState self, int nResult)
     {
         var b = self.BeginPCall();
-        self.ExecPCall(0, nResult, b);
+        return self.ExecPCall(0, nResult, b);
     }
 
     /// <summary>
@@ -46,11 +48,11 @@ public static class CallAPI
     /// <param name="self">Lua状态及指针</param>
     /// <param name="nResult">返回值数量.</param>
     /// <param name="arg0">参数1.</param>
-    public static void Func<T>(this ILuaState self, int nResult, T arg0)
+    public static bool Func<T>(this ILuaState self, int nResult, T arg0)
     {
         var b = self.BeginPCall();
         self.PushByType(arg0);
-        self.ExecPCall(1, nResult, b);
+        return self.ExecPCall(1, nResult, b);
     }
 
     /// <summary>
@@ -60,13 +62,13 @@ public static class CallAPI
     /// <param name="nResult">返回值数量.</param>
     /// <param name="arg0">参数1.</param>
     /// <param name="arg1">参数2.</param>
-    public static void Func<T1, T2>(this ILuaState self, int nResult, T1 arg0, T2 arg1)
+    public static bool Func<T1, T2>(this ILuaState self, int nResult, T1 arg0, T2 arg1)
     {
         var translator = self.ToTranslator();
         var b = self.BeginPCall();
         translator.PushByType(self, arg0);
         translator.PushByType(self, arg1);
-        self.ExecPCall(2, nResult, b);
+        return self.ExecPCall(2, nResult, b);
     }
 
     /// <summary>
@@ -77,14 +79,14 @@ public static class CallAPI
     /// <param name="arg0">参数1.</param>
     /// <param name="arg1">参数2.</param>
     /// <param name="arg2">参数3.</param>
-    public static void Func<T1, T2, T3>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2)
+    public static bool Func<T1, T2, T3>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2)
     {
         var translator = self.ToTranslator();
         var b = self.BeginPCall();
         translator.PushByType(self, arg0);
         translator.PushByType(self, arg1);
         translator.PushByType(self, arg2);
-        self.ExecPCall(3, nResult, b);
+        return self.ExecPCall(3, nResult, b);
     }
 
     /// <summary>
@@ -96,7 +98,7 @@ public static class CallAPI
     /// <param name="arg1">参数2.</param>
     /// <param name="arg2">参数3.</param>
     /// <param name="arg3">参数4.</param>
-    public static void Func<T1, T2, T3, T4>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2, T4 arg3)
+    public static bool Func<T1, T2, T3, T4>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2, T4 arg3)
     {
         var translator = self.ToTranslator();
         var b = self.BeginPCall();
@@ -104,7 +106,7 @@ public static class CallAPI
         translator.PushByType(self, arg1);
         translator.PushByType(self, arg2);
         translator.PushByType(self, arg3);
-        self.ExecPCall(4, nResult, b);
+        return self.ExecPCall(4, nResult, b);
     }
 
     /// <summary>
@@ -117,7 +119,7 @@ public static class CallAPI
     /// <param name="arg2">参数3.</param>
     /// <param name="arg3">参数4.</param>
     /// <param name="arg4">参数5.</param>
-    public static void Func<T1, T2, T3, T4, T5>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2, T4 arg3, T5 arg4)
+    public static bool Func<T1, T2, T3, T4, T5>(this ILuaState self, int nResult, T1 arg0, T2 arg1, T3 arg2, T4 arg3, T5 arg4)
     {
         var translator = self.ToTranslator();
         var b = self.BeginPCall();
@@ -126,7 +128,7 @@ public static class CallAPI
         translator.PushByType(self, arg2);
         translator.PushByType(self, arg3);
         translator.PushByType(self, arg4);
-        self.ExecPCall(5, nResult, b);
+        return self.ExecPCall(5, nResult, b);
     }
 
 }

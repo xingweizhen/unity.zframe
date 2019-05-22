@@ -128,7 +128,7 @@ namespace ZFrame
 			if (totalRow == 0) {
 				GUI.Label(rect, "List is Empty");
 			}
-			GUI.BeginGroup(new Rect(0, rect.y + rect.height, rect.width, buttonHeight));
+			GUILayout.BeginArea(new Rect(rect.x, rect.y + rect.height, rect.width, buttonHeight));
 			GUILayout.BeginHorizontal();
 			if (GUILayout.Button("添加")) {
 				if (onInsertItem != null) {
@@ -154,7 +154,7 @@ namespace ZFrame
 			}
 			EditorGUI.EndDisabledGroup();
 			GUILayout.EndHorizontal();
-			GUI.EndGroup();
+			GUILayout.EndArea();
 		}
 
 		protected override void AfterRowsGUI()

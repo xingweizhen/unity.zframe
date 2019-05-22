@@ -8,9 +8,7 @@ using UnityEngine.SceneManagement;
 using LuaInterface;
 #else
 using XLua;
-using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
-using NameFuncPair = LuaMethod;
 using ILuaState = System.IntPtr;
 
 namespace ZFrame.Lua

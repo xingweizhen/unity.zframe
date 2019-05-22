@@ -646,7 +646,8 @@ namespace ZFrame.Tween
 
         public static int Stop(object tarOrTag, bool complete = false)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
+            return 0;
         }
         #endregion
 

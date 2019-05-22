@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Asset
 {
-    [CreateAssetMenu(menuName = "Settings/TextureProcess")]
+    [CreateAssetMenu(menuName = "Settings/TextureProcess", fileName = "TextureProcessSettings")]
     public class TextureProcessSettings : AssetProcessSettings
     {
         [System.Flags]
@@ -17,6 +17,12 @@ namespace ZFrame.Asset
             TextureCompression = 8,
             MipmapEnabled = 16,
             TextureType = 32,
+            WrapMode = 64,
+            FilterMode = 128,
+            NPOTScale = 256,
+            sRGB = 512,
+            AlphaSource = 1024,
+            AlphaIsTransparency = 2048,
         }
 
         [System.Serializable]
@@ -29,6 +35,13 @@ namespace ZFrame.Asset
             public TextureImporterCompression TextureCompression;
             public bool MipmapEnabled;
             public TextureImporterType TextureType;
+            public TextureWrapMode WrapMode;
+            public FilterMode FilterMode;
+            public TextureImporterNPOTScale NPOTScale;
+            public bool sRGB;
+            public TextureImporterAlphaSource AlphaSource;
+            public bool AlphaIsTransparency;
+
             public List<string> folders;
             [SerializeField]
             private bool m_Disable;
@@ -44,6 +57,12 @@ namespace ZFrame.Asset
                     if (ContainsFlag(flags, (int)Prop.TextureCompression)) ti.textureCompression = TextureCompression;
                     if (ContainsFlag(flags, (int)Prop.MipmapEnabled)) ti.mipmapEnabled = MipmapEnabled;
                     if (ContainsFlag(flags, (int)Prop.TextureType)) ti.textureType = TextureType;
+                    if (ContainsFlag(flags, (int)Prop.WrapMode)) ti.wrapMode = WrapMode;
+                    if (ContainsFlag(flags, (int)Prop.FilterMode)) ti.filterMode = FilterMode;
+                    if (ContainsFlag(flags, (int)Prop.NPOTScale)) ti.npotScale = NPOTScale;
+                    if (ContainsFlag(flags, (int)Prop.sRGB)) ti.sRGBTexture = sRGB;
+                    if (ContainsFlag(flags, (int)Prop.AlphaSource)) ti.alphaSource = AlphaSource;
+                    if (ContainsFlag(flags, (int)Prop.AlphaIsTransparency)) ti.alphaIsTransparency = AlphaIsTransparency;
                 }
             }
 

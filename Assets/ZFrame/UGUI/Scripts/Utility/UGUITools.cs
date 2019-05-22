@@ -277,7 +277,9 @@ namespace ZFrame.UGUI
 
         public static void PlayUISfx(string sfxName, string defSfx)
         {
-            AudioManager.Audio.PlayUISfx(sfxName, defSfx);
+            if (AudioManager.Audio != null) {
+                AudioManager.Audio.PlayUISfx(sfxName, defSfx);
+            }
         }
     }
 }

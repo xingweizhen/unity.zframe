@@ -154,16 +154,16 @@ namespace ZFrame
             VersionMgr.Reset();
 
 #if !UNITY_EDITOR
-// 自定义lua代码位置
-        if (File.Exists("lua.txt")) {
-            useLuaAssetBundle = false;
-            var path = File.ReadAllText("lua.txt").Trim();
-            if (!string.IsNullOrEmpty(path)) {
-                ChunkAPI.LuaROOT = path;
+            // 自定义lua代码位置
+            if (File.Exists("lua.txt")) {
+                useLuaAssetBundle = false;
+                var path = File.ReadAllText("lua.txt").Trim();
+                if (!string.IsNullOrEmpty(path)) {
+                    ChunkAPI.LuaROOT = path;
+                }
+            } else {
+                useLuaAssetBundle = true;
             }
-        } else {
-            useLuaAssetBundle = true;
-        }
 #endif
 
 #if UNITY_5_5_OR_NEWER
@@ -179,7 +179,7 @@ namespace ZFrame
 #if UNITY_EDITOR
                 gameObject.AddComponent<AssetsSimulate>();
 #else
-            LogMgr.E("非编辑器模式不支持模拟使用AssetBundle。");
+                LogMgr.E("非编辑器模式不支持模拟使用AssetBundle。");
 #endif
             }
 
@@ -189,7 +189,7 @@ namespace ZFrame
                 refreshRate = Screen.currentResolution.refreshRate
             };
 #else
-        RawResolution = Screen.currentResolution;
+            RawResolution = Screen.currentResolution;
 #endif
             resHeight = 0;
 

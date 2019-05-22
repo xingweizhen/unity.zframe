@@ -50,8 +50,10 @@ namespace ZFrame.Lua
             // Asset Methods
             lua.SetDict("AutoPool", AutoPool);
             lua.SetDict("IsExist", IsExist);
-            lua.SetDict("Load", Load);
+            lua.SetDict("Load", Load);            
             lua.SetDict("LoadAsync", LoadAsync);
+            lua.SetDict("LoadBytes", LoadBytes);
+            //lua.SetDict("LoadBytesAsync", LoadBytesAsync);
             lua.SetDict("BatchLoadAsync", BatchLoadAsync);
             lua.SetDict("Unload", Unload);
             lua.SetDict("StopLoading", StopLoading);
@@ -173,7 +175,7 @@ namespace ZFrame.Lua
             lua.PushLightUserData(AssetLoader.Instance.Load(type, path, warnIfMissing));
             return 1;
         }
-
+        
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int LoadAsync(ILuaState lua)
         {
@@ -226,6 +228,19 @@ namespace ZFrame.Lua
                 }
             }
 
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int LoadBytes(ILuaState lua)
+        {
+            string path = lua.ChkString(1);
+            bool warnIfMissing = lua.OptBoolean(2, true);
+            var data = AssetLoader.Instance.Load(typeof(TextAsset), path, warnIfMissing) as TextAsset;
+            if (data != null) {
+                lua.PushBytes(data.bytes);
+                return 1;
+            }
             return 0;
         }
 

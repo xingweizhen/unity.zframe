@@ -3,9 +3,6 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using ZFrame;
-using ZFrame.UGUI;
-using ZFrame.Asset;
 #if ULUA
 using LuaInterface;
 #else
@@ -14,6 +11,8 @@ using XLua;
 
 namespace ZFrame
 {
+    using UGUI;
+    using Asset;
     public class WNDLoading : MonoSingleton<WNDLoading>, IAssetProgress, IPoolable
     {
         public static string loadedLevelName { get; private set; }
@@ -33,7 +32,7 @@ namespace ZFrame
         {
             var Loader = AssetLoader.Instance;
 
-            sldLoading.value = 0f;
+            if (sldLoading) sldLoading.value = 0f;
             yield return null;
 
             var ignoreList = new List<Transform>() {transform};
@@ -91,7 +90,7 @@ namespace ZFrame
 
         public void SetSliderValue(float value)
         {
-            sldLoading.value = value;
+            if (sldLoading) sldLoading.value = value;
         }
 
         void IAssetProgress.SetProgress(float progress)

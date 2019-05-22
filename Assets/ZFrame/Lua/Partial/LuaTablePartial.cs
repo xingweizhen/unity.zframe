@@ -5,9 +5,13 @@
 #else
 namespace XLua
 {
-    using LuaDLL;
     public partial class LuaTable : LuaBase
     {
+        /// <summary>
+        /// 把该表的字段field的值压栈
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public ILuaState PushField(string field)
         {
             var L = luaEnv.L;
@@ -17,40 +21,40 @@ namespace XLua
             return L;
         }
 
-        public ILuaState CallFunc(int nRet, string field)
+        public bool CallFunc(int nRet, string field)
         {
             var L = PushField(field);
             if (L.IsFunction(-1)) {
-                L.Func(nRet);
+                return L.Func(nRet);
             } else L.Pop(1);
-            return L;
+            return false;
         }
 
-        public ILuaState CallFunc<T>(int nRet, string field, T a)
+        public bool CallFunc<T>(int nRet, string field, T a)
         {
             var L = PushField(field);
             if (L.IsFunction(-1)) {
-                L.Func(nRet, a);
+                return L.Func(nRet, a);
             } else L.Pop(1);
-            return L;
+            return false;
         }
 
-        public ILuaState CallFunc<T1, T2>(int nRet, string field, T1 a, T2 b)
+        public bool CallFunc<T1, T2>(int nRet, string field, T1 a, T2 b)
         {
             var L = PushField(field);
             if (L.IsFunction(-1)) {
-                L.Func(nRet, a, b);
+                return L.Func(nRet, a, b);
             } else L.Pop(1);
-            return L;
+            return false;
         }
 
-        public ILuaState CallFunc<T1, T2, T3>(int nRet, string field, T1 a, T2 b, T3 c)
+        public bool CallFunc<T1, T2, T3>(int nRet, string field, T1 a, T2 b, T3 c)
         {
             var L = PushField(field);
             if (L.IsFunction(-1)) {
-                L.Func(nRet, a, b, c);
+                return L.Func(nRet, a, b, c);
             } else L.Pop(1);
-            return L;
+            return false;
         }
     }
 }

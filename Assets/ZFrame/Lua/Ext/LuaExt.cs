@@ -414,6 +414,15 @@ public static class LuaExt
         LuaDLL.lua_pushstring(self, value);
     }
 
+    public static void PushBytes(this ILuaState self, byte[] bytes)
+    {
+        if (bytes == null) {
+            LuaDLL.lua_pushnil(self);
+        } else {
+            LuaDLL.xlua_pushlstring(self, bytes, bytes.Length);
+        }
+    }
+
     public static void PushNumber(this ILuaState self, double value)
     {
         if (System.Math.Abs(value % 1) < double.Epsilon) {
