@@ -42,11 +42,7 @@ end
 
 local function start()
     local ENV = _G.ENV
-    print (string.format("===[INFO]===\nplatform: %s\ndata: %s\npersistent: %s\nstreaming: %s",
-        tostring(ENV.unity_platform),
-        tostring(ENV.app_data_path),
-        tostring(ENV.app_persistentdata_path),
-        tostring(ENV.app_streamingassets_Path)))
+    print(serpent.block(ENV))
 
     libunity.NewChild("/UIROOT", "Launch/Singleton")
 
