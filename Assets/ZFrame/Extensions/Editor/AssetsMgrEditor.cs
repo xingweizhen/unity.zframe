@@ -4,6 +4,7 @@ using System.Collections;
 
 namespace ZFrame
 {
+	using Asset;
 	[CustomEditor(typeof(AssetsMgr))]
 	public class AssetsMgrEditor : MonoBehaviorEditor
 	{
@@ -22,16 +23,16 @@ namespace ZFrame
 		{
 			base.OnInspectorGUI();
 
-			OnEditorPrefGUI("显示Lua脚本加载顺序", AssetsMgr.kPrintLuaLoading);
+			OnEditorPrefGUI("显示Lua脚本加载顺序", Prefs.kPrintLuaLoading);
 
 			EditorGUI.BeginDisabledGroup(Application.isPlaying);
-			var useLuaAb = OnEditorPrefGUI("使用打包的Lua脚本", AssetsMgr.kUseLuaAssetBundle);
+			var useLuaAb = OnEditorPrefGUI("使用打包的Lua脚本", Prefs.kUseLuaAssetBundle);
 			if (useLuaAb) {
 				EditorGUI.BeginDisabledGroup(true);
 				EditorGUILayout.Toggle("使用打包的资源", true);
 				EditorGUI.EndDisabledGroup();
 			} else {
-				OnEditorPrefGUI("使用打包的资源", AssetsMgr.kUseAssetBundleLoader);
+				OnEditorPrefGUI("使用打包的资源", Prefs.kUseAssetBundleLoader);
 			}
 
 			EditorGUI.EndDisabledGroup();

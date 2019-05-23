@@ -52,4 +52,13 @@ namespace ZFrame.Asset
         void SetProgress(float progress);
         void OnBundleLoaded(string bundleName, AbstractAssetBundleRef bundle);
     }
+
+    public static class Prefs
+    {
+#if UNITY_EDITOR
+        public const string kPrintLuaLoading = "zframe.printLuaLoading";
+        public const string kUseLuaAssetBundle = "zframe.useLuaAssetBundle";
+        public const string kUseAssetBundleLoader = "zframe.useAssetBundleLoader";
+#endif
+    }
 }

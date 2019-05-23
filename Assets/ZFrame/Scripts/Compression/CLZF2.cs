@@ -760,11 +760,16 @@ public static class CLZF2
 		return outputBytes;
 	}
 
+#if ENABLE_CUSTOM_ENCRYPT_API
     [DllImport(IoBuffer.DLL_NAME)]
     extern public static void Encrypt(byte[] bytes, int length);
 
     [DllImport(IoBuffer.DLL_NAME)]
     extern public static void Decrypt(byte[] bytes, int length);
-
+#else
+	public static void Encrypt(byte[] bytes, int length) {}
+	
+	public static void Decrypt(byte[] bytes, int length) {}
+#endif
 }
 

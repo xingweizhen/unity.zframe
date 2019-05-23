@@ -34,6 +34,10 @@ namespace ZFrame.Lua
                 if (m_Env == null) {
                     m_Env = new LuaEnv();
                     InitLuaEnv();
+                    
+                    L.GetGlobal("_G");
+                    SetGlobalVars();
+                    L.Pop(1);
                 }
                 return m_Env;
             }
@@ -51,16 +55,7 @@ namespace ZFrame.Lua
             m_Env.AddBuildin(LibNetwork.LIB_NAME, LibNetwork.OpenLib);
             m_Env.AddBuildin(LibTool.LIB_NAME, LibTool.OpenLib);
             m_Env.AddBuildin(LibCSharpIO.LIB_NAME, LibCSharpIO.OpenLib);
-
-            var L = m_Env.L;
-            L.GetGlobal("_G");
-            L.SetDict("print", StaticLuaCallbacks.print);
-            L.SetDict("loadfile", StaticLuaCallbacks.loadfile);
-            L.SetDict("dofile", StaticLuaCallbacks.dofile);
-            L.SetDict("lsetmetatable", StaticLuaCallbacks.lsetmetatable);
-            L.SetDict("lgetmetatable", StaticLuaCallbacks.lgetmetatable);
-            L.Pop(1);
-
+            
             UnityEngine_Vector2.Wrap(L);
             UnityEngine_Vector3.Wrap(L);
             UnityEngine_Vector4.Wrap(L);
@@ -88,6 +83,15 @@ namespace ZFrame.Lua
             NoBoxingValue<int>.Instance = new IntToLua();
             NoBoxingValue<float>.Instance = new FloatToLua();
             NoBoxingValue<Vector2>.Instance = new Vector2ToLua();
+        }
+
+        protected virtual void SetGlobalVars()
+        {
+            L.SetDict("print", StaticLuaCallbacks.print);
+            L.SetDict("loadfile", StaticLuaCallbacks.loadfile);
+            L.SetDict("dofile", StaticLuaCallbacks.dofile);
+            L.SetDict("lsetmetatable", StaticLuaCallbacks.lsetmetatable);
+            L.SetDict("lgetmetatable", StaticLuaCallbacks.lgetmetatable);
         }
 
         protected override void Awaking()

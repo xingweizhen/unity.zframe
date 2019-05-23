@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.IO;
 using System.Collections;
-using ZFrame.Asset;
 
 namespace ZFrame
 {
+    using Asset;
     public class AssetsMgr : MonoSingleton<AssetsMgr>
     {
         public event System.Action<int, int> onResolutionChanged;
@@ -13,21 +13,16 @@ namespace ZFrame
         private string m_LaunchPrefab;
 
 #if UNITY_EDITOR
-        public const string kPrintLuaLoading = "zframe.printLuaLoading";
-
         public bool printLoadedLuaStack {
-            get { return UnityEditor.EditorPrefs.GetBool(kPrintLuaLoading); }
+            get { return UnityEditor.EditorPrefs.GetBool(Prefs.kPrintLuaLoading); }
         }
-
-        public const string kUseLuaAssetBundle = "zframe.useLuaAssetBundle";
 
         public bool useLuaAssetBundle {
-            get { return UnityEditor.EditorPrefs.GetBool(kUseLuaAssetBundle); }
+            get { return UnityEditor.EditorPrefs.GetBool(Prefs.kUseLuaAssetBundle); }
         }
 
-        public const string kUseAssetBundleLoader = "zframe.useAssetBundleLoader";
         public bool useAssetBundleLoader {
-            get { return useLuaAssetBundle || UnityEditor.EditorPrefs.GetBool(kUseAssetBundleLoader); }
+            get { return useLuaAssetBundle || UnityEditor.EditorPrefs.GetBool(Prefs.kUseAssetBundleLoader); }
         }
 #elif UNITY_STANDALONE
 	public bool printLoadedLuaStack { get { return false; } }
