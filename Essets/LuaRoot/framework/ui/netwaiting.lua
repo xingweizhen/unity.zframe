@@ -68,4 +68,4 @@ function P.is_active()
 	return NetWaiting and libunity.IsEnable(NetWaiting.go, "Canvas")
 end
 
-_G.UI.Waiting = P
+_G.libui.Waiting = P

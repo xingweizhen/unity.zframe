@@ -3,8 +3,7 @@
 -- 消息框用法
 -- 同时只会显示一个消息框，其他的消息框进入队列，当前一个关闭后，弹出下一个。
 
--- local MB = _G.UI.MBox
--- _G.UI.MBox.make("MBNormal")
+-- libui.MBox.make("MBNormal")
 --    :set_param("content", content)
 --    :show()
 
@@ -89,16 +88,6 @@ function OBJDEF.on_btncancel_click()
 end
 
 function OBJDEF.get() return ActivatedBox end
-
-function OBJDEF.make(prefab)
-    if prefab == nil then prefab = "MBNormal" end
-    local self = { prefab = prefab, Params = {} }
-    setmetatable(self, OBJDEF)
-    if ActivatedBox == nil or not ActivatedBox.final then
-        BoxQueue:enqueue(self)
-    end
-    return self
-end
 
 function OBJDEF:set_depth(depth)
     self.depth = depth
@@ -199,9 +188,36 @@ function OBJDEF.is_active(Params)
     return false
 end
 
+setmetatable(OBJDEF, { __call = function (_, prefab)
+    if prefab == nil then prefab = "MBNormal" end
+    local self = { prefab = prefab, Params = {} }
+    setmetatable(self, OBJDEF)
+    if ActivatedBox == nil or not ActivatedBox.final then
+        BoxQueue:enqueue(self)
+    end
+    return self
+end})
+
+function OBJDEF.exception(onCancel)
+    local TEXT = _G.TEXT
+    OBJDEF()
+        :set_param("content", onCancel and TEXT.tipExceptionRetry or TEXT.tipExceptionQuit)
+        :set_param("single", onCancel == nil)
+        :set_param("block", true)
+        :set_param("txtConfirm", TEXT.btnQuit)
+        :set_param("txtCancel", TEXT.btnRetry)
+        :set_event(libunity.AppQuit, onCancel)
+        :as_final():set_depth(100)
+        :show()
+end
+
+-- =======================================
+-- TODO: 下面的方法和业务逻辑有关了，应该移出框架
+-- =======================================
+
 function OBJDEF.legacy(content, onConfirm, cancel, onCancel)
     if cancel == nil then cancel = true end
-    OBJDEF.make("MBNormal")
+    OBJDEF("MBNormal")
         :set_param("content", content)
         :set_param("single", not cancel)
         :set_param("block", not cancel)
@@ -209,7 +225,7 @@ function OBJDEF.legacy(content, onConfirm, cancel, onCancel)
         :show()
 end
 function OBJDEF.general(operateData, Params, onConfirm, onCancel)
-    OBJDEF.make("MBNormal")
+    OBJDEF("MBNormal")
         :set_param("title", operateData.title)
         :set_param("content", operateData.content)
         :set_param("single", operateData.single)
@@ -220,7 +236,7 @@ function OBJDEF.general(operateData, Params, onConfirm, onCancel)
 end
 -- 通用奖励弹窗
 function OBJDEF.reward(title, Rewards, Params, onCancel)
-    OBJDEF.make("WNDReward")
+    OBJDEF("WNDReward")
         :set_instant(true)
         :set_param("title", title)
         :set_param("Rewards", Rewards)
@@ -233,7 +249,7 @@ end
 -- 通用操作询问弹窗
 function OBJDEF.operate(operateType, action, Params, throwBox)
     local OperText = operateType and TEXT.AskOperation[operateType]
-    local Box = OBJDEF.make("MBNormal")
+    local Box = OBJDEF("MBNormal")
     if OperText then
         Box:set_param("title", OperText.title)
            :set_param("content", OperText.content)
@@ -251,7 +267,7 @@ end
 -- 通用操作询问弹窗（底部）
 function OBJDEF.operate_bottom(operateType, onConfirm, onCancel)
     local OperText = TEXT.AskOperation[operateType]
-    return OBJDEF.make("MBBottom")
+    return OBJDEF("MBBottom")
         :set_param("title" , OperText.title)
         :set_param("content", OperText.content)
         :set_param("txtConfirm", OperText.btnConfirm)
@@ -263,7 +279,7 @@ end
 -- 通用操作询问弹窗（带图片）
 function OBJDEF.operate_with_image(operateType, action, Params, throwBox)
 	local OperText = operateType and TEXT.AskOperation[operateType]
-    local Box = OBJDEF.make("MBNormalWithImage")
+    local Box = OBJDEF("MBNormalWithImage")
     if OperText then
         Box:set_param("title", OperText.title)
            :set_param("content", OperText.content)
@@ -281,14 +297,14 @@ function OBJDEF.operate_with_image(operateType, action, Params, throwBox)
 end
 -- 通用商城消费提示弹窗
 function OBJDEF.recharge(Params, onConfirm, onCancel)
-    local MBConsume = OBJDEF.make("MBGiftPackage")
+    local MBConsume = OBJDEF("MBGiftPackage")
             :set_params(Params)
             :set_event(onConfirm, onCancel)
             :show()
 end
 -- 通用获取道具提示弹窗
 function OBJDEF.accept(Params, onConfirm, onCancel)
-    local MBConsume = OBJDEF.make("MBAcceptTips")
+    local MBConsume = OBJDEF("MBAcceptTips")
             :set_params(Params)
             :set_event(onConfirm, onCancel)
             :show()
@@ -316,7 +332,7 @@ function OBJDEF.consume(Cost, consumeType, action, Params, confirmCbf)
         end
         if consumeType then
             local ConsumeText = TEXT.AskConsumption[consumeType]
-            local MBConsume = OBJDEF.make("MBConsume")
+            local MBConsume = OBJDEF("MBConsume")
                 :set_param("title", ConsumeText.title)
                 :set_param("oper", ConsumeText.oper)
                 :set_param("tips", ConsumeText.tips)
@@ -407,27 +423,14 @@ function OBJDEF.buy_normal_alert(itemId, payCompleteCallback)
         return true
     end
 end
---=================================
 
 function OBJDEF.item_received(Items)
     if Items then
-        OBJDEF.make("MBItemReceived")
+        OBJDEF("MBItemReceived")
             :set_param("items", Items)
             :show()
     end
 end
+--=================================
 
-function OBJDEF.exception(onCancel)
-    local TEXT = _G.TEXT
-    OBJDEF.make()
-        :set_param("content", onCancel and TEXT.tipExceptionRetry or TEXT.tipExceptionQuit)
-        :set_param("single", onCancel == nil)
-        :set_param("block", true)
-        :set_param("txtConfirm", TEXT.btnQuit)
-        :set_param("txtCancel", TEXT.btnRetry)
-        :set_event(libunity.AppQuit, onCancel)
-        :as_final():set_depth(100)
-        :show()
-end
-
-_G.UI.MBox = OBJDEF
+_G.libui.MBox = OBJDEF

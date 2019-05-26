@@ -5,7 +5,7 @@
 -- @desc    描述
 --
 
-local libunity = libunity
+local libunity = require "libunity.cs"
 
 -- 定时器类
 local OBJDEF = {}
@@ -210,4 +210,4 @@ function P.clear()
     end
 end
 
-_G.DY_TIMER = P
+return P

@@ -74,18 +74,6 @@ OBJDEF.__eq = function (a, b)
 	return a.style == b.style and a.args == b.args
 end
 
-function OBJDEF.make(style, args, depth, canvas, icon)
-	if style == nil then style = "Norm" end
-    return setmetatable({
-    	args = args,
-    	style = style,
-    	init = InitFunctions[style],
-    	depth = depth or DefDepth[style],
-    	canvas = canvas or DefCanvas[style],
-    	icon = icon,
-    }, OBJDEF)
-end
-
 function OBJDEF:start()
 	local go = ui.create("UI/"..self.style.."Toast", self.depth, self.canvas)
     self.Ref = ui.ref(go)
@@ -131,4 +119,16 @@ function OBJDEF.clear(style)
 	end
 end
 
-_G.UI.MonoToast = OBJDEF
+setmetatable(OBJDEF, { __call = function (_, style, args, depth, canvas, icon)
+    if style == nil then style = "Norm" end
+    return setmetatable({
+    	args = args,
+    	style = style,
+    	init = InitFunctions[style],
+    	depth = depth or DefDepth[style],
+    	canvas = canvas or DefCanvas[style],
+    	icon = icon,
+    }, OBJDEF)
+end})
+
+_G.libui.MonoToast = OBJDEF

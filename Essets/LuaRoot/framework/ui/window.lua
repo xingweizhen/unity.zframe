@@ -35,7 +35,7 @@ local function callhook(k, ...)
 	if f then
 		local status, ret = trycall(f, ...)
 		if status then return ret end
-	end
+	else return true end
 end
 
 local RefDEF = {}
@@ -95,8 +95,12 @@ local OBJDEF = {
 	libugui = libugui,
 	libasset = libasset,
 	libsystem = libsystem,
-	cjson = cjson,
-	ui = ui, UI = UI, AUD = AUD,
+	libdata = libdata,
+	libtimer = libtimer,
+	libscene = libscene,
+	libui = libui, libnet = libnet,
+	ui = ui, cjson = cjson, serpent = serpent,
+	AUD = AUD,
 
 	--setfenv = setfenv, getfenv = getfenv,
 	assert = assert, error = error,
@@ -117,9 +121,7 @@ local OBJDEF = {
 
 	typeof = typeof,
 
-	CS = _G.CS, UE = _G.UE, UGUI = _G.UGUI,
-	DY_DATA = _G.DY_DATA, UI_DATA = _G.UI_DATA, DY_TIMER = _G.DY_TIMER,
-	GO = _G.GO, SCENE = _G.SCENE, NW = _G.NW, CVar = _G.CVar,
+	CS = _G.CS, UE = _G.UE, UGUI = _G.UGUI, GO = _G.GO, CVar = _G.CVar,
 
 	config = _G.config,
 	cfgname = _G.cfgname,

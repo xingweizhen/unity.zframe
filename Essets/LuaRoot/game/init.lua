@@ -17,26 +17,27 @@ UE.QualitySettings.antiAliasing = ENV.debug and 8 or 0
 
 rawset(_G, "TEXT", setmetatable({}, { __index = function(t, k) return k end }))
 
-function UI.KeyNotify.Escape ()
-	print("Escape")
-    -- local TEXT = _G.TEXT
-    -- local Alert = {
-    --     title = UE.Application.productName,
-    --     message = tostring(TEXT.askQuitApp),
-    --     icon = "app_icon",
-    -- }
-    -- DY_DATA.AlertCBF["1"] = function ()
-    --     libunity.AppQuit()
-    -- end
-    --libunity.SendMessage("/UIROOT/Singleton", "AlertMessage", cjson.encode(Alert))
+libui.key_event("Escape", function ()
 	local Params = { title = UE.Application.productName, content = tostring(_G.TEXT.askQuitApp) }
-    local MB = _G.UI.MBox
-    if MB.is_active(Params) then MB.close(); return end
-    if MB.is_queued(Params) then return end
-    MB.make():set_params(Params)
+    local MBox = libui.MBox
+    if MBox.is_active(Params) then MBox.close(); return end
+    if MBox.is_queued(Params) then return end
+
+    MBox():set_params(Params)
         :set_param("block", true)
         :set_event(libunity.AppQuit)
         :show()
-end
+end)
+
+libscene.add_level(0, function ()
+	print("launching cb")
+end, function () return { 
+	{ path = "atlas/Common/", method = "Forever", },
+	{ path = "ui/", method = "Forever", },
+} end)
+
+libscene.add_level("Demo", function ()
+	print("Demo cb")
+end)
 
 -- ui.setenv("libgame", require "libgame.cs")

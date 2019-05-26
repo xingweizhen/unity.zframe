@@ -35,12 +35,12 @@ local function start()
     rawset(_G, "UserSettings", UserSettings)
     if ENV.debug or ENV.development or _G.UserSettings["enable_console"] then
         local CONSOLE = _G.PKG["framework/console/console"]
-        UI.KeyNotify.F1 = CONSOLE.open_console
+        libui.key_event("F1", CONSOLE.open_console)
     end
 end
 
 local function on_key(key)
-    local ntf = UI.KeyNotify[key]
+    local ntf = libui.key_event(key)
     if ntf then ntf() end
 end
 

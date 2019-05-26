@@ -13,7 +13,7 @@ end
 
 function P:connect(host, strPort)
     local port = tonumber(strPort)
-    local NW = MERequire "network/networkmgr"
+    local NW = import "network/networkmgr"
     NW.connect(host, port)
 end
 

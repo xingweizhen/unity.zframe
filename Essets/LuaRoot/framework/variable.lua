@@ -10,7 +10,6 @@ do
     _G.libunity = require "libunity.cs"
     _G.libugui = require "libugui.cs"
     _G.libsystem = require "libsystem.cs"
-    _G.libnetwork = require "libnetwork.cs"
     
     libunity.LogI = function ( ... ) libunity.Log(1, "I", ...) end
     libunity.LogD = function ( ... ) libunity.Log(1, "D", ...) end
@@ -51,15 +50,6 @@ do
         },
     }
 
-    _G.autogen = function (T, mt)
-        T._mt = mt
-        return setmetatable(T, _G.MT.AutoGen)
-    end
-
-    _G.const = function (T)
-        return setmetatable(T, _G.MT.Const)
-    end
-
     _G.UE = CS.UnityEngine
 
     _G.UGUI = CS.ZFrame.UGUI
@@ -74,7 +64,7 @@ do
             return v
         end
     })
-    _G.MERequire = function (path, silent)
+    _G.import = function (path, silent)
         local ret = _G.PKG[path:gsub(".lua$", "")]
         if ret == nil and (not silent) then
             print(string.format("%s not exist!\n%s", path, debug.traceback()))
@@ -93,11 +83,8 @@ do
     -- 获取配置数据
     _G.config = function (n) return _G.PKG[string.lower("data/parser/"..n)] end
 
-    -- UI公共(MessageBox, Toast, Tip, ...)
-    _G.UI = { KeyNotify = {}, }
-
-	-- 自定义TWEEN库
-	_G.TWEEN = {}
+    -- UI库(MessageBox, Toast, Tip, ...)
+    _G.libui = {}
 
     -- JSON库
     _G.cjson = dofile("framework/tinyjson.lua")
@@ -187,10 +174,6 @@ do
         else return Cfg.name end
     end
 
-    -- 包相关
-    _G.g_android_util_pkg_name = "com.rongygame.util"
-    _G.g_current_level_name = ""
-
     -- 其他扩展库
     dofile "framework/util/string"
     dofile "framework/util/table"
@@ -209,14 +192,15 @@ do
     dofile "framework/util/tree"
     dofile "framework/util/pref"
 
-    -- 数据库
-    dofile "framework/datamgr/dydata.lua"
-    dofile "framework/datamgr/dytimer.lua"
+    -- 动态数据管理库
+    _G.libdata = dofile "framework/dydata"
+    -- 定时器库
+    _G.libtimer = dofile "framework/dytimer"
 
     -- 场景管理
-    _G.SCENE = MERequire "framework/scenemgr"
+    _G.libscene = import "framework/scenemgr"
     -- 网络管理
-    _G.NW = MERequire "network/networkmgr"
+    _G.libnet = import "framework/networkmgr"
     _G.next_action = _G.PKG["framework/clock"].add_action
     _G.remove_action = _G.PKG["framework/clock"].remove_action
 
@@ -224,7 +208,8 @@ do
     dofile "framework/audmgr"
 
     -- UI扩展库
-    MERequire "framework/ui/window"
+    import "framework/ui/window"
+    dofile "framework/ui/keyevent"
     dofile "framework/ui/messagebox"
     dofile "framework/ui/toast"
     dofile "framework/ui/monotoast"

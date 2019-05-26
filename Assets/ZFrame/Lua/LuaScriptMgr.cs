@@ -27,6 +27,8 @@ namespace ZFrame.Lua
         public const string S_APP_STREAMINGASSETS_PATH = "app_streamingassets_path";
         public const string B_USING_ASSETBUNDLE = "using_assetbundle";
 
+        private const string LIB_SCENE = "libscene";
+
         protected LuaTable m_Tb;
         protected LuaEnv m_Env;
         public LuaEnv Env {
@@ -140,7 +142,7 @@ namespace ZFrame.Lua
             if (AssetDownload.Instance) {
                 AssetDownload.Instance.onDownloadStart += (bundleName) => {
                     var lua = Instance.L;
-                    lua.GetGlobal("SCENE", F_ON_ASSET_DOWNLOAD_START);
+                    lua.GetGlobal(LIB_SCENE, F_ON_ASSET_DOWNLOAD_START);
                     var b = lua.BeginPCall();
                     lua.PushString(bundleName);
                     lua.ExecPCall(1, 0, b);
@@ -148,7 +150,7 @@ namespace ZFrame.Lua
 
                 AssetDownload.Instance.onDownloadError += (bundleName, error) => {
                     var lua = Instance.L;
-                    lua.GetGlobal("SCENE", F_ON_ASSET_DOWNLOAD_ERROR);
+                    lua.GetGlobal(LIB_SCENE, F_ON_ASSET_DOWNLOAD_ERROR);
                     var b = lua.BeginPCall();
                     lua.PushString(bundleName);
                     lua.PushString(error);
@@ -157,7 +159,7 @@ namespace ZFrame.Lua
 
                 AssetDownload.Instance.onVerifyFailed += (bundleName, md5) => {
                     var lua = Instance.L;
-                    lua.GetGlobal("SCENE", F_ON_ASSET_DOWNLOAD_VERIFY_FAILED);
+                    lua.GetGlobal(LIB_SCENE, F_ON_ASSET_DOWNLOAD_VERIFY_FAILED);
                     var b = lua.BeginPCall();
                     lua.PushString(bundleName);
                     lua.PushString(md5);
@@ -166,7 +168,7 @@ namespace ZFrame.Lua
 
                 AssetDownload.Instance.onDownloaded += (bundleName, siz) => {
                     var lua = Instance.L;
-                    lua.GetGlobal("SCENE", F_ON_ASSET_DOWNLOADED);
+                    lua.GetGlobal(LIB_SCENE, F_ON_ASSET_DOWNLOADED);
                     var b = lua.BeginPCall();
                     lua.PushString(bundleName);
                     lua.PushLong(siz);
@@ -175,7 +177,7 @@ namespace ZFrame.Lua
 
                 AssetDownload.Instance.onDownloading += (bundleName, current, total) => {
                     var lua = Instance.L;
-                    lua.GetGlobal("SCENE", F_ON_ASSET_DOWNLOADING);
+                    lua.GetGlobal(LIB_SCENE, F_ON_ASSET_DOWNLOADING);
                     var b = lua.BeginPCall();
                     lua.PushString(bundleName);
                     lua.PushLong(current);
@@ -195,11 +197,12 @@ namespace ZFrame.Lua
 
         private static void OnAssetBundleLoaded(string a, object o, object p)
         {
-            // Launching Scene Loaded:
-            //   SCENE.on_level_loaded(levelName, launching)
-            //
+            /*
+             * Launching Scene Loaded:
+             *   libscene.on_level_loaded(levelName, launching)
+             */
             var lua = Instance.L;
-            lua.GetGlobal("SCENE", F_ON_LEVEL_LOADED);
+            lua.GetGlobal(LIB_SCENE, F_ON_LEVEL_LOADED);
             var b = lua.BeginPCall();
             lua.PushString(SceneManager.GetActiveScene().name);
             lua.PushBoolean(true);

@@ -39,4 +39,4 @@ function P.clear()
     if P.reset then P:reset() end
 end
 
-_G.DY_DATA = P
+return P

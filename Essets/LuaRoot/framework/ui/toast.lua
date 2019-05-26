@@ -1,9 +1,7 @@
 -- File Name : framework/ui/toast.lua
 
 -- 浮动提示框
-
--- local Toast = _G.UI.Toast
--- Toast.make(nil, "提示框框框"):show()
+-- libui.Toast.make(nil, "提示框框框"):show()
 
 local ToastQueue = {}
 
@@ -98,4 +96,9 @@ end
 --     libugui.DOFade(go, "In")
 -- end
 
-_G.UI.Toast = OBJDEF
+setmetatable(OBJDEF, { __call = function (_, style, args)
+    if style == nil then style = "Norm" end
+    return setmetatable({ args = args, style = style }, OBJDEF)
+end})
+
+_G.libui.Toast = OBJDEF
