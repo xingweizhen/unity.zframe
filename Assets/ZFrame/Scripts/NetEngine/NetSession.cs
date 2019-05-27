@@ -9,7 +9,7 @@ namespace ZFrame.NetEngine
 {
     public class NetSession : INetSession
     {
-        public delegate INetMsg NetMsgCreateFromBuff(byte[] buffer, int index, int length);
+        public delegate INetMsg CreateNetMsgDelegate(byte[] buffer, int index, int length);
 
         public bool connecting { get; private set; }
 
@@ -24,7 +24,7 @@ namespace ZFrame.NetEngine
         public Action<Exception> onException { get; set; }
         public INetMsg msg { get; set; }
 
-        private NetMsgCreateFromBuff m_MsgCreator;
+        private CreateNetMsgDelegate m_MsgCreator;
 
         private INetSessionEvent m_Event;
         private AsyncCallback m_WriteCallback;        
@@ -35,7 +35,7 @@ namespace ZFrame.NetEngine
         private int m_StartPos = 0;
         private int m_EndPos = 0;
 
-        public NetSession(NetMsgCreateFromBuff nmCreator)
+        public NetSession(CreateNetMsgDelegate nmCreator)
         {
             Assert.IsNotNull(nmCreator);
 

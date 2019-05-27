@@ -293,8 +293,8 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int NewNetMsg(ILuaState lua)
         {
-            if (NetworkMgr.NetMsgCreator != null) {
-                writeNm = NetworkMgr.NetMsgCreator.Invoke(lua.ToInteger(1), lua.ToInteger(2));
+            if (NetClient.NetMsgCreator != null) {
+                writeNm = NetClient.NetMsgCreator.Invoke(lua.ToInteger(1), lua.ToInteger(2));
             } else {
                 LogMgr.E("未定义消息包创建器：NetworkMgr.NetMsgCreator == null");
             }

@@ -21,17 +21,7 @@ namespace ZFrame.NetEngine
     using Lua;
 
     public class NetworkMgr : MonoSingleton<NetworkMgr>
-    {
-        /// <summary>
-        /// 创建一个新的网络会话，每次进行连接都需要重新创建
-        /// </summary>
-        public static System.Func<INetSession> SessionCreator;
-
-        /// <summary>
-        /// 创建一个网络消息类，用于写消息
-        /// </summary>
-        public static System.Func<int, int, INetMsg> NetMsgCreator;
-      
+    {      
         // TCP
         private const string F_NC_INIT = "on_nc_init";
         // HTTP

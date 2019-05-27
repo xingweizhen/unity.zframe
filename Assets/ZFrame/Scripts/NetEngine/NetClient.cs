@@ -11,8 +11,18 @@ namespace ZFrame.NetEngine
     /// <summary>
     /// 网络客户端
     /// </summary>
-    public class NetClient : INetClient, INetSessionEvent
+    public class NetClient : INetSessionEvent
     {
+        /// <summary>
+        /// 创建一个新的网络会话，每次进行连接都需要重新创建
+        /// </summary>
+        public static System.Func<INetSession> SessionCreator;
+
+        /// <summary>
+        /// 创建一个网络消息类，用于写消息
+        /// </summary>
+        public static System.Func<int, int, INetMsg> NetMsgCreator;
+
         public delegate void ConnectedHnadler(NetClient client);
         public delegate void DisconnectedHnadler(NetClient client);
 
@@ -75,15 +85,15 @@ namespace ZFrame.NetEngine
         /// <param name="host"></param>
         /// <param name="port"></param>
         /// <param name="addressFamily"></param>
-        public void Connect(string host, int port, INetSession session, AddressFamily addressFamily = AddressFamily.InterNetwork)
+        public void Connect(string host, int port, AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
             if (string.IsNullOrEmpty(host) || port < 1) return;
             mErr = null;
             if (_nowSession != null) {
                 _nowSession.Free();
             }
-
-            _nowSession = session;;
+            
+            _nowSession = SessionCreator.Invoke();
             _nowSession.Connect(host, port, addressFamily, this);
         }
 

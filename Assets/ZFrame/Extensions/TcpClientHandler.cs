@@ -36,10 +36,10 @@ namespace ZFrame.NetEngine
     }
 
     public class TcpClientHandler : MonoBehavior
-    {   
+    {
         [XLua.CSharpCallLua]
         public delegate void TcpClientEvent(TcpClientHandler tcp);
-        
+
         [XLua.CSharpCallLua]
         public delegate void DelegateNetMsgHandler(TcpClientHandler tcp, int type, int readSize, int writeSize);
 
@@ -144,17 +144,17 @@ namespace ZFrame.NetEngine
                     } else {
                         LogMgr.W("GetAddressFamily Failure, ignore ...");
                     }
-                }                
+                }
             }
 
-            if(NetworkMgr.SessionCreator == null) {
-                LogMgr.E("未定义消息包创建器：NetworkMgr.SessionCreator == null");
+            if (NetClient.SessionCreator == null) {
+                LogMgr.E("未定义消息包创建器：NetClient.SessionCreator == null");
                 yield break;
             }
 
             LogMgr.D("Connect -> {0}:{1} (timeout:{2})", host, port, timeout);
-            m_NC.Connect(host, port, NetworkMgr.SessionCreator(), addressFamily);
-            
+            m_NC.Connect(host, port, addressFamily);
+
             timeout += Time.realtimeSinceStartup;
             for (; ; ) {
                 yield return null;
@@ -229,7 +229,7 @@ namespace ZFrame.NetEngine
                 if (!read && messageHandler != null) {
                     UnityEngine.Profiling.Profiler.BeginSample("Unpacking NetMsg");
                     messageHandler.Invoke(this, nm.type, nm.bodySize, nm.size);
-                    UnityEngine.Profiling.Profiler.EndSample();                    
+                    UnityEngine.Profiling.Profiler.EndSample();
                 }
             } catch (System.Exception e) {
                 Debug.LogException(e);
