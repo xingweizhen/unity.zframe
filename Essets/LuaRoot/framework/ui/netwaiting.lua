@@ -39,6 +39,8 @@ function P.show(text, delay, timeout, msg)
 
 	if not activated then
 		go = ui.create("UI/SubNetWaiting", 100)
+		if go == nil then return end
+		
 		if NetWaiting == nil or NetWaiting.go ~= go then
 			NetWaiting = ui.ref(go)
 		end

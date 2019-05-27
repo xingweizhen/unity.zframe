@@ -7,7 +7,7 @@
 
 local libunity = require "libunity.cs"
 local libnetwork = require "libnetwork.cs"
-local MSG = _G.PKG["network/msgdef"]
+local MSG = _G.PKG["framework/msgdef"]
 
 local MAX_RECONNECT = 3
 local CONNECT_TIMEOUT = 10
@@ -15,15 +15,20 @@ local CONNECT_TIMEOUT = 10
 local NmDEF = {}
 NmDEF.__index = NmDEF
 NmDEF.__tostring = function (self)
-    local nmType = self.type
-    return string.format("[%s %d bytes]",
-        MSG.get_msg_name(nmType), math.max(self.readSize, self.writeSize))
+    local nmType, msgName, size = self.type, nil, self.size
+    if self.rsp then
+        msgName = MSG.get_rsp_name(nmType) or ""
+    else
+        msgName = MSG.get_req_name(nmType) or ""
+    end
+    return string.format("[%s#%d %d bytes]", msgName, nmType, size)
 end
 
 function NmDEF:readU32() return libnetwork.ReadU32(self) end
 function NmDEF:readU64() return libnetwork.ReadU64(self) end
 function NmDEF:readFloat() return libnetwork.ReadFloat(self) end
 function NmDEF:readString() return libnetwork.ReadString(self) end
+function NmDEF:readBuffer() return libnetwork.ReadBuffer(self) end
 function NmDEF:readArray(Array, unpacker, ...)
     local n = self:readU32()
     for i=1,n do
@@ -36,6 +41,7 @@ end
 function NmDEF:writeU32(i) libnetwork.WriteU32(self, i); return self end
 function NmDEF:writeU64(l) libnetwork.WriteU64(self, l); return self end
 function NmDEF:writeString(s) libnetwork.WriteString(self, s); return self end
+function NmDEF:writeBuffer(b) libnetwork.WriteBuffer(self, b); return self end
 function NmDEF:writeArray(Array, packer, ...)
     local n = #Array
     self:writeU32(n)
@@ -45,7 +51,7 @@ function NmDEF:writeArray(Array, packer, ...)
     return self
 end
 
-local gnm = setmetatable({ readSize = 0, writeSize = 0 }, NmDEF)
+local gnm = setmetatable({ size = 0 }, NmDEF)
 
 -- 不等待返回的消息列表
 local NoResponse = {}
@@ -69,10 +75,14 @@ local on_tcp_connected, on_tcp_discnnected, on_tcp_recieving
 -- end
 local log = libunity.LogD
 
-local function chk_msg_type(code)
+local function chk_msg_type(code, rsp)
     local id = code
     if type(code) == "string" then
-        id = MSG[code]
+        if rsp then 
+            id = MSG.get_rsp_type(code)
+        else
+            id = MSG.get_req_type(code)
+        end
         if id == nil then
             libunity.LogE("错误的消息ID={0}", code)
             return
@@ -89,7 +99,7 @@ local function callback(self, name, ...)
 end
 
 on_tcp_connected = function (cli)
-    _G.UI.Waiting.hide()
+    libui.Waiting.hide()
     local self = Clients[cli]
     self.nReconnect = nil
     callback(self, "on_connected")
@@ -111,12 +121,13 @@ on_tcp_discnnected = function (cli)
     end
 end
 
-on_tcp_recieving = function (cli, type, readSize, writeSize)
-    gnm.type, gnm.readSize, gnm.writeSize = type, readSize, writeSize
+on_tcp_recieving = function (cli, type, bodySize, size)
+    gnm.rsp = true
+    gnm.type, gnm.bodySize, gnm.size = type, bodySize, size
 
     local id = type
     local self = Clients[cli]
-    local handle = self.Unpackers[id]
+    local handle = self.Unpackers[id] or MSG.unpacker
     local msgName = tostring(gnm)
     if handle then
         -- 静默，不输出日志
@@ -132,7 +143,7 @@ on_tcp_recieving = function (cli, type, readSize, writeSize)
     callback(self, "on_recieving", gnm)
 
     if not IgnoreNmSc[id] then
-        _G.UI.Waiting.hide(id)
+        libui.Waiting.hide(id)
     end
 end
 
@@ -140,12 +151,12 @@ local function do_connect(self, timeout, duration)
     local host, port = self.host, self.port
     self.tcp:Connect(host, port, timeout)
     if not self.background then
-        UI.Waiting.show(_G.TEXT.tipConnecting, 0, duration)
+        libui.Waiting.show(_G.TEXT.tipConnecting, 0, duration)
     end
 end
 
 local function regist_unpacker(Unpackers, code, handler)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, true)
     if id == nil then return end
 
     local cbf = Unpackers[id]
@@ -175,7 +186,7 @@ local function remove_handler(Dispatcher, handler)
 end
 
 local function regist_dispatcher(Dispatchers, code, handler)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, true)
     if id == nil then return end
 
     local hType = type(handler)
@@ -198,7 +209,7 @@ local function regist_dispatcher(Dispatchers, code, handler)
 end
 
 local function unregist_dispatcher(Dispatchers, code, handler)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, true)
     if id == nil then return end
 
     local Dispatcher = Dispatchers[id]
@@ -237,22 +248,24 @@ local OBJS = setmetatable({}, {
     })
 
 function OBJDEF.msg(code, size)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, false)
     if id == nil then return end
 
     libnetwork.NewNetMsg(id, size or 1024)
     gnm.type = id
+    gnm.rsp = false
     return gnm
     -- local NetMsg = CS.clientlib.net.NetMsg
     -- return NetMsg.createMsg(id, size or 1024)
 end
 
 function OBJDEF.gamemsg(code, size)
-   local id = chk_msg_type(code)
+   local id = chk_msg_type(code, false)
     if id == nil then return end
 
     libgame.NewNetMsg(id, size or 1024)
     gnm.type = id
+    gnm.rsp = false
     return gnm
 end
 
@@ -277,24 +290,23 @@ function OBJDEF.unsubscribe_global(code, handler)
 end
 
 function OBJDEF.noresponse(code)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, false)
     if id then NoResponse[id] = true end
 end
 
 function OBJDEF.nolog(code)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, false)
     if id then SilentNmSC[id] = true end
 end
 
 function OBJDEF.norequest(code)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, true)
     if id then IgnoreNmSc[id] = true end
 end
 
 function OBJDEF:initialize()
     if self.tcp == nil then
-        local nwMgr = CS.ZFrame.NetEngine.NetworkMgr.Inst
-        local tcp = nwMgr:GetTcpHandler(self.name)
+        local tcp = libnetwork.GetTcpHandler(self.name)
         tcp.onConnected = on_tcp_connected
         tcp.onDisconnected = on_tcp_discnnected
         tcp.messageHandler = on_tcp_recieving
@@ -335,7 +347,7 @@ end
 
 function OBJDEF:send(nm, msg)
     if nm and self.tcp.IsConnected then
-        nm.writeSize = libnetwork.SendNetMsg(self.tcp, nm)
+        nm.size = libnetwork.SendNetMsg(self.tcp, nm)
 
         local post = NoResponse[nm.type]
         local silent = SilentNmSC[nm.type]
@@ -345,7 +357,7 @@ function OBJDEF:send(nm, msg)
             end
         else
             if not self.background then
-                _G.UI.Waiting.show(nil, nil, nil, chk_msg_type(msg))
+                libui.Waiting.show(nil, nil, nil, chk_msg_type(msg, true))
             end
             if not silent then
                 log("{1} ==> {0}", nm, self)
@@ -412,7 +424,7 @@ end
 
 -- 发布消息
 function OBJDEF:broadcast(code, ...)
-    local id = chk_msg_type(code)
+    local id = chk_msg_type(code, true)
     local Dispatcher = self.Dispatchers[id]
     if Dispatcher then
         -- 自动发布订阅消息

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace clientlib.net
+namespace ZFrame.NetEngine
 {
     public interface INetClient
     {
-        bool send(INetMsg message);
+        bool Send(INetMsg message);
         bool Connected { get; }
     }
 }

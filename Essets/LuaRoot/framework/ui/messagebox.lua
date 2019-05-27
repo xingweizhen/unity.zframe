@@ -326,7 +326,7 @@ function OBJDEF.consume(Cost, consumeType, action, Params, confirmCbf)
                     OBJDEF.buy_energy_alert(Params and Params.payCompleteCallback)
                 elseif not OBJDEF.buy_normal_alert(Cost.dat, Params and Params.payCompleteCallback) then
                     local CostBase = Cost:get_base_data()
-                    _G.UI.Toast.norm(string.format(TEXT.fmtNotEnoughItem, CostBase.name))
+                    libui.Toast.norm(string.format(TEXT.fmtNotEnoughItem, CostBase.name))
                 end
             end
         end
@@ -384,13 +384,13 @@ function OBJDEF.consume_virtual_goods(virtualGoodsId, consumeType, Params, confi
         
         Params.nmmsg = "SHOP.SC.BUY_GOODS"
 		OBJDEF.consume(Cost, consumeType, function ()
-			NW.SHOP.RequestBuyGoods(
+			libnet.SHOP.RequestBuyGoods(
 				Params.shopType, virtualGoodsId)
 		end, Params, confirmCbf)
     else
         -- 已达最大购买次数
         if payUpperLimitText then
-            UI.Toast.norm(payUpperLimitText)
+            libui.Toast.norm(payUpperLimitText)
         end
 	end
 end

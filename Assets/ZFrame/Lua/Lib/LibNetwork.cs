@@ -17,7 +17,7 @@ namespace ZFrame.Lua
     {
         public const string LIB_NAME = "libnetwork.cs";
 
-        public static NetMsg readNm, writeNm;
+        public static INetMsg readNm, writeNm;
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         public static int OpenLib(ILuaState lua)
@@ -29,6 +29,7 @@ namespace ZFrame.Lua
             lua.SetDict("HttpGet", HttpGet);
             lua.SetDict("HttpPost", HttpPost);
             lua.SetDict("HttpDownload", HttpDownload);
+            lua.SetDict("GetTcpHandler", GetTcpHandler);
 
             lua.SetDict("SetParam", SetParam);
 
@@ -36,9 +37,12 @@ namespace ZFrame.Lua
             lua.SetDict("ReadU64", ReadU64);
             lua.SetDict("ReadFloat", ReadFloat);
             lua.SetDict("ReadString", ReadString);
+            lua.SetDict("ReadBuffer", ReadBuffer);
+
             lua.SetDict("WriteU32", WriteU32);
             lua.SetDict("WriteU64", WriteU64);
             lua.SetDict("WriteString", WriteString);
+            lua.SetDict("WriteBuffer", WriteBuffer);
 
             lua.SetDict("NewNetMsg", NewNetMsg);
             lua.SetDict("SendNetMsg", SendNetMsg);
@@ -103,7 +107,7 @@ namespace ZFrame.Lua
             var host = lua.ToString(1);
             string ip = null;
             try {
-                ip = NetSession.RefreshAddressFamily(host);
+                ip = NetClient.RefreshAddressFamily(host);
             } catch (System.Exception e) {
                 LogMgr.W("{0}", e);
             }
@@ -202,6 +206,13 @@ namespace ZFrame.Lua
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int GetTcpHandler(ILuaState lua)
+        {
+            lua.PushLightUserData(NetworkMgr.Instance.GetTcpHandler(lua.ToString(1)));
+            return 1;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int SetParam(ILuaState lua)
         {
             //ExceptionReporter.Instance.SetParam(lua.ToLuaString(1), lua.ToLuaString(2));
@@ -214,21 +225,21 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int ReadU32(ILuaState lua)
         {
-            lua.PushInteger(readNm.readU32());
+            lua.PushInteger(((NetMsg)readNm).readU32());
             return 1;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int ReadU64(ILuaState lua)
         {
-            lua.PushLong(readNm.readU64());
+            lua.PushLong(((NetMsg)readNm).readU64());
             return 1;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int ReadFloat(ILuaState lua)
         {
-            lua.PushNumber(readNm.readFloat());
+            lua.PushNumber(((NetMsg)readNm).readFloat());
             return 1;
         }
 
@@ -236,47 +247,69 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int ReadString(ILuaState lua)
         {
-            lua.PushString(readNm.readString());
+            lua.PushString(((NetMsg)readNm).readString());
+            return 1;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int ReadBuffer(ILuaState lua)
+        {
+            lua.PushBytes(readNm.data, readNm.bodySize);
             return 1;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int WriteU32(ILuaState lua)
         {
-            writeNm.writeU32(lua.ToInteger(2));
+            ((NetMsg)writeNm).writeU32(lua.ToInteger(2));
             return 0;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int WriteU64(ILuaState lua)
         {
-            writeNm.writeU64(lua.ToLong(2));
+            ((NetMsg)writeNm).writeU64(lua.ToLong(2));
             return 0;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int WriteString(ILuaState lua)
         {
-            writeNm.writeString(lua.ToString(2));
+            ((NetMsg)writeNm).writeString(lua.ToString(2));
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int WriteBuffer(ILuaState lua)
+        {
+            int len;
+            var ptr = lua.ToBufferPtr(2, out len);
+            if(ptr != System.IntPtr.Zero) {
+                writeNm.WriteBuffer(ptr, len);
+            }
             return 0;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int NewNetMsg(ILuaState lua)
         {
-            writeNm = NetMsg.createMsg(lua.ToInteger(1), lua.ToInteger(2));
+            if (NetworkMgr.NetMsgCreator != null) {
+                writeNm = NetworkMgr.NetMsgCreator.Invoke(lua.ToInteger(1), lua.ToInteger(2));
+            } else {
+                LogMgr.E("未定义消息包创建器：NetworkMgr.NetMsgCreator == null");
+            }
             return 0;
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int SendNetMsg(ILuaState lua)
         {
-            var writeSize = writeNm.writeSize;
+            var nmSize = writeNm.size;
             var tcp = (TcpClientHandler)lua.ToComponent(1, typeof(TcpClientHandler));
             tcp.Send(writeNm);
             writeNm = null;
 
-            lua.PushInteger(writeSize);
+            lua.PushInteger(nmSize);
             return 1;
         }
 
@@ -293,16 +326,16 @@ namespace ZFrame.Lua
         {
             switch (field) {
                 case MsgField.Int:
-                    lua.PushInteger(readNm.readU32());
+                    lua.PushInteger(((NetMsg)readNm).readU32());
                     break;
                 case MsgField.Long:
-                    lua.PushLong(readNm.readU32());
+                    lua.PushLong(((NetMsg)readNm).readU32());
                     break;
                 case MsgField.Float:
-                    lua.PushNumber(readNm.readFloat());
+                    lua.PushNumber(((NetMsg)readNm).readFloat());
                     break;
                 case MsgField.String:
-                    lua.PushString(readNm.readString());
+                    lua.PushString(((NetMsg)readNm).readString());
                     break;
                 default:
                     UnpackNetMsg(lua, index);
@@ -326,7 +359,7 @@ namespace ZFrame.Lua
                 var field = (MsgField)lua.Type(-1);
 
                 if (arr) {
-                    var n = readNm.readU32();
+                    var n = ((NetMsg)readNm).readU32();
                     lua.CreateTable(n, 0);
                     for (var i = 0; i < n; ++i) {
                         lua.PushInteger(i + 1);

@@ -1,7 +1,7 @@
 --
--- @file 	framework/scenemgr.lua
+-- @file    framework/scenemgr.lua
 -- @author  xing weizhen (kokohna@163.com)
--- @date	2016-02-29 11:11:58
+-- @date    2016-02-29 11:11:58
 -- @desc    描述
 --
 
@@ -63,6 +63,14 @@ function P.on_level_loaded(levelName, launching)
 	else
 		if loadedCbf then loadedCbf() end
 	end
+end
+
+function P.load_level(levelTag, levelPath)
+	local currentLoader = LevelAssetPreloads[levelTag]
+	if currentLoader then
+		libasset.PrepareAssets(currentLoader())
+	end
+	libunity.LoadLevel(levelPath, nil, P.on_level_loaded)
 end
 
 -- 资源下载消息

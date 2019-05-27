@@ -4,14 +4,14 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using ZFrame.NetEngine;
 
 namespace clientlib.net
 {
-    public delegate void NetCallback(NetSession session);
     /// <summary>
     /// Session
     /// </summary>
-    public class NetSession
+    public class NetSession : INetSession
     {
         public static int HEART_BEAT_MSG = 0;
 
@@ -22,18 +22,6 @@ namespace clientlib.net
         [DllImport(IoBuffer.DLL_NAME)]
         private static extern int putHands(byte[] buf, int len);
 
-		public static bool IsIPV6 { get; private set; }
-		public static string RefreshAddressFamily(string host)
-		{
-			var IPs = Dns.GetHostAddresses(host);
-			if (IPs != null && IPs.Length > 0) {
-				IsIPV6 = IPs[0].AddressFamily == AddressFamily.InterNetworkV6;
-				return IPs[0].ToString();
-			}
-
-			return null;
-		}
-
         private const int READ_CON = 0;
         private const int READ_HANDS = 1;
         private const int READ_WAIT = 2;
@@ -43,7 +31,7 @@ namespace clientlib.net
 
         public byte ver;
         public byte sign;
-        public NetMsg msg;
+        public INetMsg msg { get; set; }
 
         private TcpClient _tcp;
         private IoBuffer _headBuf;
@@ -59,10 +47,11 @@ namespace clientlib.net
         private int _nowAction;
         private bool _isHands = false;
 
-        public System.Action<Exception> onException;
+        public System.Action<Exception> onException { get; set; }
 
         public long sendTicks { get; private set; }
-        public int latency;
+        public long recvTicks { get; private set; }
+        public int latency { get; private set; }
 
         public NetSession(){
             _headBuf = new IoBuffer(32);
@@ -71,12 +60,12 @@ namespace clientlib.net
         /// <summary>
         /// 最新的错误信息
         /// </summary>
-        public Exception LastErr
+        public Exception lastError
         {
             get { return _lastErr; }
         }
 
-        public bool isConnected
+        public bool connected
         {
             get
             {
@@ -86,6 +75,11 @@ namespace clientlib.net
 
         public bool connecting { get; private set; }
 
+        public void Connect(string host, int port, AddressFamily addressFamily, INetSessionEvent sessionEvent)
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
         /// 连接到某个网络地址
         /// </summary>
@@ -94,20 +88,18 @@ namespace clientlib.net
         /// <param name="connectFunc"></param>
         /// <param name="readFunc"></param>
         /// <param name="addressFamily"></param>
-        public void Connect(String host, int port, NetCallback connectFunc, NetCallback readFunc, 
-            AddressFamily addressFamily = AddressFamily.InterNetwork)
+        public void Connect(string host, int port, NetCallback connectFunc, NetCallback readFunc,
+        AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
             if (_isFree) throw new Exception("netSession is free!");
-            if (String.IsNullOrEmpty(host) || port < 1)
-            {
+            if (string.IsNullOrEmpty(host) || port < 1) {
                 throw new Exception("error host or port!");
             }
 
             _connectFunc = connectFunc;
             _readFunc = readFunc;
 
-            if (_tcp != null)
-            {
+            if (_tcp != null) {
                 _tcp.Close();
                 _tcp = null;
             }
@@ -129,7 +121,7 @@ namespace clientlib.net
             } catch (Exception ex) {
                 OnException(ex);
             }
-            
+
         }
 
         public void BeginReadMsg()
@@ -176,6 +168,7 @@ namespace clientlib.net
             if (_isFree) return;
             try
             {
+                if (connected) BeginReadMsg();
                 _connectFunc(this);
             }
             catch (Exception ex)
@@ -193,7 +186,7 @@ namespace clientlib.net
             _lastErr = ex;
             if (onException != null) onException.Invoke(ex);
             if (msg != null) {
-                NetMsg.Release(msg);
+                msg.Recycle();
                 msg = null;
             }
 
@@ -237,7 +230,7 @@ namespace clientlib.net
                 case READ_CON:
                     //刚链接
                     _nowAction = READ_HANDS;
-                    AsyncRead(_headBuf, 0, 4);
+                    AsyncRead(_headBuf.array, 0, 4);
                     break;
                 case READ_HANDS:
                     //处理握手协议
@@ -250,7 +243,7 @@ namespace clientlib.net
                 case READ_WAIT:
                     //读取2个字节的版本信息
                     _nowAction = READ_HEAD;
-                    AsyncRead(_headBuf, 0,2);
+                    AsyncRead(_headBuf.array, 0,2);
                     break;
                 case READ_HEAD:
                     //解析版本信息，并读取消息长度
@@ -262,17 +255,24 @@ namespace clientlib.net
                         return;
                     }
                     _nowAction = READ_LEN;
-                    AsyncRead(_headBuf, 0,len);
+                    AsyncRead(_headBuf.array, 0,len);
                     break;
                 case READ_LEN:
                     len = readLen(_headBuf.array,ver);
                     //创建消息
                     msg = NetMsg.createReadMsg(len);
                     _nowAction = READ_BODY;
-                    AsyncRead(msg.buffer, 0, len);
+                    AsyncRead(((NetMsg)msg).buffer.array, 0, len);
                     break;
                 case READ_BODY:
                     //完成消息读取
+                    ((NetMsg)msg).deserialization();
+
+                    // 计算延迟
+                    if (msg.type == HEART_BEAT_MSG) {
+                        recvTicks = DateTime.Now.Ticks;
+                        latency = (int)((recvTicks - sendTicks) / 10000);
+                    }
                     _readFunc(this);                    
                     //开始下一个消息读取
                     DoRead(null);
@@ -287,7 +287,7 @@ namespace clientlib.net
         /// <param name="buffer"></param>
         /// <param name="pos"></param>
         /// <param name="size"></param>
-        private void AsyncRead(IoBuffer buffer, int pos, int size)
+        private void AsyncRead(byte[] buffer, int pos, int size)
         {
             if (_isFree) return;
             _readSize = pos;
@@ -296,7 +296,7 @@ namespace clientlib.net
             try
             {
                 NetworkStream stream = _tcp.GetStream();
-                stream.BeginRead(buffer.array, _readSize, _waitReadSize - _readSize, new AsyncCallback(DoAsyncRead), buffer);
+                stream.BeginRead(buffer, _readSize, _waitReadSize - _readSize, new AsyncCallback(DoAsyncRead), buffer);
             }
             catch (Exception ex)
             {
@@ -308,7 +308,7 @@ namespace clientlib.net
         {
             try
             {
-                IoBuffer buffer = (IoBuffer)ar.AsyncState;
+                var buffer = (byte[])ar.AsyncState;
                 NetworkStream stream = _tcp.GetStream();
                 int len = stream.EndRead(ar);
                 if (len < 1)
@@ -322,7 +322,7 @@ namespace clientlib.net
                 if (_readSize < _waitReadSize)
                 {
                     //不足，需要继续读取
-                    stream.BeginRead(buffer.array, _readSize, _waitReadSize - _readSize, new AsyncCallback(DoAsyncRead), buffer);
+                    stream.BeginRead(buffer, _readSize, _waitReadSize - _readSize, new AsyncCallback(DoAsyncRead), buffer);
                     return;
                 }
                 else if (_readSize > _waitReadSize)
@@ -346,28 +346,29 @@ namespace clientlib.net
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public bool send(INetMsg message)
+        public bool Send(INetMsg msg)
         {
-            if (!isConnected)
+            if (!connected)
             {
                 return false;
             }
-            NetMsg msg = (NetMsg)message;
-            if (msg == null) return false;
+            var nm = msg as NetMsg;
+            if (nm == null) return false;
+
 
             //序列化
-            msg.serialization(sign);
+            nm.serialization(sign);
 
             NetworkStream stream = _tcp.GetStream();
             if (stream.CanWrite)
             {
                 try
                 {
-                    stream.BeginWrite(msg.buffer.array, msg.buffer.position, msg.buffer.limit - msg.buffer.position, new AsyncCallback(AsyncWrite), msg);
+                    stream.BeginWrite(nm.buffer.array, nm.buffer.position, nm.buffer.limit - nm.buffer.position, new AsyncCallback(AsyncWrite), nm);
                 }
                 catch (Exception ex)
                 {
-                    NetMsg.Release(msg);
+                    nm.Recycle();
                     OnException(ex);
                     return false;
                 }
@@ -410,8 +411,8 @@ namespace clientlib.net
                 OnException(ex);
             }
 
-            var msg = ar.AsyncState as NetMsg;
-            if (msg != null) NetMsg.Release(msg);
+            var msg = ar.AsyncState as INetMsg;
+            if (msg != null) msg.Recycle();
         }
 
         public void Free()

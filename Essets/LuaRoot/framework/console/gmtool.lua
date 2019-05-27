@@ -25,13 +25,12 @@ item add 2019 1
 }
 
 local function sc_do_gm_cmd(cmdline)
-   local NW = _G.PKG["network/networkmgr"]
-    if NW.connected() then
-        local nm = NW.msg("COM.CS.EXEC_GM_CMD")
+    if libnet.enabled() then
+        local nm = libnet.msg("COM.CS.EXEC_GM_CMD")
         nm:writeString(cmdline)
-        NW.send(nm)
+        libnet.send(nm)
     else
-        _G.UI.Toast.make(nil, "无网络连接"):show()
+        libui.Toast(nil, "无网络连接"):show()
     end
 end
 
@@ -50,7 +49,7 @@ local function send_gm_command(P, ...)
     end
 end
 
-NW.regist("COM.SC.EXEC_GM_CMD", function (nm)
+libnet.regist("COM.SC.EXEC_GM_CMD", function (nm)
     local ret = nm:readU32()
     if ret ~= 1 then
         local str = nm:readString()

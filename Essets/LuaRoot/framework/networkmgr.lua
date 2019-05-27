@@ -1,9 +1,11 @@
 --
--- @file    network/networkmgr.lua
+-- @file    framework/networkmgr.lua
 -- @author  xing weizhen (kokohna@163.com)
 -- @date    2015-04-17 19:07:04
 -- @desc    网络消息管理
 --
+
+import "framework/msgdef"
 
 local tostring, pairs, table, string
     = tostring, pairs, table, string
@@ -48,20 +50,20 @@ function P.on_nc_receiving(cli, nm)
     
 end
 
-function P.on_www(url, tag, resp, isDone, err)
-    _G.UI.Waiting.hide()
+function P.on_http_response(url, tag, resp, isDone, err)
+    libui.Waiting.hide()
     local cbf = HTTPHandler[tag]
     if err then
-        if not HTTP_Silent[tag] then _G.UI.Toast.norm(_G.TEXT.tipConnectFailure) end
+        if not HTTP_Silent[tag] then libui.Toast.norm(_G.TEXT.tipConnectFailure) end
         libunity.LogW("Http Fail: [{0}:{1}]{2}; {3}", tag, url, resp, err)
     elseif not isDone then
-        if not HTTP_Silent[tag] then _G.UI.Toast.norm(_G.TEXT.tipConnectTimeout) end
+        if not HTTP_Silent[tag] then libui.Toast.norm(_G.TEXT.tipConnectTimeout) end
         libunity.LogW("Http Timeout: [{0}:{1}]{2}", tag, url, resp)
     end
     if cbf then cbf(resp, isDone, err) end
 end
 
-function P.on_download(url, current, total, isDone, err)
+function P.on_http_download(url, current, total, isDone, err)
     if err then libunity.LogW("Download from {0} Error:{1}", url, err) end
 
     local cbf = DownloadCbf[url]
@@ -121,7 +123,7 @@ function P.check_internet(action)
         if action then action() end
     else
         -- 非wifi网络
-        UI.MBox.make()
+        libui.MBox()
             :set_param("content", _G.TEXT.tipAskUpdateViaCarrierDataNetwork)
             :set_event(action)
             :show()

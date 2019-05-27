@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using clientlib.net;
+using System.Net.Sockets;
+//using clientlib.net;
 #if ULUA
 using LuaInterface;
 #else
@@ -18,27 +19,31 @@ using Assert = ZFrame.Assertions.Assert;
 namespace ZFrame.NetEngine
 {
     using Lua;
+
     public class NetworkMgr : MonoSingleton<NetworkMgr>
     {
-        [SerializeField]
-        private string luaScript = null;
+        /// <summary>
+        /// 创建一个新的网络会话，每次进行连接都需要重新创建
+        /// </summary>
+        public static System.Func<INetSession> SessionCreator;
+
+        /// <summary>
+        /// 创建一个网络消息类，用于写消息
+        /// </summary>
+        public static System.Func<int, int, INetMsg> NetMsgCreator;
+      
         // TCP
-        [SerializeField]
-        private string onInit = null;
+        private const string F_NC_INIT = "on_nc_init";
         // HTTP
-        [SerializeField]
-        private string onHttpRes = null, onHttpDownload = null;
+        private const string F_HTTP_RSP = "on_http_response";
+        private const string F_HTTP_DOWNLOAD = "on_http_download";
+
+        private const string luaScript = "framework/networkmgr";
 
         public string knownHost = "www.qq.com";
-        
-        [Description("消息池子")]
-        public string netMsgPool { get { return NetMsg.GetPoolInfo(); } }
                 
-        public static NetworkMgr Inst { get { return Instance; } }
-
         private LuaTable m_Tb;
 
-        [BlackList]
         public static void Log(string fmt, params object[] Args)
         {
             LogMgr.I("[NW] " + fmt, Args);
@@ -47,22 +52,22 @@ namespace ZFrame.NetEngine
 		private void Start()
 		{
             var L = LuaScriptMgr.Instance.L;
-            L.GetGlobal(LuaComponent.PKG, "network/msgdef");
-            NetSession.HEART_BEAT_MSG = (int)L.GetNumber(-1, "COM.CS.KEEP_HEART");
-            L.Pop(1);
+            //L.GetGlobal(LuaComponent.PKG, "network/msgdef");
+            //NetSession.HEART_BEAT_MSG = (int)L.GetNumber(-1, "COM.CS.KEEP_HEART");
+            //L.Pop(1);
 
             L.GetGlobal(LuaComponent.PKG, luaScript);
-            
+
             m_Tb = L.ToLuaTable(-1);
             L.Pop(1);
             Assert.IsNotNull(m_Tb);
-            
-            m_Tb.CallFunc(0, onInit, this);
-		}
+
+            m_Tb.CallFunc(0, F_NC_INIT, this);
+        }
 
         private void OnHttpResponse(string tag, WWW resp, bool isDone, string error)
         {            
-            var lua = m_Tb.PushField(onHttpRes);
+            var lua = m_Tb.PushField(F_HTTP_RSP);
             int errFunc = lua.BeginPCall();
             lua.PushString(resp.url);
             lua.PushString(tag);
@@ -74,7 +79,7 @@ namespace ZFrame.NetEngine
 
         private void OnHttpDownload(string url, bool isDone, HttpRequester httpReq)
         {
-            var lua = m_Tb.PushField(onHttpDownload);
+            var lua = m_Tb.PushField(F_HTTP_DOWNLOAD);
             int errFunc = lua.BeginPCall();
             lua.PushString(url);            
             lua.PushLong(httpReq.current);

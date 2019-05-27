@@ -211,7 +211,8 @@ namespace ZFrame.Asset
 #if UNITY_STANDALONE
             AssetPacker.Log("Coping Essets ...");
             SystemTools.CopyDirectory(Application.dataPath + "/../Essets", productPath + "/Essets");
-            File.Copy(Application.dataPath + "/../user-settings.txt", productPath + "/user-settings.txt");
+            var settingsPath = Application.dataPath + "/../user-settings.txt";
+            if (File.Exists(settingsPath)) File.Copy(settingsPath, productPath + "/user-settings.txt");
 #endif
 
             AssetPacker.Log("Build Done: " + buildPath);

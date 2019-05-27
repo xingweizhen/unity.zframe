@@ -1,5 +1,5 @@
 --
--- @file    framework/datamgr/dydata.lua
+-- @file    framework/dydata.lua
 -- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-02-29 11:11:58
 -- @desc    描述

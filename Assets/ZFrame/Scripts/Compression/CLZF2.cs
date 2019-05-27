@@ -697,7 +697,8 @@ public static class CLZF2
         if (finish != null && !bFail) finish(inFile);
     }
 #endif
-    
+
+#if ENABLE_CUSTOM_ENCRYPT_API
     [DllImport(IoBuffer.DLL_NAME)]
     extern static int LZF_Compress(ref System.IntPtr inbytes, int inLen, ref System.IntPtr outbytes, int outlen);
 	
@@ -760,14 +761,17 @@ public static class CLZF2
 		return outputBytes;
 	}
 
-#if ENABLE_CUSTOM_ENCRYPT_API
     [DllImport(IoBuffer.DLL_NAME)]
     extern public static void Encrypt(byte[] bytes, int length);
 
     [DllImport(IoBuffer.DLL_NAME)]
     extern public static void Decrypt(byte[] bytes, int length);
 #else
-	public static void Encrypt(byte[] bytes, int length) {}
+    public static byte[] DllCompress(byte[] inputBytes) { return inputBytes; }
+
+    public static byte[] DllDecompress(byte[] inputBytes) { return inputBytes; }
+
+    public static void Encrypt(byte[] bytes, int length) {}
 	
 	public static void Decrypt(byte[] bytes, int length) {}
 #endif

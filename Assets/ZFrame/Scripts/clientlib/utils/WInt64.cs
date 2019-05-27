@@ -14,10 +14,18 @@ namespace clientlib.utils
         private static byte[] _ByteV = new byte[BYTE_SIZE];
 
         [System.Security.SecuritySafeCritical]
-        private static unsafe void GetBytes(long value, byte[] bytes)
+        public static unsafe void GetBytes(long value, byte[] bytes)
         {
             fixed (byte* numPtr = bytes) {
                 *(long*)numPtr = value;
+            }
+        }
+
+        [System.Security.SecuritySafeCritical]
+        public static unsafe void GetBytes(ulong value, byte[] bytes)
+        {
+            fixed (byte* numPtr = bytes) {
+                *(ulong*)numPtr = value;
             }
         }
 

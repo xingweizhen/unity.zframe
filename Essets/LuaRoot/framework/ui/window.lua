@@ -155,9 +155,9 @@ end
 
 local function subscribe_wndmsg(Wnd)
 	if Wnd.Handlers then
-		local NW = _G.NW
+		local libnet = _G.libnet
 		for k,v in pairs(Wnd.Handlers) do
-			NW.subscribe(k, v)
+			libnet.subscribe(k, v)
 		end
 	end
 end
@@ -376,21 +376,21 @@ end
 -- 动态订阅消息，只有在窗口有效的情况下生效（本地数据模式忽略此订阅）
 function OBJDEF:subscribe(code, handler, replace)
 	if rawget(self, "Ref") then
-		local NW = _G.NW
-		if NW.connected() then
+		local libnet = _G.libnet
+		if libnet.enabled() then
 			local Handlers = table.need(self, "Handlers")
 			local oldhandler, newhandler = Handlers[code], handler
 			local hType = type(oldhandler)
 			if hType == "function" then
 				-- 表结构
 				if replace then
-					NW.unsubscribe(code, oldhandler)
+					libnet.unsubscribe(code, oldhandler)
 				else
 					newhandler = { oldhandler, handler }
 				end
 			elseif hType == "table" then
 				if replace then
-					NW.unsubscribe(code, oldhandler)
+					libnet.unsubscribe(code, oldhandler)
 				else
 					table.insert(oldhandler, handler)
 					newhandler = oldhandler
@@ -398,7 +398,7 @@ function OBJDEF:subscribe(code, handler, replace)
 			end
 
 			Handlers[code] = newhandler
-			NW.subscribe(code, handler)
+			libnet.subscribe(code, handler)
 		end
 	end
 end
@@ -407,17 +407,17 @@ end
 function OBJDEF:unsubscribe(code)
 	local Handlers = rawget(self, "Handlers")
 	if Handlers then
-		local NW = _G.NW
+		local libnet = _G.libnet
 
 		if code then
 			local handler = Handlers[code]
 			if handler then
-				NW.unsubscribe(code, handler)
+				libnet.unsubscribe(code, handler)
 				Handlers[code] = nil
 			end
 		else
 			for k,v in pairs(Handlers) do
-				NW.unsubscribe(k, v)
+				libnet.unsubscribe(k, v)
 			end
 		end
 	end

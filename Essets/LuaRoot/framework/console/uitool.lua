@@ -27,11 +27,11 @@ function P:capturemode(arg)
 end
 
 function P:open(prefab, depth)
-    ui.open("UI/" .. prefab, tonumber(depth), UI.DebugContexts and UI.DebugContexts[prefab])
+    ui.open("UI/" .. prefab, tonumber(depth), libui.DebugContexts and libui.DebugContexts[prefab])
 end
 
 function P:show(prefab, depth)
-    ui.show("UI/" .. prefab, tonumber(depth), UI.DebugContexts and UI.DebugContexts[prefab])
+    ui.show("UI/" .. prefab, tonumber(depth), libui.DebugContexts and libui.DebugContexts[prefab])
 end
 
 function P:close(name)
@@ -65,26 +65,26 @@ function P:scene(name)
 end
 
 function P:toast(style, text)
-    UI.Toast.make(style, text):show()
+    libui.Toast(style, text):show()
 end
 
 function P:monotoast(style, text)
-    UI.MonoToast.make(style, text):show(0.5)
+    libui.MonoToast(style, text):show(0.5)
 end
 
 function P:mbox(content)
-    UI.MBox.make()
+    libui.MBox()
         :set_param("content", content)
         :show()
 end
 
 function P:mbshow(prefab)
-    local Params = UI.DebugContexts[prefab]
-    UI.MBox.make(prefab):set_params(Params):show()
+    local Params = libui.DebugContexts[prefab]
+    libui.MBox(prefab):set_params(Params):show()
 end
 
 function P:lmtbox(content, mode)
-    local Box = UI.MBox.make("MBTimeLimit")
+    local Box = libui.MBox("MBTimeLimit")
         :set_param("time", 3)
         :set_param("content", content)
         :set_param("mode", mode or "cancel")

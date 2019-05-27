@@ -141,7 +141,7 @@ namespace ZFrame
 
     public class Poolable<T> where T : Poolable<T>, new()
     {
-        private static readonly Pool<T> _Pool = new Pool<T>(t => t.OnGet(), t=> t.OnRelease());
+        protected static readonly Pool<T> _Pool = new Pool<T>(t => t.OnGet(), t=> t.OnRelease());
 
         public static T Get()
         {

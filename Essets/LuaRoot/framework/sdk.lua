@@ -7,10 +7,10 @@ local function on_iap_purchased(Param)
 	local id = tonumber(goods.GoodsID)
 	
 	local data = Param.data
-	local nm = NW.msg("CS_PAY_PRO_ORDER", 10240)
+	local nm = libnet.msg("CS_PAY_PRO_ORDER", 10240)
 	nm:writeU32(id)
 	nm:writeString(data)
-	NW.send(nm)
+	libnet.send(nm)
 
 	-- 热云统计
 	libsystem.ProcessingData(cjson.encode({
@@ -69,7 +69,7 @@ end
 
 local function on_goods_purchased(Param)
 	-- 无论结果如何 关闭屏蔽界面
-	_G.UI.Waiting.hide()
+	libui.Waiting.hide()
 end
 
 local FuncMap = {

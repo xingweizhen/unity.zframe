@@ -414,12 +414,13 @@ public static class LuaExt
         LuaDLL.lua_pushstring(self, value);
     }
 
-    public static void PushBytes(this ILuaState self, byte[] bytes)
+    public static void PushBytes(this ILuaState self, byte[] bytes, int len = -1)
     {
         if (bytes == null) {
             LuaDLL.lua_pushnil(self);
         } else {
-            LuaDLL.xlua_pushlstring(self, bytes, bytes.Length);
+            if (len < 0) len = bytes.Length;
+            LuaDLL.xlua_pushlstring(self, bytes, len);
         }
     }
 
@@ -536,6 +537,36 @@ public static class LuaExt
     public static string ToString(this ILuaState self, int index)
     {
         return LuaDLL.lua_tostring(self, index);
+    }
+
+    public static byte[] ToBytes(this ILuaState self, int index)
+    {
+        return LuaDLL.lua_tobytes(self, index);
+    }
+
+    public static System.IntPtr ToBufferPtr(this ILuaState self, int index, out int len)
+    {
+        len = 0;
+
+        System.IntPtr strlen;
+        var ptr = LuaDLL.lua_tolstring(self, index, out strlen);
+        if (ptr != System.IntPtr.Zero) {
+            len = strlen.ToInt32();
+        }
+        return ptr;
+    }
+
+    public static int ToBuffer(this ILuaState self, int index, byte[] buffer, int startIdx = 0)
+    {
+        System.IntPtr strlen;
+
+        var str = LuaDLL.lua_tolstring(self, index, out strlen);
+        if (str != System.IntPtr.Zero) {
+            int len = System.Math.Min(strlen.ToInt32(), buffer.Length - startIdx);
+            Marshal.Copy(str, buffer, startIdx, len);
+            return len;
+        }
+        return -1;
     }
 
     /// <summary>

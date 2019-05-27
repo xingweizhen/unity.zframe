@@ -12,8 +12,8 @@ namespace ZFrame.NetEngine
     public class NetMsgHandler
     {
         private readonly List<int> m_IDs = new List<int>();
-        private readonly UnityAction<TcpClientHandler, clientlib.net.INetMsg> m_Handler;
-        public NetMsgHandler(UnityAction<TcpClientHandler, clientlib.net.INetMsg> handler)
+        private readonly UnityAction<TcpClientHandler, INetMsg> m_Handler;
+        public NetMsgHandler(UnityAction<TcpClientHandler, INetMsg> handler)
         {
             m_Handler = handler;
         }
@@ -25,7 +25,7 @@ namespace ZFrame.NetEngine
         {
             m_IDs.Remove(msgId);
         }
-        public bool TryHandle(TcpClientHandler cli, clientlib.net.INetMsg nm)
+        public bool TryHandle(TcpClientHandler cli, INetMsg nm)
         {
             if (m_IDs.Contains(nm.type)) {
                 m_Handler.Invoke(cli, nm);
@@ -44,8 +44,8 @@ namespace ZFrame.NetEngine
         public delegate void DelegateNetMsgHandler(TcpClientHandler tcp, int type, int readSize, int writeSize);
 
         [Description("当前连接")]
-        private clientlib.net.NetClient m_NC;
-        private Queue<clientlib.net.INetMsg> m_Msgs = new Queue<clientlib.net.INetMsg>();
+        private NetClient m_NC;
+        private Queue<INetMsg> m_Msgs = new Queue<INetMsg>();
         private Coroutine m_Coro;
         private IPAddress m_BaseIp;
 
@@ -88,9 +88,9 @@ namespace ZFrame.NetEngine
 
         private void Awake()
         {
-            m_NC = new clientlib.net.NetClient(m_Msgs, null, null, Logger);
+            m_NC = new NetClient(m_Msgs, null, null, Logger);
             autoRecieve = true;
-            UnapckNetMsgs = new System.Action<clientlib.net.NetMsg>(_UnapckNetMsgs);
+            UnapckNetMsgs = new System.Action<INetMsg>(_UnapckNetMsgs);
         }
 
         private void Start()
@@ -107,7 +107,7 @@ namespace ZFrame.NetEngine
 
         private void OnDestroy()
         {
-            m_NC.Close();
+            if (m_NC != null) m_NC.Close();
         }
 
         private void OnConnected()
@@ -147,8 +147,13 @@ namespace ZFrame.NetEngine
                 }                
             }
 
+            if(NetworkMgr.SessionCreator == null) {
+                LogMgr.E("未定义消息包创建器：NetworkMgr.SessionCreator == null");
+                yield break;
+            }
+
             LogMgr.D("Connect -> {0}:{1} (timeout:{2})", host, port, timeout);
-            m_NC.Connect(host, port, addressFamily);
+            m_NC.Connect(host, port, NetworkMgr.SessionCreator(), addressFamily);
             
             timeout += Time.realtimeSinceStartup;
             for (; ; ) {
@@ -201,15 +206,15 @@ namespace ZFrame.NetEngine
             }
         }
 
-        public void Send(clientlib.net.INetMsg nm)
+        public void Send(INetMsg nm)
         {
             if (m_NC != null && m_NC.Connected) {
-                m_NC.send(nm);
+                m_NC.Send(nm);
             }
         }
 
-        System.Action<clientlib.net.NetMsg> UnapckNetMsgs;
-        private void _UnapckNetMsgs(clientlib.net.NetMsg nm)
+        System.Action<INetMsg> UnapckNetMsgs;
+        private void _UnapckNetMsgs(INetMsg nm)
         {
             LibNetwork.readNm = nm;
             var read = false;
@@ -223,7 +228,7 @@ namespace ZFrame.NetEngine
 
                 if (!read && messageHandler != null) {
                     UnityEngine.Profiling.Profiler.BeginSample("Unpacking NetMsg");
-                    messageHandler.Invoke(this, nm.type, nm.readSize, nm.writeSize);
+                    messageHandler.Invoke(this, nm.type, nm.bodySize, nm.size);
                     UnityEngine.Profiling.Profiler.EndSample();                    
                 }
             } catch (System.Exception e) {

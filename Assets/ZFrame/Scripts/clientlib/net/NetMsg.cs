@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using ZFrame.NetEngine;
 
 namespace clientlib.net
 {
@@ -16,7 +17,7 @@ namespace clientlib.net
         public static extern int getVer();
 
         [DllImport(IoBuffer.DLL_NAME)]
-        private static extern int putHead(byte[] buf,byte sign, int len, int flag);
+        private static extern int putHead(byte[] buf, byte sign, int len, int flag);
 
         private static int sendNum = new Random().Next(256);
 
@@ -34,7 +35,7 @@ namespace clientlib.net
                 foreach (var elm in m_Pool) {
                     if (ReferenceEquals(elm, nm)) {
                         UnityEngine.Debug.LogErrorFormat(
-                            "Internal error. Trying to destroy {0}({1}) that is already released to pool.", 
+                            "Internal error. Trying to destroy {0}({1}) that is already released to pool.",
                             nm, nm.GetHashCode());
                     }
                 }
@@ -108,8 +109,8 @@ namespace clientlib.net
         /// 读取消息长度，临时变量
         /// </summary>
         public int msgSize;
-        public int readSize { get { return msgSize; } }
-        public short writeSize { get { return (short)_buffer.position; } }
+        public int bodySize { get { return msgSize; } }
+        public int size { get { return _buffer.position; } }
 
         private int _type;
         private IoBuffer _buffer;
@@ -160,7 +161,7 @@ namespace clientlib.net
         {
             _buffer.position = 0;
             if (type > 0) {
-                _type = type;                
+                _type = type;
             }
             writeU32(_type);
         }
@@ -173,19 +174,17 @@ namespace clientlib.net
             _buffer.flip();
 
             int len = _buffer.limit - HEAD_SIZE;
-            int offset = putHead(_buffer.array,sign, len, sendNum++);
-            if (offset > 0)
-            {
+            int offset = putHead(_buffer.array, sign, len, sendNum++);
+            if (offset > 0) {
                 _buffer.position = offset;
             }
         }
 
-        public int type { 
-            get{
+        public int type {
+            get {
                 return _type;
             }
-            set
-            {
+            set {
                 _type = value;
             }
         }
@@ -202,22 +201,20 @@ namespace clientlib.net
         public int[] readU32s()
         {
             int n = _buffer.readU32();
-            if(n<1)return new int[0];
+            if (n < 1) return new int[0];
             int[] ret = new int[n];
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 ret[i] = _buffer.readU32();
             }
             return ret;
         }
-        
+
         public long[] readU64s()
         {
             int n = _buffer.readU32();
             if (n < 1) return new long[0];
             long[] ret = new long[n];
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 ret[i] = _buffer.readU64();
             }
             return ret;
@@ -243,7 +240,7 @@ namespace clientlib.net
             return _buffer.readString();
         }
 
-        public T readParser<T>() where T : INetMsgParser,new()
+        public T readParser<T>() where T : INetMsgParser, new()
         {
             T t = new T();
             t.parseMsg(this);
@@ -253,8 +250,7 @@ namespace clientlib.net
         {
             int n = this.readU32();
             T[] ret = (T[])Array.CreateInstance(typeof(T), n);
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 ret[i] = new T();
                 ret[i].parseMsg(this);
             }
@@ -269,14 +265,12 @@ namespace clientlib.net
 
         public INetMsg writeFuller(INetMsgFuller[] fuller)
         {
-            if (fuller == null || fuller.Length < 1)
-            {
+            if (fuller == null || fuller.Length < 1) {
                 this.writeU32(0);
                 return this;
             }
             this.writeU32(fuller.Length);
-            foreach (INetMsgFuller f in fuller)
-            {
+            foreach (INetMsgFuller f in fuller) {
                 f.fullMsg(this);
             }
             return this;
@@ -305,20 +299,31 @@ namespace clientlib.net
             _buffer.writeU64(value);
             return this;
         }
-        
+
         public INetMsg writeString(String value)
         {
             _buffer.writeString(value);
             return this;
         }
 
-        public IoBuffer buffer
+        public INetMsg WriteBuffer(byte[] buffer, int offset, int length)
         {
-            get{
+            _buffer.write(buffer, offset, length);
+            return this;
+        }
+
+        public INetMsg WriteBuffer(System.IntPtr ptr, int length)
+        {
+
+            return this;
+        }
+
+        public IoBuffer buffer {
+            get {
                 return _buffer;
             }
         }
-
+        
         public int limit
         {
             get
@@ -335,5 +340,30 @@ namespace clientlib.net
                 return _buffer.position;
             }
         }
+
+
+        public byte[] data { get { return buffer.array; } }
+        void INetMsg.Serialize()
+        {
+
+        }
+        void INetMsg.Deserialize()
+        {
+
+        }
+        int INetMsg.ReadBuffer(byte[] buffer, int offset, int length)
+        {
+            throw new System.NotImplementedException();
+        }
+        bool INetMsg.IsComplete()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Recycle()
+        {
+            Release(this);
+        }
+
     }
 }

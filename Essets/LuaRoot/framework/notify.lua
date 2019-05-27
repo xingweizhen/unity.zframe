@@ -61,12 +61,12 @@ local function send_pause_switch(paused)
 	if paused then
 		pausedTime = UE.Time.realtimeSinceStartup
 	elseif (pausedTime + 60) < UE.Time.realtimeSinceStartup then
-		NW.disconnect(nil, true)
+		libnet.disconnect(nil, true)
 		return
 	end
-	local nm = NW.msg("LOGIN.CS.SWITCH_NOHUP")
+	local nm = libnet.msg("LOGIN.CS.SWITCH_NOHUP")
 	nm:writeU32(paused and 1 or 2)
-	NW.MainCli:send(nm)
+	libnet.MainCli:send(nm)
 end
 
 local function on_app_pause(paused)
@@ -77,8 +77,8 @@ local function on_app_pause(paused)
 		register_push_notification()
 		if isShowAIHelp then
 			-- 如是切到AIHelp，则只发送LOGIN.CS.SUSPEND_HEARTBEAT
-			local nm = NW.msg("LOGIN.CS.SUSPEND_HEARTBEAT")
-			NW.send(nm)
+			local nm = libnet.msg("LOGIN.CS.SUSPEND_HEARTBEAT")
+			libnet.send(nm)
 			return
 		end
 	else
@@ -86,7 +86,7 @@ local function on_app_pause(paused)
 		if isShowAIHelp then
 			_G.SDK_KG.isShowAIHelp = nil
 			_G.SDK_KG.bAiHelpAlert = nil
-			NW.broadcast("CLIENT.SC.SDK_AIHELP_ALERT")
+			libnet.broadcast("CLIENT.SC.SDK_AIHELP_ALERT")
 		end
 
 		_G.SDK_KG.CleanAllNotificaiton()

@@ -1,5 +1,5 @@
 --
--- @file    datamgr/dytimer.lua
+-- @file    framework/dytimer.lua
 -- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-11-30 15:48:39
 -- @desc    描述

@@ -353,8 +353,10 @@ public class ObjectPoolManager : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach (var inst in instance2pool.Keys) {
-            Destroy(inst);
+        if (instance2pool != null) {
+            foreach (var inst in instance2pool.Keys) {
+                Destroy(inst);
+            }
         }
     }
 

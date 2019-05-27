@@ -44,9 +44,8 @@ public static class WrapDefines
                 typeof(UnityEngine.QualitySettings),
                                     
                 // network
-                typeof(ZFrame.NetEngine.NetworkMgr),
                 typeof(ZFrame.NetEngine.TcpClientHandler),
-                typeof(clientlib.net.NetMsg),
+                //typeof(clientlib.net.NetMsg),
 
                 typeof(GTime),
             
@@ -113,11 +112,13 @@ public static class WrapDefines
 
     [BlackList]
     public static List<List<string>> BlackList = new List<List<string>>() {
+        
         new List<string>() { "UnityEngine.MonoBehaviour", "runInEditMode" },
         new List<string>() { "UnityEngine.Texture", "imageContentsHash" },
         new List<string>() { "UnityEngine.UI.Graphic", "OnRebuildRequested" },
         new List<string>() { "UnityEngine.WWW", "GetMovieTexture" },
-        
+        new List<string>() { "UnityEngine.QualitySettings", "streamingMipmapsRenderersPerFrame" },
+
         new List<string>() { "ZFrame.UGUI.UIButton", "OnPointerClick", "UnityEngine.EventSystems.PointerEventData" },
         new List<string>() { "ZFrame.UGUI.UIButton", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         

@@ -18,7 +18,7 @@ UE.QualitySettings.antiAliasing = ENV.debug and 8 or 0
 rawset(_G, "TEXT", setmetatable({}, { __index = function(t, k) return k end }))
 
 libui.key_event("Escape", function ()
-	local Params = { title = UE.Application.productName, content = tostring(_G.TEXT.askQuitApp) }
+    local Params = { title = UE.Application.productName, content = tostring(_G.TEXT.askQuitApp) }
     local MBox = libui.MBox
     if MBox.is_active(Params) then MBox.close(); return end
     if MBox.is_queued(Params) then return end

@@ -13,8 +13,7 @@ end
 
 function P:connect(host, strPort)
     local port = tonumber(strPort)
-    local NW = import "network/networkmgr"
-    NW.connect(host, port)
+    libnet.connect(host, port)
 end
 
 function P:enter(index)
@@ -28,29 +27,27 @@ function P:logout()
 end
 
 function P:close()
-    local NW = _G.PKG["network/networkmgr"]
-    NW.disconnect()
+    libnet.disconnect()
 end
 
 function P:pid(pid)
     _G.PKG["libmgr/login"].Channel.pid = tonumber(pid)
-    _G.UI.Toast.make(nil, "已修改渠道号为："..pid):show()
+    libui.Toast(nil, "已修改渠道号为："..pid):show()
 end
 
 function P:reset_cli()
     local DY_DATA = _G.PKG["datamgr/dydata"]
     DY_DATA.CliData = nil
 
-    local NW = _G.PKG["network/networkmgr"]
-    NW.send(NW.msg("COMMON.CS.CLIENT_DATA_SET"):writeString(""))
+    libnet.send(libnet.msg("COMMON.CS.CLIENT_DATA_SET"):writeString(""))
 end
 
 function P:invite(pid)
-    _G.NW.TEAM.invite(tonumber(pid))
+    libnet.TEAM.invite(tonumber(pid))
 end
 
 function P:attackhome(pid)
-    _G.NW.MULTI.attack_player_home(0, pid, 2)
+    libnet.MULTI.attack_player_home(0, pid, 2)
 end
 
 function P:loc(from, to, text)
@@ -71,7 +68,7 @@ function P:loc(from, to, text)
         Accept = "application/json;charset=UTF-8",
         Authorization = CS.CMD5.Token(string2sign, secrectKey)
     }
-    NW.http_post("TRANSLATE", uri, textParams, Header, function (resp, isDone, err)
+    libnet.http_post("TRANSLATE", uri, textParams, Header, function (resp, isDone, err)
         print(resp, isDone, err)
     end)
 end

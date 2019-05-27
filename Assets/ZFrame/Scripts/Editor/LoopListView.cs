@@ -10,7 +10,7 @@ namespace ZFrame
 	{
 		public delegate void DrawHeaderDelegate(Rect rect);
 		
-		public delegate void DrawRowDelegate(int index, Rect rect, bool selected);
+		public delegate void DrawRowDelegate(Rect rect, int row, int col, bool selected);
 
 		public delegate void AfterDrawRowDelegate();
 		
@@ -28,6 +28,7 @@ namespace ZFrame
 		public DeleteItemDelegate onDeleteItem;
 		
 		private int totalRow;
+        public bool allowAdd, allowDelete;
 		
 		private List<int> m_Selected = new List<int>(1);
 
@@ -51,12 +52,19 @@ namespace ZFrame
 		// 搜索控件
 		//SearchField _searchField = new SearchField();
 
-		public LoopListView(TreeViewState state, float rowHeight) : base(state)
+		public LoopListView(TreeViewState state, float rowHeight, bool showBorder = true, bool showAlternatingRow = true) : base(state)
 		{
 			this.rowHeight = rowHeight;
-		}
+            this.showBorder = showBorder;
+            this.showAlternatingRowBackgrounds = showAlternatingRow;
+        }
 
-		// public LoopListView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader) { }
+		public LoopListView(TreeViewState state, MultiColumnHeader multiColumnHeader, float rowHeight,
+            bool showBorder = true, bool showAlternatingRow = true) : base(state, multiColumnHeader) {
+            this.rowHeight = rowHeight;
+            this.showBorder = showBorder;
+            this.showAlternatingRowBackgrounds = showAlternatingRow;
+        }
 
 		protected override TreeViewItem BuildRoot()
 		{
@@ -74,7 +82,13 @@ namespace ZFrame
 		protected override void RowGUI(RowGUIArgs args)
 		{
 			if (onDrawRow != null) {
-				onDrawRow.Invoke(args.row, args.rowRect, args.selected);
+                if (multiColumnHeader == null) {
+                    onDrawRow.Invoke(args.rowRect, args.row, 0, args.selected);
+                } else {
+                    for (int i = 0; i < args.GetNumVisibleColumns(); ++i) {
+                        onDrawRow(args.GetCellRect(i), args.row, args.GetColumn(i), args.selected);
+                    }
+                }
 			} else {
 				base.RowGUI(args);
 			}
@@ -111,10 +125,12 @@ namespace ZFrame
 //			rect.y += 18f;
 			
 			var headerRect = new Rect(rect.x, rect.y, rect.width, 20);
-			EditorGUI.DrawRect(new Rect(rect.x, headerRect.height - 2, rect.width, 1), Color.black);
-			
-			rect.y += headerRect.height;
-			rect.height -= headerRect.height;
+
+            if (onDrawHeader != null) {
+                EditorGUI.DrawRect(new Rect(rect.x, headerRect.height - 2, rect.width, 1), Color.black);
+                rect.y += headerRect.height;
+                rect.height -= headerRect.height;
+            }
 			
 			var buttonHeight = 20;
 			rect.height -= buttonHeight + 4;
@@ -130,7 +146,7 @@ namespace ZFrame
 			}
 			GUILayout.BeginArea(new Rect(rect.x, rect.y + rect.height, rect.width, buttonHeight));
 			GUILayout.BeginHorizontal();
-			if (GUILayout.Button("添加")) {
+			if (allowAdd && GUILayout.Button("添加")) {
 				if (onInsertItem != null) {
 					var newIdx = onInsertItem.Invoke(this, index);
 					BuildRows(totalRow + 1);
@@ -142,7 +158,7 @@ namespace ZFrame
 			}
 
 			EditorGUI.BeginDisabledGroup(index < 0);
-			if (GUILayout.Button("移除")) {
+			if (allowDelete && GUILayout.Button("移除")) {
 				if (onDeleteItem != null) {
 					var newIdx = onDeleteItem.Invoke(this, index);
 					BuildRows(totalRow - 1);

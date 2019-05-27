@@ -80,9 +80,6 @@ do
         end
     })
 
-    -- 获取配置数据
-    _G.config = function (n) return _G.PKG[string.lower("data/parser/"..n)] end
-
     -- UI库(MessageBox, Toast, Tip, ...)
     _G.libui = {}
 
@@ -202,7 +199,7 @@ do
     -- 网络管理
     _G.libnet = import "framework/networkmgr"
     _G.next_action = _G.PKG["framework/clock"].add_action
-    _G.remove_action = _G.PKG["framework/clock"].remove_action
+    _G.remove_action = _G.PKG["framework/clock"].remove_action    
 
     -- 音频
     dofile "framework/audmgr"
