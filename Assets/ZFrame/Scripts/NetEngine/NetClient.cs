@@ -144,6 +144,26 @@ namespace ZFrame.NetEngine
             error = e.Message;
         }
 
+        public void UnpackMsgs(INetMsgHandler handler)
+        {
+            while (_receiveQueue != null && _receiveQueue.Count > 0) {
+                var read = false;
+                var nm = _receiveQueue.Dequeue();
+                if (nm != null) {
+                    //if (nm.type == NetSession.HEART_BEAT_MSG) {
+                    //    var recalcLatency = (int)((recvTicks - _nowSession.sendTicks) / 10000);
+                    //    LogMgr.D("<color=yellow>LATENCY: {0}({1}-{2}={3})</color>",
+                    //        latency, _nowSession.sendTicks, recvTicks, recalcLatency);
+
+                    //    if (recalcLatency >= 0 && recalcLatency < latency) _nowSession.latency = recalcLatency;
+                    //}
+                    handler.TryHandle(nm);
+                    nm.Recycle();
+                }
+            }
+        }
+
+
         public void UnpackMsgs(Action<INetMsg> unpacker)
         {
             while (_receiveQueue != null && _receiveQueue.Count > 0) {

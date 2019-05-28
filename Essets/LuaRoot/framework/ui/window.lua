@@ -170,9 +170,15 @@ local function on_open(go, pkgName)
 	Wnd.go = go
 
 	if rawget(Wnd, "Ref") == nil then
+		local chunk = pkgName and LC_CHUNK[pkgName]
+		if chunk == nil then 
+			libunity.LogE("窗口{0}对应的lua脚本[{1}]不存在", Wnd, pkgName) 
+			return
+		end
+
 		local stackIdx, _ = table.ifind(WNDStack, Wnd)
 		Wnd.__index = Wnd
-		Wnd = setmetatable(LC_CHUNK[pkgName](), Wnd)
+		Wnd = setmetatable(chunk(), Wnd)
 		LCWnds[lcName] = Wnd
 
 		Wnd.Ref = ui.ref(go)

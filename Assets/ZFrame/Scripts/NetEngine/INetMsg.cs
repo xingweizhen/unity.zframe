@@ -43,4 +43,15 @@ namespace ZFrame.NetEngine
         /// </summary>
         void Recycle();
     }
+
+    public interface INetMsgHandler
+    {
+        /// <summary>
+        /// 尝试解析消息
+        /// </summary>
+        /// <param name="cli"></param>
+        /// <param name="nm"></param>
+        /// <returns>返回真表示已解析</returns>
+        bool TryHandle(INetMsg nm);
+    }
 }

@@ -72,8 +72,9 @@ public static class ChunkAPI
         if (bytes != null) {
             return L.L_LoadBuffer(bytes, fileName);
         }
+        L.PushNil();
 
-        return LuaThreadStatus.LUA_ERRERR;
+        return LuaThreadStatus.LUA_OK;
     }
 
     public static int DoFile(this ILuaState L, string fileName)

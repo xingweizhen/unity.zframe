@@ -9,33 +9,36 @@ using NoToLua = XLua.BlackListAttribute;
 namespace ZFrame.NetEngine
 {
     using Lua;
-    public class NetMsgHandler
+    public class NetMsgHandler: INetMsgHandler
     {
         private readonly List<int> m_IDs = new List<int>();
-        private readonly UnityAction<TcpClientHandler, INetMsg> m_Handler;
-        public NetMsgHandler(UnityAction<TcpClientHandler, INetMsg> handler)
+        private readonly UnityAction<INetMsg> m_Handler;
+        public NetMsgHandler(UnityAction<INetMsg> handler)
         {
             m_Handler = handler;
         }
-        public void Track(int msgId)
+        public NetMsgHandler Track(int msgId)
         {
             m_IDs.Add(msgId);
+            return this;
         }
-        public void Untarck(int msgId)
+        public NetMsgHandler Untarck(int msgId)
         {
             m_IDs.Remove(msgId);
+            return this;
         }
-        public bool TryHandle(TcpClientHandler cli, INetMsg nm)
+
+        bool INetMsgHandler.TryHandle(INetMsg nm)
         {
             if (m_IDs.Contains(nm.type)) {
-                m_Handler.Invoke(cli, nm);
+                m_Handler.Invoke(nm);
                 return true;
             }
             return false;
         }
     }
 
-    public class TcpClientHandler : MonoBehavior
+    public class TcpClientHandler : MonoBehavior, INetMsgHandler
     {
         [XLua.CSharpCallLua]
         public delegate void TcpClientEvent(TcpClientHandler tcp);
@@ -66,13 +69,14 @@ namespace ZFrame.NetEngine
         public TcpClientEvent onConnected;
         public TcpClientEvent onDisconnected;
 
-        private Dictionary<string, NetMsgHandler> m_ExtHandler = new Dictionary<string, NetMsgHandler>();
-        public NetMsgHandler AddExtHandler(string name, NetMsgHandler handler)
+        private Dictionary<string, INetMsgHandler> m_ExtHandler = new Dictionary<string, INetMsgHandler>();
+        public void AddExtHandler(string name, INetMsgHandler handler)
         {
             if (!m_ExtHandler.ContainsKey(name)) {
                 m_ExtHandler.Add(name, handler);
+            } else {
+                m_ExtHandler[name] = handler;
             }
-            return handler;
         }
 
         public void DelExtHandler(string name)
@@ -90,7 +94,6 @@ namespace ZFrame.NetEngine
         {
             m_NC = new NetClient(m_Msgs, null, null, Logger);
             autoRecieve = true;
-            UnapckNetMsgs = new System.Action<INetMsg>(_UnapckNetMsgs);
         }
 
         private void Start()
@@ -196,7 +199,7 @@ namespace ZFrame.NetEngine
         [NoToLua]
         public void RecieveAll()
         {
-            m_NC.UnpackMsgs(UnapckNetMsgs);
+            m_NC.UnpackMsgs(this);
         }
 
         public void Disconnect()
@@ -213,14 +216,13 @@ namespace ZFrame.NetEngine
             }
         }
 
-        System.Action<INetMsg> UnapckNetMsgs;
-        private void _UnapckNetMsgs(INetMsg nm)
+        bool INetMsgHandler.TryHandle(INetMsg nm)
         {
             LibNetwork.readNm = nm;
             var read = false;
             try {
                 foreach (var handler in m_ExtHandler.Values) {
-                    if (handler.TryHandle(this, nm)) {
+                    if (handler.TryHandle(nm)) {
                         read = true;
                         break;
                     }
@@ -236,6 +238,7 @@ namespace ZFrame.NetEngine
             } finally {
                 LibNetwork.readNm = null;
             }
+            return true;
         }
 
         private static System.IAsyncResult AsyncAddressFamily(TcpClientHandler tcp)
