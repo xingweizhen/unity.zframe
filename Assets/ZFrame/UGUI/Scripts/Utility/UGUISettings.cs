@@ -5,20 +5,37 @@ using UnityEngine;
 namespace ZFrame.UGUI
 {
     using Asset;
-    public class Settings : ScriptableObject
+    public class UGUISettings : ScriptableObject
     {
-        [SerializeField] private Vector2 m_DefRes = new Vector2(1280, 720);
-        public Vector2 defRes { get { return m_DefRes; } }
 
-        [SerializeField] private string m_UIBundlePath = "UI/";
-        public string uiBundlePath { get { return m_UIBundlePath; } }
-        
-        [SerializeField] private string m_AtlasRoot = "atlas/";
+        [SerializeField, NamedProperty("图集资源根目录")] private string m_AtlasRoot = "atlas/";
         public string atlasRoot { get { return m_AtlasRoot; } }
 
-        [SerializeField, AssetRef(type: typeof(Font))]
+        [SerializeField, AssetRef("界面资源包", bundleOnly = true)] private string m_UIBundlePath = "UI/";
+        public string uiBundlePath { get { return m_UIBundlePath; } }
+
+        [SerializeField, AssetRef(type: typeof(Font), name: "主字体")]
         private string m_FontPath;
-        
+
+        [SerializeField, AssetRef(type: typeof(AtlasReference), name: "图集引用")]
+        private string m_AtlasRefPath;
+
+        [SerializeField, NamedProperty("界面分辨率")] private Vector2Int m_DefRes = new Vector2Int(1280, 720);
+        public Vector2Int defRes { get { return m_DefRes; } }
+
+        [SerializeField, AssetRef(type: typeof(Localization), name: "本地化资源")]
+        private string m_LocAssetPath;
+        public string locAssetPath { get { return m_LocAssetPath; } }
+
+        [SerializeField, NamedProperty("默认语言")] private string m_DefLang = "cn";
+        public string defaultLang { get { return m_DefLang; } }
+
+        [SerializeField, NamedProperty("常规界面最高层级")] private int m_MaxDepth = 90;
+        public int maxDepth { get { return m_MaxDepth; } }
+
+        [SerializeField, NamedProperty("长按时常(秒)")] private float m_LongpressTime = 0.5f;
+        public float longpressTime { get { return m_LongpressTime; } }
+
         private Font m_Font;
         public Font font {
             get {
@@ -35,10 +52,6 @@ namespace ZFrame.UGUI
                 return m_Font;
             }
         }
-
-
-        [SerializeField, AssetRef(type: typeof(AtlasReference))]
-        private string m_AtlasRefPath;
 
         private AtlasReference m_AtlasRef;
         public AtlasReference atlasRef {
@@ -59,17 +72,5 @@ namespace ZFrame.UGUI
         }
 
 
-        [SerializeField] private float m_LongpressTime = 0.5f;
-        public float longpressTime { get { return m_LongpressTime; } }
-
-        [SerializeField, AssetRef(type: typeof(Localization))]
-        private string m_LocAssetPath;
-        public string locAssetPath { get { return m_LocAssetPath; } }
-
-        [SerializeField] private string m_DefLang = "cn";
-        public string defaultLang { get { return m_DefLang; } }
-
-        [SerializeField] private int m_MaxDepth = 90;
-        public int maxDepth { get { return m_MaxDepth; } }
     }
 }

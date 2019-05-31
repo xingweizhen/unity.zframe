@@ -11,11 +11,11 @@ namespace ZFrame.UGUI
 {
     public static class UGUITools
     {
-        private static Settings _Settings;
-        public static Settings settings {
+        private static UGUISettings _Settings;
+        public static UGUISettings settings {
             get {
                 if (_Settings == null) {
-                    _Settings =Resources.Load("UGUISettings", typeof(Settings)) as Settings; 
+                    _Settings =Resources.Load("UGUISettings", typeof(UGUISettings)) as UGUISettings; 
                 }
 
                 return _Settings;

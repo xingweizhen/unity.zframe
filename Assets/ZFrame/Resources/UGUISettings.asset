@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Name: UGUISettings
   m_EditorClassIdentifier: 
   m_DefRes: {x: 1280, y: 720}
-  m_UIBundlePath: UI/
+  m_UIBundlePath: ui/
   m_AtlasRoot: atlas/
-  m_FontPath: 
+  m_FontPath: fonts/main/Main
   m_AtlasRefPath: 
   m_LongpressTime: 0.5
   m_LocAssetPath: 

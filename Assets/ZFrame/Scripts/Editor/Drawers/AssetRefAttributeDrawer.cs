@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.U2D;
 using ZFrame.UGUI;
+using ZFrame.Asset;
 
 [CustomPropertyDrawer(typeof(AssetRefAttribute))]
 public class AssetRefAttributeDrawer : PropertyDrawer
@@ -28,25 +29,10 @@ public class AssetRefAttributeDrawer : PropertyDrawer
             label.text = assetRef.name;
         }
         
-        Object asset = null;
         position.height = EditorGUIUtility.singleLineHeight;
-        var assetPath = property.stringValue;
-        var atlasRoot = UGUITools.settings.atlasRoot;
-        if (!string.IsNullOrEmpty(assetPath)) {
-            if (assetPath.OrdinalIgnoreCaseStartsWith(atlasRoot)) {
-                if (assetRef.type != typeof(SpriteAtlas) && assetPath[assetPath.Length - 1] != '/') {
-                    var spritePath = assetPath.Substring(atlasRoot.Length);
-                    asset = UISprite.LoadSprite(spritePath, null);
-                } else {
-                    asset = ZFrame.Asset.AssetLoader.EditorLoadAsset(assetRef.type, assetPath);
-                }
-            } else {
-                asset = ZFrame.Asset.AssetLoader.EditorLoadAsset(assetRef.type, assetPath);
-            }
-        }
+        Object asset = AssetPathToObject(property.stringValue, assetRef.type);
         
         Object newObj = null;
-
         if (string.IsNullOrEmpty(label.text)) {
             label.text = property.stringValue;
             newObj = EditorGUI.ObjectField(position, label, asset, assetRef.type, false);
@@ -57,31 +43,68 @@ public class AssetRefAttributeDrawer : PropertyDrawer
         }
                
         if (newObj != asset) {
-            if (newObj == null) {
-                property.stringValue = null;
-            } else {
-                var path = AssetDatabase.GetAssetPath(newObj);
-                var ai = AssetImporter.GetAtPath(path);
-                if (!string.IsNullOrEmpty(ai.assetBundleName)) {
-                    property.stringValue = assetRef.bundleOnly
-                        ? ai.assetBundleName + '/'
-                        : string.Concat(ai.assetBundleName, "/", newObj.name);
-                } else {
-                    var sprite = newObj as Sprite;
-                    string atlasPath = null, atlasName = null, spriteName = null;
-                    if (sprite != null) {
-                        atlasPath = UISpriteEditor.GetSpriteAssetRef(sprite, out atlasName, out spriteName);
-                    }
+            property.stringValue = ObjectToAssetPath(newObj, assetRef.bundleOnly);
+        }
+    }
 
-                    if (!string.IsNullOrEmpty(atlasPath)) {
-                        property.stringValue = assetRef.bundleOnly
-                            ? string.Format("{0}{1}/", atlasRoot, atlasName)
-                            : string.Format("{0}{1}/{2}", atlasRoot, atlasName, spriteName);
-                    } else {
-                        property.stringValue = null;
-                    }
+    private static Object AssetPathToObject(string assetPath, System.Type type)
+    {
+        var atlasRoot = UGUITools.settings.atlasRoot;
+        if (!string.IsNullOrEmpty(assetPath)) {
+            if (assetPath.OrdinalIgnoreCaseStartsWith(atlasRoot)) {
+                if (type != typeof(SpriteAtlas) && assetPath[assetPath.Length - 1] != '/') {
+                    var spritePath = assetPath.Substring(atlasRoot.Length);
+                    return UISprite.LoadSprite(spritePath, null);
+                } else {
+                    return AssetLoader.EditorLoadAsset(type, assetPath);
                 }
+            } else {
+                return AssetLoader.EditorLoadAsset(type, assetPath);
             }
         }
+        return null;
+    }
+
+    private static string ObjectToAssetPath(Object obj, bool bundleOnly)
+    {
+        if (obj != null) {
+            var atlasRoot = UGUITools.settings.atlasRoot;
+
+            var path = AssetDatabase.GetAssetPath(obj);
+            var ai = AssetImporter.GetAtPath(path);
+            if (!string.IsNullOrEmpty(ai.assetBundleName)) {
+                return bundleOnly
+                    ? ai.assetBundleName + '/'
+                    : string.Concat(ai.assetBundleName, "/", obj.name);
+            } else {
+                var sprite = obj as Sprite;
+                string atlasPath = null, atlasName = null, spriteName = null;
+                if (sprite != null) {
+                    atlasPath = UISpriteEditor.GetSpriteAssetRef(sprite, out atlasName, out spriteName);
+                }
+
+                if (!string.IsNullOrEmpty(atlasPath)) {
+                    return bundleOnly
+                        ? string.Format("{0}{1}/", atlasRoot, atlasName)
+                        : string.Format("{0}{1}/{2}", atlasRoot, atlasName, spriteName);
+                }
+
+
+            }
+        }
+        return null;
+    }
+
+    public static string Layout(string label, string assetPath, System.Type objType, Object obj = null)
+    {
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField(label);
+        EditorGUI.BeginChangeCheck();
+        obj = EditorGUILayout.ObjectField(AssetPathToObject(assetPath, objType), objType, false);
+        if (EditorGUI.EndChangeCheck()) {
+            assetPath = ObjectToAssetPath(obj, false);
+        }        
+        EditorGUILayout.EndHorizontal();
+        return assetPath;
     }
 }

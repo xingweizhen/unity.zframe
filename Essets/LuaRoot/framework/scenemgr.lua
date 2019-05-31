@@ -58,7 +58,7 @@ function P.on_level_loaded(levelName, launching)
 
 		libasset.BatchLoadAsync(PreloadAssets, function ()
 			if launchCbf then launchCbf() end
-			if loadedCbf then loadedCbf() end
+			if loadedCbf then loadedCbf(true) end
 		end)
 	else
 		if loadedCbf then loadedCbf() end

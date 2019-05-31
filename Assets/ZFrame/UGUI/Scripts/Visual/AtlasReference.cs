@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#pragma warning disable 0649
 namespace ZFrame.UGUI
 {
     [CreateAssetMenu(menuName = "资源库/图集引用", fileName = "New Atlas Reference.asset")]

@@ -9,6 +9,21 @@ namespace ZFrame.Asset
     [CustomEditor(typeof(AssetProcessSettings), true)]
     public class AssetProcessSettingsEditor : Editor
     {
+        private string[] __SettingsNames;
+        private string[] m_SettingsNames {
+            get {
+                if (__SettingsNames == null) {
+                    __SettingsNames = new string[m_SettingsList.arraySize];
+                    for (var i = 0; i < __SettingsNames.Length; ++i) {
+                        var settingsName = m_SettingsList.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
+                        if (string.IsNullOrEmpty(settingsName)) settingsName = "Settings";
+                        __SettingsNames[i] = string.Format("#{0}-{1}", i, settingsName);
+                    }
+                }
+                return __SettingsNames;
+            }
+        }
+
         private SerializedProperty m_SettingsList;
         private int m_SettingsIndex;
         private ReorderableList m_Folders;
@@ -21,7 +36,7 @@ namespace ZFrame.Asset
                 drawHeaderCallback = rect => {
                     EditorGUI.LabelField(rect, "适用于以下文件夹：");
                 },
-                drawElementCallback = (rect, index, isActive, isFocused)=> {
+                drawElementCallback = (rect, index, isActive, isFocused) => {
                     var elm = m_Folders.serializedProperty.GetArrayElementAtIndex(index);
                     EditorGUI.LabelField(rect, elm.stringValue);
                 },
@@ -37,6 +52,8 @@ namespace ZFrame.Asset
             var flags = settings.FindPropertyRelative("flags");
             self.props = (System.Enum)System.Enum.ToObject(enumType, flags.intValue);
 
+            EditorGUILayout.PropertyField(settings.FindPropertyRelative("name"));
+
             var disableRule = false;
             var disable = settings.FindPropertyRelative("m_Disable");
             if (disable != null) {
@@ -46,7 +63,7 @@ namespace ZFrame.Asset
                     disable.boolValue = disableRule;
                 }
             }
-            EditorGUI.BeginDisabledGroup(disableRule);
+            EditorGUI.BeginDisabledGroup(disableRule);            
             flags.intValue = System.Convert.ToInt32(EditorGUILayout.EnumFlagsField("属性管理", self.props));
 
             EditorGUI.indentLevel++;
@@ -63,13 +80,13 @@ namespace ZFrame.Asset
             EditorGUI.indentLevel--;
 
             EditorGUI.EndDisabledGroup();
-            EditorGUILayout.Separator();            
+            EditorGUILayout.Separator();
             var folder = EditorGUILayout.ObjectField("拖入文件夹", null, typeof(DefaultAsset), true);
             string path = folder != null ? AssetDatabase.GetAssetPath(folder) : null;
 
             EditorGUI.indentLevel++;
             var folders = settings.FindPropertyRelative("folders");
-            m_Folders.serializedProperty = folders;            
+            m_Folders.serializedProperty = folders;
             for (int i = 0; i < folders.arraySize; ++i) {
                 if (path == folders.GetArrayElementAtIndex(i).stringValue) {
                     path = null;
@@ -86,22 +103,23 @@ namespace ZFrame.Asset
 
         public override void OnInspectorGUI()
         {
+            var defColor = GUI.color;
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("新增配置")) {
+            m_SettingsIndex = EditorGUILayout.Popup(m_SettingsIndex, m_SettingsNames, "dropdown");
+            if (GUILayout.Button("新增配置", "buttonleft")) {
                 m_SettingsIndex = m_SettingsList.arraySize;
                 m_SettingsList.InsertArrayElementAtIndex(m_SettingsIndex);
+                __SettingsNames = null;
             }
-            if(GUILayout.Button(string.Format("删除当前#{0}/{1}", m_SettingsIndex, m_SettingsList.arraySize))) {
+            GUI.color = Color.red;
+            if (GUILayout.Button("删除当前", "buttonright")) {
                 m_SettingsList.DeleteArrayElementAtIndex(m_SettingsIndex);
+                __SettingsNames = null;
             }
-            if (GUILayout.Button("上一个配置")) {
-                m_SettingsIndex -= 1;
-            }
-            if (GUILayout.Button("下一个配置")) {
-                m_SettingsIndex += 1;
-            }
+            GUI.color = defColor;
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.Separator();
             m_SettingsIndex = Mathf.Clamp(m_SettingsIndex, 0, Mathf.Max(0, m_SettingsList.arraySize - 1));
             if (m_SettingsIndex < m_SettingsList.arraySize) {
                 var setttings = m_SettingsList.GetArrayElementAtIndex(m_SettingsIndex);

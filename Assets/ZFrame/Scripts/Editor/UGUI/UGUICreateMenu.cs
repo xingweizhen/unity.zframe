@@ -112,7 +112,7 @@ namespace ZFrame.UGUI
             sp.raycastTarget = false;
         }
 
-        [MenuItem("UGUI/控件/文本(_Label) &#l")]
+        [MenuItem("ZFrame/UI控件/文本(_Label) &#l")]
         static void CreateUILabel()
         {
             _Label lb = getUILabel(null, "lbText", LABEL);
@@ -126,19 +126,19 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = lb.gameObject;
         }
 
-        [MenuItem("UGUI/控件/图片(Sprite) &#s")]
+        [MenuItem("ZFrame/UI控件/图片(Sprite) &#s")]
         static void CreateUISprite()
         {
             UISprite sp = CreateUIElm<UISprite>(null);
             sp.name = "spImage";
-            sp.color = Color.white;
-            sp.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
+            sp.color = Color.white;            
             sp.raycastTarget = false;
-            sp.enabled = sp.sprite;
+            // TODO 
+            // sp.SetSprite();
             Selection.activeGameObject = sp.gameObject;
         }
 
-        [MenuItem("UGUI/控件/原始图片(Texture) &#t")]
+        [MenuItem("ZFrame/UI控件/原始图片(Texture) &#t")]
         static void CreateUITexture()
         {
             UITexture sp = CreateUIElm<UITexture>(null);
@@ -147,7 +147,7 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = sp.gameObject;
         }
 
-        [MenuItem("UGUI/控件/按钮(Button) &#b")]
+        [MenuItem("ZFrame/UI控件/按钮(Button) &#b")]
         static void CreateUIButton()
         {
             UIButton btn = CreateUIElm<UIButton>(null, typeof(UISprite));
@@ -170,7 +170,7 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = btn.gameObject;
         }
 
-        [MenuItem("UGUI/控件/切换(Toggle) &#r")]
+        [MenuItem("ZFrame/UI控件/切换(Toggle) &#r")]
         static void CreateUIToggle()
         {
             UIToggle tgl = CreateUIElm<UIToggle>(null);
@@ -207,7 +207,7 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = tgl.gameObject;
         }
 
-        [MenuItem("UGUI/控件/进度条(ProgressBar)")]
+        [MenuItem("ZFrame/UI控件/进度条(ProgressBar)")]
         static void CreateUIProgressBar()
         {
             UIProgress bar = CreateUIElm<UIProgress>(null);
@@ -231,7 +231,7 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = bar.gameObject;
         }
 
-        [MenuItem("UGUI/控件/滑块(Slider)")]
+        [MenuItem("ZFrame/UI控件/滑块(Slider)")]
         static void CreateUISlider()
         {
             UISlider sld = CreateUIElm<UISlider>(null);
@@ -283,35 +283,35 @@ namespace ZFrame.UGUI
             return srb;
         }
 
-        [MenuItem("UGUI/控件/滚动条(Scrollbar)/从左到右(→)")]
+        [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从左到右(→)")]
         static void CreateUIScrollbar_L2R()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kWidth, kThinHeight));
             srb.direction = UnityEngine.UI.Scrollbar.Direction.LeftToRight;
         }
 
-        [MenuItem("UGUI/控件/滚动条(Scrollbar)/从右到左(←)")]
+        [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从右到左(←)")]
         static void CreateUIScrollbar_R2L()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kWidth, kThinHeight));
             srb.direction = UnityEngine.UI.Scrollbar.Direction.RightToLeft;
         }
 
-        [MenuItem("UGUI/控件/滚动条(Scrollbar)/从下到上(↑)")]
+        [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从下到上(↑)")]
         static void CreateUIScrollbar_B2T()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kThinHeight, kWidth));
             srb.direction = UnityEngine.UI.Scrollbar.Direction.BottomToTop;
         }
 
-        [MenuItem("UGUI/控件/滚动条(Scrollbar)/从上到下(↓)")]
+        [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从上到下(↓)")]
         static void CreateUIScrollbar_T2B()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kThinHeight, kWidth));
             srb.direction = UnityEngine.UI.Scrollbar.Direction.TopToBottom;
         }
 
-        [MenuItem("UGUI/控件/输入框(Input)")]
+        [MenuItem("ZFrame/UI控件/输入框(Input)")]
         static void CreateUIInput()
         {
 #if USING_TMP
@@ -378,7 +378,7 @@ namespace ZFrame.UGUI
             Selection.activeGameObject = inp.gameObject;
         }
 
-        [MenuItem("UGUI/控件/滚动窗口(ScrollView)")]
+        [MenuItem("ZFrame/UI控件/滚动窗口(ScrollView)")]
         static void CreateUIScrollView()
         {
             UIScrollView subScroll = CreateUIElm<UIScrollView>(null);
@@ -406,8 +406,8 @@ namespace ZFrame.UGUI
 
             Selection.activeGameObject = subScroll.gameObject;
         }
-
-        [MenuItem("UGUI/本地化/检查")]
+        
+        [MenuItem("ZFrame/本地化/检查")]
         public static void CheckLocConfig()
         {
             var settings = UGUITools.settings;
@@ -453,7 +453,7 @@ namespace ZFrame.UGUI
 
             ListPool<Component>.Release(list);
         }
-        [MenuItem("UGUI/本地化/本地化空字符键值检查")]
+        [MenuItem("ZFrame/本地化/本地化空字符键值检查")]
         public static void EmptyLocConfig()
         {
             var settings = UGUITools.settings;
@@ -487,7 +487,7 @@ namespace ZFrame.UGUI
 
             ListPool<Component>.Release(list);
         }
-        [MenuItem("UGUI/本地化/预制界面文本检查")]
+        [MenuItem("ZFrame/本地化/预制界面文本检查")]
         public static void CheckLocKeyAndValue()
         {
             var settings = UGUITools.settings;
@@ -529,7 +529,7 @@ namespace ZFrame.UGUI
 
             ListPool<Component>.Release(list);
         }
-        [MenuItem("UGUI/本地化/更新")]
+        [MenuItem("ZFrame/本地化/更新")]
         public static void UpdateLocConfig()
         {
             var settings = UGUITools.settings;
@@ -626,7 +626,7 @@ namespace ZFrame.UGUI
             LogMgr.D("更新本地化配置完成。");
         }
 
-        //[MenuItem("UGUI/本地化/重置key")]
+        //[MenuItem("ZFrame/本地化/重置key")]
         public static void ResetLocKeys()
         {
             // 记录UI界面资源中的本地化文本

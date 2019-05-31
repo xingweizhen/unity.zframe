@@ -1,8 +1,11 @@
 {
     "name": "ZFrame.UGUI",
     "references": [
-        "ZFrame"
+        "ZFrame",
+        "DOTween.Modules"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }

@@ -26,9 +26,8 @@ namespace ZFrame.Asset
         }
 
         [System.Serializable]
-        public struct Settings
+        public class Settings : AbstractSettings
         {
-            public int flags;
             public int MaxTextureSize;
             public int CompressionQuality;
             public bool CrunchedCompression;
@@ -41,10 +40,6 @@ namespace ZFrame.Asset
             public bool sRGB;
             public TextureImporterAlphaSource AlphaSource;
             public bool AlphaIsTransparency;
-
-            public List<string> folders;
-            [SerializeField]
-            private bool m_Disable;
 
             public void OnPreprocess(TextureImporter ti)
             {

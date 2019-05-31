@@ -131,8 +131,8 @@ namespace ZFrame
                 rect.y += headerRect.height;
                 rect.height -= headerRect.height;
             }
-			
-			var buttonHeight = 20;
+
+            var buttonHeight = allowAdd || allowDelete ? 20 : 0;
 			rect.height -= buttonHeight + 4;
 			base.OnGUI(rect);
 
@@ -144,34 +144,37 @@ namespace ZFrame
 			if (totalRow == 0) {
 				GUI.Label(rect, "List is Empty");
 			}
-			GUILayout.BeginArea(new Rect(rect.x, rect.y + rect.height, rect.width, buttonHeight));
-			GUILayout.BeginHorizontal();
-			if (allowAdd && GUILayout.Button("添加")) {
-				if (onInsertItem != null) {
-					var newIdx = onInsertItem.Invoke(this, index);
-					BuildRows(totalRow + 1);
-					index = newIdx;
-                    if (onSelectItem != null) {
-                        onSelectItem.Invoke(this, newIdx);
-                    }
-                }
-			}
 
-			EditorGUI.BeginDisabledGroup(index < 0);
-			if (allowDelete && GUILayout.Button("移除")) {
-				if (onDeleteItem != null) {
-					var newIdx = onDeleteItem.Invoke(this, index);
-					BuildRows(totalRow - 1);
-                    index = newIdx;
-                    if (onSelectItem != null) {
-                        onSelectItem.Invoke(this, newIdx);
+            if (buttonHeight > 0) {
+                GUILayout.BeginArea(new Rect(rect.x, rect.y + rect.height, rect.width, buttonHeight));
+                GUILayout.BeginHorizontal();
+                if (allowAdd && GUILayout.Button("添加")) {
+                    if (onInsertItem != null) {
+                        var newIdx = onInsertItem.Invoke(this, index);
+                        BuildRows(totalRow + 1);
+                        index = newIdx;
+                        if (onSelectItem != null) {
+                            onSelectItem.Invoke(this, newIdx);
+                        }
                     }
                 }
-			}
-			EditorGUI.EndDisabledGroup();
-			GUILayout.EndHorizontal();
-			GUILayout.EndArea();
-		}
+
+                EditorGUI.BeginDisabledGroup(index < 0);
+                if (allowDelete && GUILayout.Button("移除")) {
+                    if (onDeleteItem != null) {
+                        var newIdx = onDeleteItem.Invoke(this, index);
+                        BuildRows(totalRow - 1);
+                        index = newIdx;
+                        if (onSelectItem != null) {
+                            onSelectItem.Invoke(this, newIdx);
+                        }
+                    }
+                }
+                EditorGUI.EndDisabledGroup();
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+            }
+        }
 
 		protected override void AfterRowsGUI()
 		{

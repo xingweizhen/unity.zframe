@@ -8,17 +8,17 @@ namespace ZFrame.Asset
 {
     public class TheAssetPostprocessor : AssetPostprocessor
     {
-        private TextureProcessSettings m_Settings;
-
         private TextureProcessSettings GetSettings()
         {
-            if (m_Settings == null) {
-                m_Settings = AssetDatabase.LoadAssetAtPath(
-                    "Assets/Editor/TextureProcessSettings.asset", 
-                    typeof(TextureProcessSettings)) as TextureProcessSettings;
+            var guids = AssetDatabase.FindAssets("t:TextureProcessSettings");
+            if (guids != null && guids.Length > 0) {
+                foreach (var guid in guids) {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var settings = AssetDatabase.LoadAssetAtPath<TextureProcessSettings>(path);
+                    if (settings) return settings;
+                }
             }
-
-            return m_Settings;
+            return null;
         }
 
         private void OnPreprocessTexture()
@@ -33,6 +33,22 @@ namespace ZFrame.Asset
             var settings = GetSettings();
 
             if (settings != null) settings.OnPostprocess(texture);
+        }
+
+        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            foreach (string str in importedAssets) {
+                // Auto Set AssetBundle Name
+                AssetBundleMenu.AutoSetAssetBundleName(str);                
+            }
+            foreach (string str in deletedAssets) {
+                //Debug.Log("Deleted Asset: " + str);
+            }
+
+            for (int i = 0; i < movedAssets.Length; i++) {
+                // Auto Set AssetBundle Name
+                AssetBundleMenu.AutoSetAssetBundleName(movedAssets[i]);
+            }
         }
     }
 }
