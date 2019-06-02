@@ -4,13 +4,13 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame
+namespace ZFrame.Editors
 {
 	public class LoopListView : TreeView
 	{
 		public delegate void DrawHeaderDelegate(Rect rect);
 		
-		public delegate void DrawRowDelegate(Rect rect, int row, int col, bool selected);
+		public delegate void DrawRowDelegate(Rect rect, TreeViewItem item, int row, int col, bool selected);
 
 		public delegate void AfterDrawRowDelegate();
 		
@@ -20,12 +20,15 @@ namespace ZFrame
 
 		public delegate int DeleteItemDelegate(LoopListView list, int index);
 
+		public delegate bool ItemMatchDelegate(TreeViewItem item, string search);
+
 		public DrawHeaderDelegate onDrawHeader;
 		public DrawRowDelegate onDrawRow;
 		public event SelectItemDelegate onSelectItem;
 		public event AfterDrawRowDelegate onAfterDrawRow;
 		public InsertItemDelegate onInsertItem;
 		public DeleteItemDelegate onDeleteItem;
+		public ItemMatchDelegate onMatchItem;
 		
 		private int totalRow;
         public bool allowAdd, allowDelete;
@@ -83,10 +86,10 @@ namespace ZFrame
 		{
 			if (onDrawRow != null) {
                 if (multiColumnHeader == null) {
-                    onDrawRow.Invoke(args.rowRect, args.row, 0, args.selected);
+                    onDrawRow.Invoke(args.rowRect, args.item, args.row, 0, args.selected);
                 } else {
                     for (int i = 0; i < args.GetNumVisibleColumns(); ++i) {
-                        onDrawRow(args.GetCellRect(i), args.row, args.GetColumn(i), args.selected);
+                        onDrawRow(args.GetCellRect(i), args.item, args.row, args.GetColumn(i), args.selected);
                     }
                 }
 			} else {
@@ -116,6 +119,16 @@ namespace ZFrame
 //			if (onSelectItem != null) onSelectItem.Invoke(id);
 //		}
 
+		protected override void SearchChanged(string newSearch)
+		{
+			base.SearchChanged(newSearch);
+		}
+
+		protected override bool DoesItemMatchSearch(TreeViewItem item, string search)
+		{
+			return onMatchItem != null ? onMatchItem.Invoke(item, search) : base.DoesItemMatchSearch(item, search);
+		}
+
 		public override void OnGUI(Rect rect)
 		{
 //			Rect srect = rect;
@@ -132,8 +145,18 @@ namespace ZFrame
                 rect.height -= headerRect.height;
             }
 
+			if (onMatchItem != null) {
+				var searchRect = new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight);
+				GUILayout.BeginArea(searchRect);
+				searchString = EditorUtil.SearchField(searchString);
+				GUILayout.EndArea();
+				rect.y += searchRect.height;
+				rect.height -= searchRect.height;
+			}
+			
             var buttonHeight = allowAdd || allowDelete ? 20 : 0;
 			rect.height -= buttonHeight + 4;
+			
 			base.OnGUI(rect);
 
 			if (onDrawHeader != null) {

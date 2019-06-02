@@ -6,8 +6,9 @@ using UnityEngine;
 using UnityEditor;
 
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Asset;
     public static class AssetBundleMenu
     {
         // 资源目录结构

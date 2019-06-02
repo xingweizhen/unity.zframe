@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomPropertyDrawer(typeof(NamedPropertyAttribute))]
-public class NamedPropertyAttributeDrawer : PropertyDrawer
+namespace ZFrame.Editors
 {
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(NamedPropertyAttribute))]
+    public class NamedPropertyAttributeDrawer : PropertyDrawer
     {
-        return EditorGUI.GetPropertyHeight(property);
-    }
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUI.GetPropertyHeight(property);
+        }
 
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-//        label = new GUIContent(label) {
-//            text = (attribute as NamedPropertyAttribute).name
-//        };
-        
-        label.text = ((NamedPropertyAttribute)attribute).name;
-        EditorGUI.PropertyField(position, property, label);
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            label.text = ((NamedPropertyAttribute)attribute).name;
+            EditorGUI.PropertyField(position, property, label);
+        }
     }
 }

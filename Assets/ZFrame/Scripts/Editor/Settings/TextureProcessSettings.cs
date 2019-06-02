@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace ZFrame.Asset
+namespace ZFrame.Settings
 {
-    [CreateAssetMenu(menuName = "Settings/TextureProcess", fileName = "TextureProcessSettings")]
     public class TextureProcessSettings : AssetProcessSettings
     {
         [System.Flags]
@@ -26,7 +25,7 @@ namespace ZFrame.Asset
         }
 
         [System.Serializable]
-        public class Settings : AbstractSettings
+        protected class Settings : AbstractSettings
         {
             public int MaxTextureSize;
             public int CompressionQuality;

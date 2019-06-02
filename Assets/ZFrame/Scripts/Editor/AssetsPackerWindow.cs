@@ -8,8 +8,9 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Asset;
     using PackSymbol = AssetPacker.PackSymbol;
     public class AssetsPackerWindow : EditorWindow
     {

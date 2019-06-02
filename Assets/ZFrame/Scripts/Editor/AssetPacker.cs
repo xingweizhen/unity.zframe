@@ -7,8 +7,9 @@ using System.Text;
 //using Assets.Editor.Utils;
 using TinyJSON;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Asset;
     public static class AssetPacker
     {
         public enum AssetTarget
@@ -95,11 +96,6 @@ namespace ZFrame.Asset
             set { VersionMgr.GetAssetVer().code = value; }
             get { return VersionMgr.GetAssetVer().code; }
         }
-
-        /// <summary>
-        /// AssetBundle资源根目录
-        /// </summary>
-        public const string DIR_ASSETS = "RefAssets";
         
         private const string OTHERS = "Others";
 

@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomPropertyDrawer(typeof(ReadonlyFieldAttribute))]
-public class ReadonlyFieldAttributeDrawer : PropertyDrawer
+namespace ZFrame.Editors
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(ReadonlyFieldAttribute))]
+    public class ReadonlyFieldAttributeDrawer : PropertyDrawer
     {
-        bool previousEnableState = GUI.enabled;
-        GUI.enabled = false;
-        EditorGUI.PropertyField(position, property, label, true);
-        GUI.enabled = previousEnableState;
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUI.PropertyField(position, property, label, true);
+            EditorGUI.EndDisabledGroup();
+        }
     }
 }

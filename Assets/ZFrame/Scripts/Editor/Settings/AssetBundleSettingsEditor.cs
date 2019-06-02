@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.MemoryProfiler;
 using UnityEditorInternal;
 
-namespace ZFrame
+namespace ZFrame.Editors
 {
     [CustomEditor(typeof(AssetBundleSettings))]
     public class AssetBundleSettingsEditor : Editor
@@ -16,13 +17,9 @@ namespace ZFrame
         {
             var serializedProperty = serializedObject.FindProperty(property);
             return new ReorderableList(serializedObject, serializedProperty, true, false, false, true) {
+                headerHeight = 0,
                 drawElementCallback = (rect, index, isActive, isFocus) => {
-                    var path = serializedProperty.GetArrayElementAtIndex(index).stringValue;
-
-                    var defColor = GUI.color; 
-                    GUI.color = System.IO.Directory.Exists(path) ? defColor : Color.red;
-                    EditorGUI.LabelField(rect, path);
-                    GUI.color = defColor;
+                    FrameworkSettingsWindow.DrawFolderPath(serializedProperty, index, rect);
                 },
             };
         }
@@ -38,7 +35,7 @@ namespace ZFrame
 
         private void DrawFolderEditGUI(string name, ReorderableList list, ref bool toggle)
         {
-            EditorGUILayout.BeginVertical("GroupBox");
+            EditorGUILayout.BeginVertical("HelpBox");
             toggle = EditorGUILayout.Foldout(toggle, name);
             if (toggle) {
                 var folder = EditorGUILayout.ObjectField("添加文件夹", null, typeof(DefaultAsset), true);

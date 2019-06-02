@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
     /// <summary>
     /// Git 工具

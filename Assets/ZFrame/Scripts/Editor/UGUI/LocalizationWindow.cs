@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace ZFrame.UGUI
 {
+    using Editors;
     public class LocalizationWindow : EditorWindow
     {
         private Vector2 m_KeyPos;
@@ -94,7 +95,7 @@ namespace ZFrame.UGUI
 
         public IEnumerator<string> FindTextUsedInUI(string key)
         {
-            foreach (var path in AssetDatabase.GetAssetPathsFromAssetBundle("ui")) {
+            foreach (var path in AssetDatabase.GetAssetPathsFromAssetBundle(UGUITools.settings.uiBundlePath)) {
                 var prefab = AssetDatabase.LoadMainAssetAtPath(path) as GameObject;
                 if(prefab) {
                     foreach (var com in prefab.GetComponentsInChildren(typeof(ILabel), true)) {

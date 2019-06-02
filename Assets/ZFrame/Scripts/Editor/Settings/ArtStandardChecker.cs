@@ -4,28 +4,23 @@ using UnityEngine;
 using UnityEditor;
 using ZFrame.UGUI;
 
-namespace ZFrame.Asset
+namespace ZFrame.Settings
 {
-    [CreateAssetMenu(menuName = "Settings/ArtStandardChecker")]
-    public class ArtStandardChecker : ScriptableObject
+    public class ArtStandardChecker : ZFrameSettings4Folder
     {
         [System.Serializable]
-        public class CheckConfig
+        protected class CheckConfig : SettingsBase
         {
-            [NamedProperty("规范类别"), Tooltip("定义一个名称，比如：角色、怪物或物件")]
-            public string cfgName;
-
             [NamedProperty("贴图大小")]
             public int textureSize;
             [NamedProperty("三角面")]
             public int triangles;
             [NamedProperty("骨骼数")]
             public int bones;
-            public List<string> paths;
 
             public void Check()
             {
-                foreach (var path in paths) {
+                foreach (var path in folders) {
                     if (bones > 0 || triangles > 0) {
                         var files = System.IO.Directory.GetFiles(path, "*.FBX", System.IO.SearchOption.AllDirectories);
                         foreach (var file in files) {
@@ -81,16 +76,16 @@ namespace ZFrame.Asset
         }
 
         [SerializeField, HideInInspector]
-        private List<CheckConfig> m_Cfgs;
+        private List<CheckConfig> m_SettingsList;
 
         public void Check(int index = -1)
         {
             if (index < 0) {
-                foreach (var cfg in m_Cfgs) {
+                foreach (var cfg in m_SettingsList) {
                     cfg.Check();
                 }
-            } else if (index < m_Cfgs.Count) {
-                m_Cfgs[index].Check();
+            } else if (index < m_SettingsList.Count) {
+                m_SettingsList[index].Check();
             }
         }
     }

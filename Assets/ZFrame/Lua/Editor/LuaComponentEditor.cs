@@ -5,8 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace ZFrame.Lua
+namespace ZFrame.Editors
 {
+    using Lua;
     [CustomEditor(typeof(LuaComponent), true)]
     public class LuaComponentEditor : UGUI.UIWindowEditor
     {

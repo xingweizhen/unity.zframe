@@ -7,11 +7,14 @@ namespace ZFrame.UGUI
     using Asset;
     public class UGUISettings : ScriptableObject
     {
-
-        [SerializeField, NamedProperty("图集资源根目录")] private string m_AtlasRoot = "atlas/";
+        [SerializeField, AssetPath("UI预设根目录", typeof(UnityEditor.DefaultAsset))]
+        private string m_UItFolder;
+        public string uiFolder { get { return m_UItFolder; } }
+        
+        [SerializeField, NamedProperty("图集包所在路径")] private string m_AtlasRoot = "atlas/";
         public string atlasRoot { get { return m_AtlasRoot; } }
 
-        [SerializeField, AssetRef("界面资源包", bundleOnly = true)] private string m_UIBundlePath = "UI/";
+        [SerializeField, NamedProperty("界面资源包名")] private string m_UIBundlePath = "ui";
         public string uiBundlePath { get { return m_UIBundlePath; } }
 
         [SerializeField, AssetRef(type: typeof(Font), name: "主字体")]

@@ -49,6 +49,17 @@ public class AssetRefAttribute : NamedPropertyAttribute
 }
 
 [Conditional(LogMgr.UNITY_EDITOR)]
+public class AssetPathAttribute : NamedPropertyAttribute
+{
+    public System.Type type { get; private set; }
+    
+    public AssetPathAttribute(string name = null, System.Type type = null) : base(name)
+    {
+        this.type = type ?? typeof(Object);
+    }
+}
+
+[Conditional(LogMgr.UNITY_EDITOR)]
 public class AudioRefAttribute : PropertyAttribute
 {
     

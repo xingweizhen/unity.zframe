@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Asset;
     [CustomEditor(typeof(AssetDownload))]
     public class AssetDownloadEditor : MonoBehaviorEditor
     {

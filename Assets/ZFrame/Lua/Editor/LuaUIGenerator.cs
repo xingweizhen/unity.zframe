@@ -7,8 +7,10 @@ using System.IO;
 using System.Text;
 using ZFrame.UGUI;
 
-namespace ZFrame.Lua
+namespace ZFrame.Editors
 {
+    using Lua;
+    
     /// <summary>
     /// 自动生成Lua脚本处理UI表现和逻辑
     /// 1. 每次只能选择一个UI的预设
@@ -509,8 +511,8 @@ namespace ZFrame.Lua
                 string prefabPath = null;
                 Object prefab = null;
                 if (type == PrefabType.None) {
-                    prefabPath = string.Format("Assets/{0}/BUNDLE/UI/{1}.prefab",
-                        ZFrame.Asset.AssetPacker.DIR_ASSETS, selectedObj.name);
+                    prefabPath = string.Format("{0}/{1}.prefab",
+                        UGUITools.settings.uiFolder, selectedObj.name);
                     prefab = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
                 } else {
 #if UNITY_2018

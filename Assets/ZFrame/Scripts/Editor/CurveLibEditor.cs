@@ -4,63 +4,66 @@ using UnityEditorInternal;
 using System.Collections;
 using System.IO;
 
-[CustomEditor(typeof(CurveLib))]
-public class CurveLibEditor : Editor
+namespace ZFrame.Editors
 {
-    private ReorderableList m_CurvesList;
-
-    private void OnEnable()
+    [CustomEditor(typeof(CurveLib))]
+    public class CurveLibEditor : Editor
     {
-        var curves = serializedObject.FindProperty("m_Curves");
+        private ReorderableList m_CurvesList;
 
-        m_CurvesList = new ReorderableList(serializedObject, curves, true, true, true, true);
-        m_CurvesList.drawHeaderCallback = DrawNamedCurveHeader;
-        m_CurvesList.drawElementCallback = DrawNamedCurveElement;
-        m_CurvesList.elementHeight = (EditorGUIUtility.singleLineHeight + 2) * 2 + 10;
-    }
+        private void OnEnable()
+        {
+            var curves = serializedObject.FindProperty("m_Curves");
 
-    private void DrawNamedCurveHeader(Rect rect)
-    {
-        EditorGUI.LabelField(rect, "命名曲线库");
-    }
+            m_CurvesList = new ReorderableList(serializedObject, curves, true, true, true, true);
+            m_CurvesList.drawHeaderCallback = DrawNamedCurveHeader;
+            m_CurvesList.drawElementCallback = DrawNamedCurveElement;
+            m_CurvesList.elementHeight = (EditorGUIUtility.singleLineHeight + 2) * 2 + 10;
+        }
 
-    private void DrawNamedCurveElement(Rect rect, int index, bool selected, bool focused)
-    {
-        SerializedProperty element = m_CurvesList.serializedProperty.GetArrayElementAtIndex(index);
+        private void DrawNamedCurveHeader(Rect rect)
+        {
+            EditorGUI.LabelField(rect, "命名曲线库");
+        }
 
-        rect.y += 2;
-        rect.height = m_CurvesList.elementHeight;
+        private void DrawNamedCurveElement(Rect rect, int index, bool selected, bool focused)
+        {
+            SerializedProperty element = m_CurvesList.serializedProperty.GetArrayElementAtIndex(index);
+
+            rect.y += 2;
+            rect.height = m_CurvesList.elementHeight;
 
 #if UNITY_5
         using (new EditorGUI.PropertyScope(rect, null, element)) {
 #else
-        {
-            EditorGUI.BeginProperty(rect, null, element);
+            {
+                EditorGUI.BeginProperty(rect, null, element);
 #endif
-            var lbW = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 50;
+                var lbW = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = 50;
 
-            var name = element.FindPropertyRelative("name");
-            var curve = element.FindPropertyRelative("curve");
+                var name = element.FindPropertyRelative("name");
+                var curve = element.FindPropertyRelative("curve");
 
-            var pos = new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight);
-            name.stringValue = EditorGUI.TextField(pos, "名称", name.stringValue);
-            
-            pos.y += pos.height + 2;
-            curve.animationCurveValue = EditorGUI.CurveField(pos, "曲线", curve.animationCurveValue);
+                var pos = new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight);
+                name.stringValue = EditorGUI.TextField(pos, "名称", name.stringValue);
 
-            EditorGUIUtility.labelWidth = lbW;
+                pos.y += pos.height + 2;
+                curve.animationCurveValue = EditorGUI.CurveField(pos, "曲线", curve.animationCurveValue);
+
+                EditorGUIUtility.labelWidth = lbW;
 #if !UNITY_5
-            EditorGUI.EndProperty();
+                EditorGUI.EndProperty();
 #endif
+            }
         }
-    }
 
-    public override void OnInspectorGUI()
-    {
-        serializedObject.Update();
-        m_CurvesList.DoLayoutList();
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+            m_CurvesList.DoLayoutList();
 
-        serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
+        }
     }
 }

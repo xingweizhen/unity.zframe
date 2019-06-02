@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame.Asset
+namespace ZFrame.Settings
 {
-	public abstract class AssetProcessSettings : ScriptableObject
+	public abstract class AssetProcessSettings : ZFrameSettings4Folder
 	{
         //public enum PropertyType { Boolean, Integer, Float };
 
@@ -19,15 +19,9 @@ namespace ZFrame.Asset
         //    public static implicit operator int(ProcessProperty prop) { return (int)prop.value; }
         //}
 
-        public abstract class AbstractSettings
+        protected abstract class AbstractSettings : SettingsBase
         {
-            [NamedProperty("名称")]
-            public string name;
-            public int flags;
-            public List<string> folders;
-
-            [SerializeField]
-            protected bool m_Disable;
+	        public int flags;
         }
 
         public abstract System.Enum props { get; set;  }

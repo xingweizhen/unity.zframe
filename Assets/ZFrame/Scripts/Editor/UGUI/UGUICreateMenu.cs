@@ -415,9 +415,7 @@ namespace ZFrame.UGUI
                 return;
             }
 
-            string bundleName, assetName;
-            Asset.AssetLoader.GetAssetpath(settings.uiBundlePath, out bundleName, out assetName);
-            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(settings.uiBundlePath);
 
             var list = ListPool<Component>.Get();
             foreach (var path in paths) {
@@ -461,9 +459,7 @@ namespace ZFrame.UGUI
                 return;
             }
 
-            string bundleName, assetName;
-            Asset.AssetLoader.GetAssetpath(settings.uiBundlePath, out bundleName, out assetName);
-            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(settings.uiBundlePath);
 
             var list = ListPool<Component>.Get();
             foreach (var path in paths) {
@@ -502,9 +498,7 @@ namespace ZFrame.UGUI
             loc.Reset();
             loc.currentLang = settings.defaultLang;
 
-            string bundleName, assetName;
-            Asset.AssetLoader.GetAssetpath(settings.uiBundlePath, out bundleName, out assetName);
-            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(settings.uiBundlePath);
 
             var list = ListPool<Component>.Get();
             foreach (var path in paths) {
@@ -588,9 +582,7 @@ namespace ZFrame.UGUI
             LogMgr.D("自定义文本数量：{0}", loc.customTexts.Length);
 
             // 记录UI界面资源中的本地化文本
-            string bundleName, assetName;
-            Asset.AssetLoader.GetAssetpath(settings.uiBundlePath, out bundleName, out assetName);
-            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(settings.uiBundlePath);
 
             var list = ListPool<Component>.Get();
             foreach (var path in paths) {
@@ -629,10 +621,13 @@ namespace ZFrame.UGUI
         //[MenuItem("ZFrame/本地化/重置key")]
         public static void ResetLocKeys()
         {
+            var settings = UGUITools.settings;
+            if (string.IsNullOrEmpty(settings.uiBundlePath)) {
+                return;
+            }
+            
             // 记录UI界面资源中的本地化文本
-            string bundleName, assetName;
-            Asset.AssetLoader.GetAssetpath(UGUITools.settings.uiBundlePath, out bundleName, out assetName);
-            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(settings.uiBundlePath);
 
             var list = ListPool<Component>.Get();
             var lang = UGUITools.settings.defaultLang;

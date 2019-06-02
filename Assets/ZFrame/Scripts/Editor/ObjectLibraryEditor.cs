@@ -3,8 +3,9 @@ using UnityEditor;
 using UnityEditorInternal;
 using System.Collections;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Asset;
     [CustomEditor(typeof(ObjectLibrary))]
     public class ObjectLibraryEditor : Editor
     {

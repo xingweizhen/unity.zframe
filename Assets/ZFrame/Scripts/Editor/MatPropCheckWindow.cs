@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-namespace ZFrame
+namespace ZFrame.Editors
 {
     public class MatPropCheckWindow : EditorWindow
     {

@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-namespace ZFrame
+namespace ZFrame.Editors
 {
 	using Asset;
 	[CustomEditor(typeof(AssetsMgr))]

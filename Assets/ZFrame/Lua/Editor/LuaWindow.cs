@@ -10,7 +10,7 @@ using LuaCSFunction = XLua.LuaDLL.lua_CSFunction;
 #endif
 using ILuaState = System.IntPtr;
 
-namespace ZFrame.Lua
+namespace ZFrame.Editors
 {
     public class LuaWindow : EditorWindow
     {

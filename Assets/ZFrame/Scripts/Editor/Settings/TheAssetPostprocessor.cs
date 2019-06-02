@@ -4,8 +4,9 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame.Asset
+namespace ZFrame.Editors
 {
+    using Settings;
     public class TheAssetPostprocessor : AssetPostprocessor
     {
         private TextureProcessSettings GetSettings()
