@@ -1,47 +1,22 @@
-﻿//----------------------------------------------
-//            NGUI: Next-Gen UI kit
-// Copyright © 2011-2014 Tasharen Entertainment
-//----------------------------------------------
-
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.U2D;
 
-/// <summary>
-/// Editor component used to display a list of sprites.
-/// </summary>
-
 namespace ZFrame.UGUI
 {
-    public class SpriteSelector : ScriptableWizard
+    public class SpriteSelector : EditorWindow
     {
-        public static UIAtlas atlas;
-        private static SpriteAtlas spriteAtlas;
-        public static string partialSprite;
-        public static string selectedSprite;
-        private static List<Sprite> sprites;
-
-        static public SpriteSelector instance;
-
-        void OnEnable()
-        {
-            instance = this;
-        }
-
-        void OnDisable()
-        {
-            instance = null;
-        }
+        private SpriteAtlas m_Atlas;
+        public string partialSprite { get; private set; }
+        public string selectedSprite { get; private set; }
+        private List<Sprite> m_Sprites;
 
         public delegate void Callback(string sprite);
 
-        SerializedObject mObject;
-
-        UISprite mSprite;
-        Vector2 mPos = Vector2.zero;
-        Callback mCallback;
-        float mClickTime = 0f;
+        Vector2 m_Scroll = Vector2.zero;
+        Callback m_Callback;
+        float m_ClickTime = 0f;
 
         /// <summary>
         /// Draw the custom wizard.
@@ -51,15 +26,11 @@ namespace ZFrame.UGUI
         {
             EditorGUIUtility.labelWidth = 80;
 
-            if (spriteAtlas == null) {
-                if (atlas != null) spriteAtlas = atlas.atlas;
-            }
-
-            if (spriteAtlas == null) {
+            if (m_Atlas == null) {
                 GUILayout.Label("No Atlas selected.", "LODLevelNotifyText");
             } else {
                 bool close = false;
-                GUILayout.Label(spriteAtlas.name + " Sprites", "LODLevelNotifyText");
+                GUILayout.Label(m_Atlas.name + " Sprites", "LODLevelNotifyText");
                 EditorGUILayout.Separator();
 
                 GUILayout.BeginHorizontal();
@@ -77,12 +48,12 @@ namespace ZFrame.UGUI
                 GUILayout.Space(84f);
                 GUILayout.EndHorizontal();
 
-                if (sprites == null) {
-                    sprites = new List<Sprite>();
-                    var spritePaths = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(spriteAtlas));
+                if (m_Sprites == null) {
+                    m_Sprites = new List<Sprite>();
+                    var spritePaths = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(m_Atlas));
                     foreach (var path in spritePaths) {
                         var sp = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-                        if (sp) sprites.Add(sp);
+                        if (sp) m_Sprites.Add(sp);
                     }
                 }
 
@@ -96,17 +67,17 @@ namespace ZFrame.UGUI
                 Rect rect = new Rect(10f, 0, size, size);
 
                 GUILayout.Space(10f);
-                mPos = GUILayout.BeginScrollView(mPos);
+                m_Scroll = GUILayout.BeginScrollView(m_Scroll);
                 int rows = 1;
 
-                while (offset < sprites.Count) {
+                while (offset < m_Sprites.Count) {
                     GUILayout.BeginHorizontal();
                     {
                         int col = 0;
                         rect.x = 10f;
 
-                        for (; offset < sprites.Count; ++offset) {
-                            var sprite = sprites[offset];
+                        for (; offset < m_Sprites.Count; ++offset) {
+                            var sprite = m_Sprites[offset];
                             if (sprite == null) continue;
 
                             var spriteName = sprite.name;
@@ -116,22 +87,13 @@ namespace ZFrame.UGUI
                             // Button comes first
                             if (GUI.Button(rect, "", GUIStyle.none)) {
                                 if (Event.current.button == 0) {
-                                    float delta = Time.realtimeSinceStartup - mClickTime;
-                                    mClickTime = Time.realtimeSinceStartup;
+                                    float delta = Time.realtimeSinceStartup - m_ClickTime;
+                                    m_ClickTime = Time.realtimeSinceStartup;
 
                                     if (selectedSprite != spriteName) {
-                                        if (mSprite != null) {
-                                            Undo.RecordObject(mSprite, "Atlas Selection");
-                                            EditorUtility.SetDirty(mSprite.gameObject);
-                                        }
-
-                                        SpriteSelector.selectedSprite = spriteName;
-                                        if (mCallback != null) mCallback(spriteName);
+                                        selectedSprite = spriteName;
+                                        if (m_Callback != null) m_Callback(spriteName);
                                     } else if (delta < 0.5f) close = true;
-                                } else {
-                                    //NGUIContextMenu.AddItem("Edit", false, EditSprite, sprite);
-                                    //NGUIContextMenu.AddItem("Delete", false, DeleteSprite, sprite);
-                                    //NGUIContextMenu.Show();
                                 }
                             }
 
@@ -139,7 +101,7 @@ namespace ZFrame.UGUI
                                 UISpriteEditor.DrawSprite(sprite, rect, Color.white, GUIStyle.none);
 
                                 // Draw the selection
-                                if (SpriteSelector.selectedSprite == spriteName) {
+                                if (selectedSprite == spriteName) {
                                     DrawOutline(rect, new Color(0.4f, 1f, 0f, 1f));
                                 }
                             }
@@ -186,28 +148,13 @@ namespace ZFrame.UGUI
             }
         }
 
-        /// <summary>
-        /// Show the selection wizard.
-        /// </summary>
-
-        static public void Show(Callback callback)
-        {
-            if (instance != null) {
-                instance.Close();
-                instance = null;
-            }
-
-            SpriteSelector comp = ScriptableWizard.DisplayWizard<SpriteSelector>("Select a Sprite");
-            comp.mSprite = null;
-            comp.mCallback = callback;
-        }
-
         public static void Show(SpriteAtlas spriteAtlas, string selectedSprite, Callback callback)
         {
-            SpriteSelector.spriteAtlas = spriteAtlas;
-            SpriteSelector.selectedSprite = selectedSprite;
-            sprites = null;
-            Show(callback);
+            var comp = GetWindow<SpriteSelector>("Select a Sprite");
+            comp.selectedSprite = selectedSprite;
+            comp.m_Callback = callback;
+            comp.m_Atlas = spriteAtlas;
+            comp.m_Sprites = null;
         }
     }
 }

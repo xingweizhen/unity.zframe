@@ -87,6 +87,7 @@ namespace ZFrame.UGUI
                     root.SetParent(SelectedRoot(true).transform, false);
                     UnityEditor.Selection.activeTransform = root;
                 }
+                graphic.transform.localScale = Vector3.one;
             }
         }
 #endif

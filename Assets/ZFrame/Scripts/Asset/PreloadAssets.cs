@@ -15,7 +15,7 @@ namespace ZFrame.Asset
     [System.Serializable]
     public class PreloadAsset
     {
-        [AssetRef(bundleOnly = true)]
+        [AssetRef("", bundleOnly = true)]
         public string path;
         public LoadMethod method;
         public PreloadAsset(string path, LoadMethod method)

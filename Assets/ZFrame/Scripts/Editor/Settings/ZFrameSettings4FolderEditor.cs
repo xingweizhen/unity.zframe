@@ -36,11 +36,9 @@ namespace ZFrame.Editors
 			m_SelIndex = 0;
 			m_SelSettings = m_SettingsList.arraySize > 0 ? m_SettingsList.GetArrayElementAtIndex(0) : null;
             
-			m_Folders = new ReorderableList(serializedObject, null, true, true, false, true) {
+			m_Folders = new ReorderableList(serializedObject, null, true, false, false, true) {
+				headerHeight =  0,
 				elementHeight = EditorGUIUtility.singleLineHeight + 2,
-				drawHeaderCallback = rect => {
-					EditorGUI.LabelField(rect, "适用于以下文件夹：");
-				},
 				drawElementCallback = (rect, index, isActive, isFocused) => {
 					FrameworkSettingsWindow.DrawFolderPath(m_Folders.serializedProperty, index, rect);
 				},
@@ -109,32 +107,6 @@ namespace ZFrame.Editors
 			EditorGUILayout.PropertyField(m_SelSettings, true);
 		}
 
-		protected void DrawFolderList()
-		{
-			var array = m_Folders.serializedProperty;
-			if (array == null) return;
-            
-			EditorGUI.BeginChangeCheck();
-			var folder = EditorGUILayout.ObjectField("拖入文件夹", null, typeof(DefaultAsset), true);
-			if (EditorGUI.EndChangeCheck()) {
-				var path = folder != null ? AssetDatabase.GetAssetPath(folder) : null;
-				for (int i = 0; i < array.arraySize; ++i) {
-					if (path == array.GetArrayElementAtIndex(i).stringValue) {
-						path = null;
-					}
-				}
-				if (!string.IsNullOrEmpty(path)) {
-					var insertIndex = array.arraySize;
-					array.InsertArrayElementAtIndex(insertIndex);
-					array.GetArrayElementAtIndex(insertIndex).stringValue = path;
-				}
-			}
-
-			EditorGUI.indentLevel++;
-			m_Folders.DoLayoutList();
-			EditorGUI.indentLevel--;
-		}
-
 		public override void OnInspectorGUI()
 		{
 			DrawSettingsHeader();
@@ -156,10 +128,36 @@ namespace ZFrame.Editors
 				EditorGUI.EndDisabledGroup();
 				
 				EditorGUILayout.Separator();
-				DrawFolderList();
+				DrawFolderList(m_Folders);
 			} else { }
             
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		public static void DrawFolderList(ReorderableList list)
+		{
+			var array = list.serializedProperty;
+			if (array == null) return;
+
+			EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+			EditorGUI.BeginChangeCheck();
+			var folder = EditorGUILayout.ObjectField("添加文件夹", null, typeof(DefaultAsset), true);
+			if (EditorGUI.EndChangeCheck()) {
+				var path = folder != null ? AssetDatabase.GetAssetPath(folder) : null;
+				for (int i = 0; i < array.arraySize; ++i) {
+					if (path == array.GetArrayElementAtIndex(i).stringValue) {
+						path = null;
+					}
+				}
+				if (!string.IsNullOrEmpty(path)) {
+					var insertIndex = array.arraySize;
+					array.InsertArrayElementAtIndex(insertIndex);
+					array.GetArrayElementAtIndex(insertIndex).stringValue = path;
+				}
+			}
+			
+			list.DoLayoutList();
+			EditorGUILayout.EndVertical();
 		}
 	}
 }

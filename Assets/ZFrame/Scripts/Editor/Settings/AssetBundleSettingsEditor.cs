@@ -35,26 +35,10 @@ namespace ZFrame.Editors
 
         private void DrawFolderEditGUI(string name, ReorderableList list, ref bool toggle)
         {
-            EditorGUILayout.BeginVertical("HelpBox");
             toggle = EditorGUILayout.Foldout(toggle, name);
             if (toggle) {
-                var folder = EditorGUILayout.ObjectField("添加文件夹", null, typeof(DefaultAsset), true);
-                string path = folder != null ? AssetDatabase.GetAssetPath(folder) : null;
-                var arrayProperty = list.serializedProperty;
-                for (int i = 0; i < arrayProperty.arraySize; ++i) {
-                    if (path == arrayProperty.GetArrayElementAtIndex(i).stringValue) {
-                        path = null;
-                    }
-                }
-                if (!string.IsNullOrEmpty(path)) {
-                    var insertIndex = arrayProperty.arraySize;
-                    arrayProperty.InsertArrayElementAtIndex(insertIndex);
-                    arrayProperty.GetArrayElementAtIndex(insertIndex).stringValue = path;
-                }
-
-                list.DoLayoutList();
+                ZFrameSettings4FolderEditor.DrawFolderList(list);
             }
-            EditorGUILayout.EndVertical();
         }
 
         public override void OnInspectorGUI()

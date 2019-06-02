@@ -20,6 +20,8 @@ namespace ZFrame.Settings
 
             public void Check()
             {
+                if (m_Disable) return;
+                
                 foreach (var path in folders) {
                     if (bones > 0 || triangles > 0) {
                         var files = System.IO.Directory.GetFiles(path, "*.FBX", System.IO.SearchOption.AllDirectories);

@@ -14,7 +14,7 @@ namespace ZFrame.Editors
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var assetRef = (AssetRefAttribute)attribute;
-            if (!string.IsNullOrEmpty(assetRef.name)) {
+            if (assetRef.name != null) {
                 label.text = assetRef.name;
             }
 
@@ -25,7 +25,7 @@ namespace ZFrame.Editors
         {
             //label = new GUIContent(label);
             var assetRef = (AssetRefAttribute)attribute;
-            if (!string.IsNullOrEmpty(assetRef.name)) {
+            if (assetRef.name != null) {
                 label.text = assetRef.name;
             }
 

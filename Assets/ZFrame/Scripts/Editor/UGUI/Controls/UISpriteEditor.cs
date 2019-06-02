@@ -91,7 +91,12 @@ namespace ZFrame.UGUI
             var newSprite = EditorGUILayout.ObjectField(self.overrideSprite, typeof(Sprite), false) as Sprite;
             if (EditorGUI.EndChangeCheck()) {
                 UpdateSprite(newSprite);
-                changed = true;
+                if (newSprite) {
+                    changed = true;
+                } else {
+                    self.overrideSprite = null;
+                    m_SpriteName.stringValue = null;
+                }
             }
 
             EditorGUI.BeginDisabledGroup(self.atlas == null);
@@ -131,12 +136,12 @@ namespace ZFrame.UGUI
             EditorGUILayout.PropertyField(m_PreserveAspect);
             --EditorGUI.indentLevel;
 
-            if (self.overrideSprite) {
-                var imgType = (Image.Type)m_Type.enumValueIndex;
-                SetShowNativeSize(self.overrideSprite && (imgType == Image.Type.Simple || imgType == Image.Type.Filled),
-                    true);
-                NativeSizeButtonGUI();
-            }
+            var imgType = (Image.Type)m_Type.enumValueIndex;
+            var showNative = self.overrideSprite && (imgType == Image.Type.Simple || imgType == Image.Type.Filled);
+            SetShowNativeSize(true, true);
+            EditorGUI.BeginDisabledGroup(!showNative);
+            NativeSizeButtonGUI();
+            EditorGUI.EndDisabledGroup();
         }
 
         private void AtlasGUI()
@@ -187,6 +192,12 @@ namespace ZFrame.UGUI
         {
             var self = (UISprite)target;
 
+            /*
+            if (self.overrideSprite && string.IsNullOrEmpty(m_SpriteName.stringValue)) {
+                self.overrideSprite = null;
+            }
+            //*/
+            
             self.sprite = self.overrideSprite;
             //base.OnInspectorGUI();
             BaseInspectorGUI();
@@ -223,6 +234,7 @@ namespace ZFrame.UGUI
                 }
             }
             
+            /*
             if (!Application.isPlaying) {
                 if (self.atlas && !string.IsNullOrEmpty(m_SpriteName.stringValue) && self.overrideSprite == null) {
                     self.overrideSprite = self.atlas.GetSprite(m_SpriteName.stringValue);
@@ -231,6 +243,7 @@ namespace ZFrame.UGUI
                     }
                 }
             }
+            //*/
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(m_AtlasName);
