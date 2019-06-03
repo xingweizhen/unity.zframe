@@ -44,6 +44,41 @@ namespace ZFrame.Editors
             }
         }
 
+        [MenuItem("ZFrame/UI控件/全屏窗口 &#w")]
+        [MenuItem("GameObject/ZFrame UI/全屏窗口", priority = 0)]
+        private static void CreateFullScreenWindow()
+        {
+            var rect = UGUICreateMenu.CreatUIBase(null);
+            rect.name = "WNDFullScreen";
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+
+            rect.gameObject.AddComponent(typeof(LuaComponent));
+            Selection.activeTransform = rect;
+        }
+
+        [MenuItem("ZFrame/UI控件/弹出窗口 &#e")]
+        [MenuItem("GameObject/ZFrame UI/弹出窗口", priority = 0)]
+        private static void CreateSubScreenWindow()
+        {
+            var rect = UGUICreateMenu.CreatUIBase(null);
+            var spSub = UGUICreateMenu.CreateUIElm<UISprite>(rect.gameObject);
+            spSub.SetSprite(UGUICreateMenu.kStandardSpritePath);
+            spSub.name = "SubMain";
+            spSub.rectTransform.sizeDelta = new Vector2(
+                UGUITools.settings.defRes.x * 2 / 3,
+                UGUITools.settings.defRes.y * 2 / 3);
+
+            rect.name = "WNDSubScreen";
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+
+            rect.gameObject.AddComponent(typeof(LuaComponent));
+            Selection.activeTransform = rect;
+        }
+
         [MenuItem("Custom/UI脚本生成（Lua)...")]
         public static void ShowWindow()
         {

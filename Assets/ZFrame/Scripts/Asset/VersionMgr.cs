@@ -8,7 +8,7 @@ namespace ZFrame.Asset
     {
         public static VersionInfo GetAppVer()
         {
-            return Resources.Load("version", typeof(VersionInfo)) as VersionInfo;
+            return Resources.Load("VersionInfo", typeof(VersionInfo)) as VersionInfo;
         }
 
         public class Info

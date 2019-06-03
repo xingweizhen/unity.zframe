@@ -29,7 +29,7 @@ namespace ZFrame.Editors
         private const float kWidth = 160f;
         private const float kThickHeight = 60f;
         private const float kThinHeight = 40f;
-        private static string kStandardSpritePath {
+        public static string kStandardSpritePath {
             get {
                 var ues = Settings.UGUIEditorSettings.Get();
                 var startIdx = UGUITools.settings.atlasRoot.Length;
@@ -38,7 +38,7 @@ namespace ZFrame.Editors
             }
         }
 
-        private static string kBackgroundSpriteResourcePath {
+        public static string kBackgroundSpriteResourcePath {
             get {
                 var ues = Settings.UGUIEditorSettings.Get();
                 var startIdx = UGUITools.settings.atlasRoot.Length;
@@ -47,9 +47,9 @@ namespace ZFrame.Editors
             }
         }
 
-        private static string kInputFieldBackgroundPath { get { return kBackgroundSpriteResourcePath; } }
-        private static string kKnobPath { get { return kStandardSpritePath; } }
-        private static string kCheckmarkPath { get { return kStandardSpritePath; } }
+        public static string kInputFieldBackgroundPath { get { return kBackgroundSpriteResourcePath; } }
+        public static string kKnobPath { get { return kStandardSpritePath; } }
+        public static string kCheckmarkPath { get { return kStandardSpritePath; } }
 
 #if LANG_ZHCN
         private const string LANG = "cn";
@@ -78,7 +78,7 @@ namespace ZFrame.Editors
         private static Color s_PanelColor = new Color(1f, 1f, 1f, 0.392f);
         private static Color s_TextColor = Color.white;
 
-        static RectTransform CreatUIBase(GameObject parent)
+        public static RectTransform CreatUIBase(GameObject parent)
         {
             if (parent == null) parent = UGUITools.SelectedRoot(true);
 
@@ -87,11 +87,10 @@ namespace ZFrame.Editors
             go.Attach(parent ? parent.transform : null, false);
             var rectTrans = go.AddComponent<RectTransform>();
             rectTrans.anchoredPosition = Vector2.zero;
-            go.AddComponent<CanvasRenderer>();
             return rectTrans;
         }
 
-        static T CreateUIElm<T>(GameObject parent, params System.Type[] ComponentTypes) where T : MonoBehaviour
+        public static T CreateUIElm<T>(GameObject parent, params System.Type[] ComponentTypes) where T : MonoBehaviour
         {
             RectTransform rect = CreatUIBase(parent);
             T c = rect.gameObject.AddComponent<T>();
@@ -102,7 +101,7 @@ namespace ZFrame.Editors
             return c;
         }
 
-        static _Label getUILabel(GameObject parent, string name, string text)
+        public static _Label CreateUILabel(GameObject parent, string name, string text)
         {
             _Label lb = CreateUIElm<_Label>(parent);
             lb.name = name;
@@ -120,7 +119,7 @@ namespace ZFrame.Editors
             return lb;
         }
 
-        static void setUISprite(UISprite sp, string name, string resPath, UISprite.Type spType, Color color)
+        private static void InitUISprite(UISprite sp, string name, string resPath, UISprite.Type spType, Color color)
         {
             sp.name = name;
             sp.type = spType;
@@ -130,9 +129,10 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/文本(_Label) &#l")]
+        [MenuItem("GameObject/ZFrame UI/文本(_Label)", priority = 0)]
         static void CreateUILabel()
         {
-            _Label lb = getUILabel(null, "lbText", LABEL);
+            _Label lb = CreateUILabel(null, "lbText", LABEL);
             lb.rectTransform.sizeDelta = s_ThinGUIElementSize;
 #if USING_TMP
             lb.alignment = _TextAnchor.Center;
@@ -144,6 +144,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/图片(Sprite) &#s")]
+        [MenuItem("GameObject/ZFrame UI/图片(Sprite)", priority = 0)]
         static void CreateUISprite()
         {
             UISprite sp = CreateUIElm<UISprite>(null);
@@ -156,6 +157,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/原始图片(Texture) &#t")]
+        [MenuItem("GameObject/ZFrame UI/原始图片(Texture)", priority = 0)]
         static void CreateUITexture()
         {
             UITexture sp = CreateUIElm<UITexture>(null);
@@ -165,14 +167,15 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/按钮(Button) &#b")]
+        [MenuItem("GameObject/ZFrame UI/按钮(Button)", priority = 0)]
         static void CreateUIButton()
         {
             UIButton btn = CreateUIElm<UIButton>(null, typeof(UISprite));
             var sp = btn.GetComponent<UISprite>();
-            setUISprite(sp, "btnButton", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(sp, "btnButton", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             sp.raycastTarget = true;
             sp.rectTransform.sizeDelta = s_ThickGUIElementSize;
-            _Label lb = getUILabel(btn.gameObject, "lbText_", BUTTON);
+            _Label lb = CreateUILabel(btn.gameObject, "lbText_", BUTTON);
             lb.localized = true;
             lb.rectTransform.sizeDelta = s_ThinGUIElementSize;
 #if USING_TMP
@@ -188,6 +191,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/切换(Toggle) &#r")]
+        [MenuItem("GameObject/ZFrame UI/切换(Toggle)", priority = 0)]
         static void CreateUIToggle()
         {
             UIToggle tgl = CreateUIElm<UIToggle>(null);
@@ -196,7 +200,7 @@ namespace ZFrame.Editors
             rectTrans.sizeDelta = s_ThickGUIElementSize;
 
             UISprite spBack = CreateUIElm<UISprite>(tgl.gameObject);
-            setUISprite(spBack, "spBack_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "spBack_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spBack.raycastTarget = true;
             spBack.rectTransform.anchorMin = new Vector2(0, 0.5f);
             spBack.rectTransform.anchorMax = new Vector2(0, 0.5f);
@@ -204,12 +208,12 @@ namespace ZFrame.Editors
             spBack.rectTransform.anchoredPosition = new Vector2(10, 0);
 
             UISprite spChk = CreateUIElm<UISprite>(spBack.gameObject);
-            setUISprite(spChk, "spChk_", kCheckmarkPath, UISprite.Type.Simple, Color.white);
+            InitUISprite(spChk, "spChk_", kCheckmarkPath, UISprite.Type.Simple, Color.white);
             spChk.SetNativeSize();
             //spChk.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             //spChk.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);        
 
-            _Label lb = getUILabel(tgl.gameObject, "lbText_", TOGGLE);
+            _Label lb = CreateUILabel(tgl.gameObject, "lbText_", TOGGLE);
             lb.localized = true;
             lb.rectTransform.pivot = new Vector2(0, 0.5f);
             lb.rectTransform.anchorMin = new Vector2(0, 0.5f);
@@ -225,6 +229,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/进度条(ProgressBar)")]
+        [MenuItem("GameObject/ZFrame UI/进度条(ProgressBar)", priority = 0)]
         static void CreateUIProgressBar()
         {
             UIProgress bar = CreateUIElm<UIProgress>(null);
@@ -233,7 +238,7 @@ namespace ZFrame.Editors
             rectTrans.sizeDelta = new Vector2(160, 20);
 
             UISprite spBack = CreateUIElm<UISprite>(bar.gameObject);
-            setUISprite(spBack, "spBack_", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "spBack_", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spBack.rectTransform.anchorMin = new Vector2(0, 0f);
             spBack.rectTransform.anchorMax = new Vector2(1, 1f);
             spBack.rectTransform.offsetMin = new Vector2(0, 0);
@@ -241,7 +246,7 @@ namespace ZFrame.Editors
 
             UISprite spFill = CreateUIElm<UISprite>(bar.gameObject);
             bar.m_CurrBar = spFill;
-            setUISprite(spFill, "spFill_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spFill, "spFill_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spFill.rectTransform.offsetMin = new Vector2(0, 0);
             spFill.rectTransform.offsetMax = new Vector2(0, 0);
 
@@ -249,6 +254,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滑块(Slider)")]
+        [MenuItem("GameObject/ZFrame UI/滑块(Slider)", priority = 0)]
         static void CreateUISlider()
         {
             UISlider sld = CreateUIElm<UISlider>(null);
@@ -258,7 +264,7 @@ namespace ZFrame.Editors
 
             UISprite spBack = CreateUIElm<UISprite>(sld.gameObject);
             sld.targetGraphic = spBack;
-            setUISprite(spBack, "spBack_", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "spBack_", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spBack.raycastTarget = true;
             spBack.rectTransform.anchorMin = new Vector2(0, 0f);
             spBack.rectTransform.anchorMax = new Vector2(1, 1f);
@@ -267,13 +273,13 @@ namespace ZFrame.Editors
 
             UISprite spFill = CreateUIElm<UISprite>(sld.gameObject);
             sld.fillRect = spFill.rectTransform;
-            setUISprite(spFill, "spFill_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spFill, "spFill_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spFill.rectTransform.offsetMin = new Vector2(0, 0);
             spFill.rectTransform.offsetMax = new Vector2(0, 0);
 
             UISprite spHandle = CreateUIElm<UISprite>(sld.gameObject);
             sld.handleRect = spHandle.rectTransform;
-            setUISprite(spHandle, "spHandle_", kKnobPath, UISprite.Type.Simple, s_DefaultSelectableColor);
+            InitUISprite(spHandle, "spHandle_", kKnobPath, UISprite.Type.Simple, s_DefaultSelectableColor);
             spHandle.rectTransform.anchoredPosition = Vector2.zero;
             spHandle.rectTransform.sizeDelta = new Vector2(20, 0);
 
@@ -287,11 +293,11 @@ namespace ZFrame.Editors
             rectTrans.sizeDelta = sizeDelta;
 
             UISprite spBack = srb.GetComponent<UISprite>();
-            setUISprite(spBack, "srbScroll", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "srbScroll", kBackgroundSpriteResourcePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
 
             UISprite spHandle = CreateUIElm<UISprite>(srb.gameObject);
             srb.handleRect = spHandle.rectTransform;
-            setUISprite(spHandle, "spHandle_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spHandle, "spHandle_", kStandardSpritePath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spHandle.rectTransform.offsetMin = new Vector2(0, 0);
             spHandle.rectTransform.offsetMax = new Vector2(0, 0);
             srb.size = 0.2f;
@@ -301,6 +307,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从左到右(→)")]
+        [MenuItem("GameObject/ZFrame UI/滚动条(Scrollbar)/从左到右(→)", priority = 0)]
         static void CreateUIScrollbar_L2R()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kWidth, kThinHeight));
@@ -308,6 +315,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从右到左(←)")]
+        [MenuItem("GameObject/ZFrame UI/滚动条(Scrollbar)/从右到左(←)", priority = 0)]
         static void CreateUIScrollbar_R2L()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kWidth, kThinHeight));
@@ -315,6 +323,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从下到上(↑)")]
+        [MenuItem("GameObject/ZFrame UI/滚动条(Scrollbar)/从下到上(↑)", priority = 0)]
         static void CreateUIScrollbar_B2T()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kThinHeight, kWidth));
@@ -322,6 +331,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滚动条(Scrollbar)/从上到下(↓)")]
+        [MenuItem("GameObject/ZFrame UI/滚动条(Scrollbar)/从上到下(↓)", priority = 0)]
         static void CreateUIScrollbar_T2B()
         {
             UIScrollbar srb = CreateUIScrollbar(new Vector2(kThinHeight, kWidth));
@@ -329,6 +339,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/输入框(Input)")]
+        [MenuItem("GameObject/ZFrame UI/输入框(Input)", priority = 0)]
         static void CreateUIInput()
         {
 #if USING_TMP
@@ -371,10 +382,10 @@ namespace ZFrame.Editors
             rectTrans.sizeDelta = s_ThickGUIElementSize;
 
             UISprite spBack = inp.GetComponent<UISprite>();
-            setUISprite(spBack, "inpInput", kInputFieldBackgroundPath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "inpInput", kInputFieldBackgroundPath, UISprite.Type.Sliced, s_DefaultSelectableColor);
             spBack.raycastTarget = true;
 
-            _Label lbHold = getUILabel(inp.gameObject, "lbHold_", "输入文本...");
+            _Label lbHold = CreateUILabel(inp.gameObject, "lbHold_", "输入文本...");
             lbHold.localized = true;
             inp.placeholder = lbHold;
             lbHold.rectTransform.anchorMin = new Vector2(0, 0f);
@@ -384,7 +395,7 @@ namespace ZFrame.Editors
             lbHold.color = Color.gray;
             lbHold.fontStyle = _FontStyle.Italic;
 
-            _Label lbText = getUILabel(inp.gameObject, "lbText_", "");
+            _Label lbText = CreateUILabel(inp.gameObject, "lbText_", "");
             inp.textComponent = lbText;
             lbText.supportRichText = false; // 输入框不支持富文本
             lbText.rectTransform.anchorMin = new Vector2(0, 0f);
@@ -397,6 +408,7 @@ namespace ZFrame.Editors
         }
 
         [MenuItem("ZFrame/UI控件/滚动窗口(ScrollView)")]
+        [MenuItem("GameObject/ZFrame UI/滚动窗口(ScrollView)", priority = 0)]
         static void CreateUIScrollView()
         {
             UIScrollView subScroll = CreateUIElm<UIScrollView>(null);
@@ -430,6 +442,7 @@ namespace ZFrame.Editors
         {
             var settings = UGUITools.settings;
             if (string.IsNullOrEmpty(settings.uiBundlePath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/界面资源包名`未指定");
                 return;
             }
 
@@ -449,12 +462,12 @@ namespace ZFrame.Editors
                         var c = com.name[com.name.Length - 1];
                         if (c == '=' || c == '_') {
                             if (!lb.localized) {
-                                LogMgr.D("缺少本地化勾选：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
+                                LogMgr.D(prefab, "缺少本地化勾选：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
                             } else if (string.IsNullOrEmpty(lb.rawText)) {
-                                LogMgr.W("缺少本地化键值：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
+                                LogMgr.W(prefab, "缺少本地化键值：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
                             }
                         } else if (lb.localized) {
-                            LogMgr.W("错误的本地化勾选：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
+                            LogMgr.W(prefab, "错误的本地化勾选：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
                         }
                     }
 
@@ -474,6 +487,7 @@ namespace ZFrame.Editors
         {
             var settings = UGUITools.settings;
             if (string.IsNullOrEmpty(settings.uiBundlePath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/界面资源包名`未指定");
                 return;
             }
 
@@ -491,7 +505,7 @@ namespace ZFrame.Editors
                         var com = (Component)lb;
                         var c = com.name[com.name.Length - 1];
                         if (lb.localized && string.IsNullOrEmpty(lb.rawText)) {
-                            LogMgr.W("使用空字符串作为本地化键值：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
+                            LogMgr.W(prefab, "使用空字符串作为本地化键值：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
                         }
                     }
 
@@ -506,11 +520,19 @@ namespace ZFrame.Editors
         {
             var settings = UGUITools.settings;
             if (string.IsNullOrEmpty(settings.uiBundlePath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/界面资源包名`未指定");
                 return;
             }
+            
+            if (string.IsNullOrEmpty(settings.locAssetPath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/本地化资源`未指定");
+                return;
+            }
+            
             var loc = Asset.AssetLoader.EditorLoadAsset(typeof(Localization),
                settings.locAssetPath) as Localization;
             if (loc == null) {
+                Debug.LogWarningFormat("本地化文件资源不存在({0})", settings.locAssetPath);
                 return;
             }
             loc.Reset();
@@ -531,7 +553,7 @@ namespace ZFrame.Editors
                         var c = com.name[com.name.Length - 1];
                         var txt = loc.Get(lb.rawText);
                         if (lb.localized && !string.Equals(txt,lb.text)) {
-                            LogMgr.W("本地化值与预制界面值不符：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
+                            LogMgr.W(prefab, "本地化值与预制界面值不符：{0}/{1}", prefab.name, com.GetHierarchy(go.transform));
                         }
                     }
 
@@ -545,13 +567,20 @@ namespace ZFrame.Editors
         public static void UpdateLocConfig()
         {
             var settings = UGUITools.settings;
-            if (string.IsNullOrEmpty(settings.uiBundlePath) || string.IsNullOrEmpty(settings.locAssetPath)) {
+            if (string.IsNullOrEmpty(settings.uiBundlePath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/界面资源包名`未指定");
+                return;
+            }
+            
+            if (string.IsNullOrEmpty(settings.locAssetPath)) {
+                Debug.LogWarning("`ZFrame/设置选项.../UGUI界面设置/本地化资源`未指定");
                 return;
             }
 
             var loc = Asset.AssetLoader.EditorLoadAsset(typeof(Localization),
                 settings.locAssetPath) as Localization;
             if (loc == null) {
+                Debug.LogWarningFormat("本地化文件资源不存在({0})", settings.locAssetPath);
                 return;
             }
             loc.Reset();
@@ -615,7 +644,7 @@ namespace ZFrame.Editors
                         if (!loc.IsLocalized(lb.rawText)) {
                             loc.Set(lb.rawText, lb.text);
                             var com = lb as Component;
-                            LogMgr.D("添加静态文本：{0} @{1}/{2}", lb.rawText, prefab.name,
+                            LogMgr.D(prefab, "添加静态文本：{0} @{1}/{2}", lb.rawText, prefab.name,
                                 com.transform.GetHierarchy(prefab.transform));
                         }
 
