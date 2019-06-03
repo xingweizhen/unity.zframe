@@ -3,8 +3,10 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(Fading), true)]
     [CanEditMultipleObjects()]
     public class FadingEditor : InteractFadeEditor

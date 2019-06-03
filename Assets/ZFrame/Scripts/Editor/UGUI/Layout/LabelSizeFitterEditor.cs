@@ -4,8 +4,10 @@ using UnityEditor;
 using UnityEditor.UI;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CanEditMultipleObjects]
     [CustomEditor(typeof(LabelSizeFitter))]
     public class LabelSizeFitterEditor : Editor

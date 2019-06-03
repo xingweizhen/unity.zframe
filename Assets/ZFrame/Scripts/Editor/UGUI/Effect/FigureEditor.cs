@@ -3,8 +3,10 @@ using UnityEditor;
 using UnityEditor.UI;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(Figure), true), CanEditMultipleObjects]    
     public class FigureEditor : SelfControllerEditor
     {

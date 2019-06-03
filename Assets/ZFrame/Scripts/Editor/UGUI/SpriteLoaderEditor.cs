@@ -2,8 +2,10 @@
 using UnityEditor;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(SpriteLoader))]
     [CanEditMultipleObjects]
     public class SpriteLoaderEditor : Editor

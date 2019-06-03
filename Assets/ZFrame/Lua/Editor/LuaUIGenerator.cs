@@ -511,8 +511,16 @@ namespace ZFrame.Editors
                 string prefabPath = null;
                 Object prefab = null;
                 if (type == PrefabType.None) {
-                    prefabPath = string.Format("{0}/{1}.prefab",
-                        UGUITools.settings.uiFolder, selectedObj.name);
+                    var ues = Settings.UGUIEditorSettings.Get();
+                    if (ues == null) {
+                        Debug.LogError("未找到UGUI编辑设置文件：ZFrame->设置选项...->UGUI编辑设置");
+                        return;
+                    }
+                    if (!Directory.Exists(ues.uiFolder)) {
+                        Debug.LogErrorFormat("UI预设根目录{0}不存在：ZFrame->设置选项...->UGUI编辑设置", ues.uiFolder);
+                        return;
+                    }
+                    prefabPath = string.Format("{0}/{1}.prefab", ues.uiFolder, selectedObj.name);
                     prefab = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
                 } else {
 #if UNITY_2018

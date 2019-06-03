@@ -9,6 +9,7 @@ using UnityEditor;
 namespace ZFrame.Editors
 {
     using Asset;
+    using Settings;
     public static class AssetBundleMenu
     {
         // 资源目录结构

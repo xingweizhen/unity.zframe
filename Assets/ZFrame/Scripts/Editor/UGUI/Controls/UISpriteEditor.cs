@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UISprite))]
     [CanEditMultipleObjects]
     public class UISpriteEditor : ImageEditor

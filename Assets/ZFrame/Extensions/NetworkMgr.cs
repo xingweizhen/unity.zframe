@@ -10,7 +10,7 @@ using LuaInterface;
 using XLua;
 #endif
 using ILuaState = System.IntPtr;
-#if UNITY_5
+#if UNITY_5_5_OR_NEWER
 using Assert = UnityEngine.Assertions.Assert;
 #else
 using Assert = ZFrame.Assertions.Assert;

@@ -10,8 +10,6 @@ libunity.NewChild("/UIROOT", "Launch/Singleton")
 local ENV = _G.ENV
 print(serpent.block(ENV))
 
-UE.Screen.sleepTimeout = "NeverSleep"
-UE.Application.runInBackground = true
 UE.Application.targetFrameRate = ENV.debug and -1 or 60
 UE.QualitySettings.antiAliasing = ENV.debug and 8 or 0
 
@@ -41,3 +39,18 @@ libscene.add_level("Demo", function ()
 end)
 
 -- ui.setenv("libgame", require "libgame.cs")
+
+-- 注册/初始化命令行功能
+if ENV.debug or ENV.development or _G.UserSettings["enable_console"] then
+    local CONSOLE = _G.PKG["framework/console/console"]
+    libui.key_event("F1", function ()
+	    local Wnd = ui.find("FRMConsole")
+	    if Wnd == nil then
+	        Wnd = ui.show("UI/FRMConsole", 110)
+	    	local input = libunity.Find(Wnd.go, "inpCmd")
+	    	libugui.Select(input, true)
+	    else
+	        Wnd:close()
+	    end
+    end)
+end

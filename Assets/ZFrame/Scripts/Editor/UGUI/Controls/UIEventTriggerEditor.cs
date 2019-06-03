@@ -5,8 +5,10 @@ using UnityEditorInternal;
 using UnityEditor.UI;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UIEventTrigger), true)]
     [CanEditMultipleObjects]
     public class UIEventTriggerEditor : Editor

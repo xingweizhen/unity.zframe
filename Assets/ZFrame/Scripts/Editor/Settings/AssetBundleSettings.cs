@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ZFrame
+namespace ZFrame.Settings
 {
     public class AssetBundleSettings : ScriptableObject
     {

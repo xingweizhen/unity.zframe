@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEditor;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomPropertyDrawer(typeof(EventData))]
     public class EventDataDrawer : PropertyDrawer 
     {

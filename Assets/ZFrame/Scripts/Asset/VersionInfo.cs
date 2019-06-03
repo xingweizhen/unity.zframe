@@ -13,7 +13,18 @@ namespace ZFrame.Asset
 		[SerializeField, HideInInspector]
 		private int m_Code;
 
-		public int code {
+        private void Set(int value, int shift)
+        {
+            m_Version &= ~(0xFF << shift);
+            m_Version |= (value & 0xFF) << shift;
+        }
+
+        public int major { get { return (m_Version >> 24) & 0xFF; } set { Set(value, 24); } }
+        public int minor { get { return (m_Version >> 16) & 0xFF; } set { Set(value, 16); } }
+        public int build { get { return (m_Version >> 8) & 0xFF; } set { Set(value, 8); } }
+        public int revision { get { return m_Version & 0xFF; } set { Set(value, 0); } }
+
+        public int code {
 			get {
 				return m_Code;
 			}

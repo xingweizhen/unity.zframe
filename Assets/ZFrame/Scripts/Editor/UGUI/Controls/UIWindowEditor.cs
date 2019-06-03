@@ -3,8 +3,10 @@ using UnityEngine;
 using UnityEditorInternal;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UIWindow), true)]
     [CanEditMultipleObjects()]
     public class UIWindowEditor : Editor

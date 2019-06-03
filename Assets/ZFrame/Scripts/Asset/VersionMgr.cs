@@ -11,15 +11,6 @@ namespace ZFrame.Asset
             return Resources.Load("version", typeof(VersionInfo)) as VersionInfo;
         }
 
-#if UNITY_EDITOR
-        public static VersionInfo GetAssetVer()
-        {
-            // var assetVerPath = string.Format("Assets/{0}/version.asset", AssetBundleLoader.DIR_ASSETS);
-            // return UnityEditor.AssetDatabase.LoadAssetAtPath<VersionInfo>(assetVerPath);
-            return GetAppVer();
-        }
-#endif
-
         public class Info
         {
             public string version;
@@ -68,7 +59,7 @@ namespace ZFrame.Asset
                         }
                     } else {
 #if UNITY_EDITOR
-                        var vi = GetAssetVer();
+                        var vi = GetAppVer();
                         s_AssetVer = new Info() { version = vi.version, code = vi.code };
 #else
                             

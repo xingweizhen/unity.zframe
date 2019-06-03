@@ -5,7 +5,7 @@
 -- @desc    描述
 --
 
-local DY_TIMER = _G.DY_TIMER
+local DY_TIMER = _G.libtimer
 
 local P = {}
 
@@ -14,7 +14,6 @@ function P.update_clock(pass)
     for i=#Timers,1,-1 do
         local Tm = Timers[i]
         trycall(Tm.update, Tm, pass)
-        -- Tm:update(pass)
         if Tm.paused then
             table.remove(Timers, i)
             trycall(Tm.stop, Tm)

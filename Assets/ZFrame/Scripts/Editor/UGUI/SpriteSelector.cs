@@ -3,8 +3,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.U2D;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     public class SpriteSelector : EditorWindow
     {
         private SpriteAtlas m_Atlas;

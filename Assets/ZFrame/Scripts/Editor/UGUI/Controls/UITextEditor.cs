@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
 #if USING_TMP
 	[CustomEditor(typeof(UIText))]
 	public class UITextEditor : Editor

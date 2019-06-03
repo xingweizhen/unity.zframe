@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
-    using Editors;
+    using UGUI;
     public class LocalizationWindow : EditorWindow
     {
         private Vector2 m_KeyPos;

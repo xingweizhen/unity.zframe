@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
 #if USING_TMP
     [CustomEditor(typeof(UIInputField), true)]
     public class UIInputFieldEditor : TMPro.EditorUtilities.TMP_InputFieldEditor

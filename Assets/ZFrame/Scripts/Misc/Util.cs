@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace ZFrame.Util
+namespace ZFrame
 {
     [System.Serializable]
     public class TimeCounter

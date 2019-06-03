@@ -4,8 +4,9 @@ using UnityEditorInternal;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
     [CustomEditor(typeof(Localization))]
     public class LocalizationEditor : Editor
     {

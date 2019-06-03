@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-#if UNITY_5
+#if UNITY_5_5_OR_NEWER
 using Assert = UnityEngine.Assertions.Assert;
 #else
 using Assert = ZFrame.Assertions.Assert;

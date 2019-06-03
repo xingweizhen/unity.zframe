@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TextEditor = UnityEditor.UI.TextEditor;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UILabel), true)]
     [CanEditMultipleObjects]
     public class UILabelEditor : TextEditor

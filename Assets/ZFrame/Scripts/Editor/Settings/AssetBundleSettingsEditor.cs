@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.MemoryProfiler;
 using UnityEditorInternal;
 
 namespace ZFrame.Editors
 {
+    using Settings;
+
     [CustomEditor(typeof(AssetBundleSettings))]
     public class AssetBundleSettingsEditor : Editor
     {

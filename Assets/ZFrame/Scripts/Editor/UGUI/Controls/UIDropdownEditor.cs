@@ -5,8 +5,10 @@ using UnityEngine.EventSystems;
 using UnityEditor;
 using UnityEditor.UI;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UIDropdown), true)]
     public class UIDropdownEditor : DropdownEditor
     {

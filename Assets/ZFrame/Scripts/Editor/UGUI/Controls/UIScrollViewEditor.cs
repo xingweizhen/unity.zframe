@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.UI;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UIScrollView)), CanEditMultipleObjects]
     public class UIScrollViewEditor : ScrollRectEditor
     {

@@ -163,7 +163,7 @@ namespace ZFrame.Editors
             AssetDatabase.Refresh();
 
             // 读取版本号
-            var assetVersion = VersionMgr.GetAssetVer().version;
+            var assetVersion = VersionMgr.GetAppVer().version;
 
             var productRoot = Path.Combine(Path.GetFullPath(".."), "Products");
             var productPath = Path.Combine(productRoot, folderName);
@@ -545,8 +545,8 @@ namespace ZFrame.Editors
             vertOffset += btn_height;
         }
 
-        private string m_SavedAppVer, m_SavedAssetVer;
-        private string m_AppVer, m_AssetVer;
+        private string m_SavedAppVer;
+        private string m_AppVer;
         private string m_ErrorMsg;
 
         private static void SaveVersion(VersionInfo info, string ver, int code = -1)
@@ -562,7 +562,6 @@ namespace ZFrame.Editors
             vertOffset += btn_height + 5;
             if (GUI.Button(new Rect(LEFT, vertOffset, btn_width, btn_height), "还原", EditorStyles.miniButtonLeft)) {
                 m_AppVer = null;
-                m_AssetVer = null;
                 m_ErrorMsg = string.Empty;
             }
 
@@ -570,22 +569,13 @@ namespace ZFrame.Editors
                 m_AppVer = VersionMgr.GetAppVer().version;
                 m_SavedAppVer = m_AppVer;
             }
-
-            if (m_AssetVer == null) {
-                m_AssetVer = VersionMgr.GetAssetVer().version;
-                m_SavedAssetVer = m_AssetVer;
-            }
-
+            
             if (GUI.Button(new Rect(LEFT + btn_width, vertOffset, btn_width, btn_height), "编译版本＋",
                 EditorStyles.miniButtonMid)) {
                 m_ErrorMsg = string.Empty;
                 var v = new System.Version(m_SavedAppVer);
                 v = new System.Version(v.Major, v.Minor, v.Build + 1, v.Revision);
                 m_AppVer = v.ToString();
-
-                v = new System.Version(m_SavedAssetVer);
-                v = new System.Version(v.Major, v.Minor, v.Build + 1, v.Revision);
-                m_AssetVer = v.ToString();
             }
 
             if (GUI.Button(new Rect(LEFT + btn_width * 2, vertOffset, btn_width + 20, btn_height), "修正版本＋",
@@ -594,10 +584,6 @@ namespace ZFrame.Editors
                 var v = new System.Version(m_SavedAppVer);
                 v = new System.Version(v.Major, v.Minor, v.Build, v.Revision + 1);
                 m_AppVer = v.ToString();
-
-                v = new System.Version(m_SavedAssetVer);
-                v = new System.Version(v.Major, v.Minor, v.Build, v.Revision + 1);
-                m_AssetVer = v.ToString();
             }
 
             vertOffset += btn_height + 5;
@@ -606,14 +592,6 @@ namespace ZFrame.Editors
                 new Rect(LEFT, vertOffset, BigBtnWidth, btn_height),
                 string.Format(appFmt, "应用版本:"), CustomEditorStyles.richText);
             m_AppVer = EditorGUI.TextField(new Rect(LEFT + 100, vertOffset, BigBtnWidth - 100, btn_height), m_AppVer);
-
-            vertOffset += btn_height + 5;
-            var assetFmt = m_AssetVer == m_SavedAssetVer ? "{0}" : "<i>{0}</i>";
-            EditorGUI.LabelField(
-                new Rect(LEFT, vertOffset, BigBtnWidth, btn_height),
-                string.Format(assetFmt, "资源版本:"), CustomEditorStyles.richText);
-            m_AssetVer = EditorGUI.TextField(new Rect(LEFT + 100, vertOffset, BigBtnWidth - 100, btn_height), m_AssetVer);
-
             vertOffset += btn_height + 5;
             if (GUI.Button(new Rect(LEFT, vertOffset, BigBtnWidth, btn_height), "更新")) {
                 m_ErrorMsg = string.Empty;
@@ -622,13 +600,6 @@ namespace ZFrame.Editors
                     m_AppVer = null;
                 } catch {
                     m_ErrorMsg += "应用版本错误;";
-                }
-
-                try {
-                    SaveVersion(VersionMgr.GetAssetVer(), m_AssetVer);
-                    m_AssetVer = null;
-                } catch {
-                    m_ErrorMsg += "资源版本错误;";
                 }
 
                 AssetDatabase.SaveAssets();

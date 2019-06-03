@@ -363,7 +363,8 @@ function OBJDEF:send(nm, msg)
                 log("{1} ==> {0}", nm, self)
             end
         end
-        --self.tcp:Send(nm)
+    else
+        libunity.LogW("发生消息[{0}]失败！连接?={1}", nm, self.tcp.IsConnected)
     end
 end
 

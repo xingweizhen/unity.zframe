@@ -3,8 +3,10 @@ using UnityEditor;
 using System.Collections;
 using UnityEditor.UI;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UISliderExt))]
     public class UISliderExtEditor : SliderEditor
     {

@@ -6,21 +6,17 @@ namespace ZFrame.UGUI
 {
     using Asset;
     public class UGUISettings : ScriptableObject
-    {
-        [SerializeField, AssetPath("UI预设根目录", typeof(UnityEditor.DefaultAsset))]
-        private string m_UItFolder;
-        public string uiFolder { get { return m_UItFolder; } }
-        
+    {        
         [SerializeField, NamedProperty("图集包所在路径")] private string m_AtlasRoot = "atlas/";
         public string atlasRoot { get { return m_AtlasRoot; } }
 
         [SerializeField, NamedProperty("界面资源包名")] private string m_UIBundlePath = "ui";
         public string uiBundlePath { get { return m_UIBundlePath; } }
 
-        [SerializeField, AssetRef(type: typeof(Font), name: "主字体")]
+        [SerializeField, AssetRef("主字体", typeof(Font))]
         private string m_FontPath;
 
-        [SerializeField, AssetRef(type: typeof(AtlasReference), name: "图集引用")]
+        [SerializeField, AssetRef("图集引用", typeof(AtlasReference))]
         private string m_AtlasRefPath;
 
         [SerializeField, NamedProperty("界面分辨率")] private Vector2Int m_DefRes = new Vector2Int(1280, 720);

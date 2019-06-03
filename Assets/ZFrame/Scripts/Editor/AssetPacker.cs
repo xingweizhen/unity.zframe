@@ -93,8 +93,8 @@ namespace ZFrame.Editors
         public static AssetMode assetMode = AssetMode.Full;
 
         public static int assetCode {
-            set { VersionMgr.GetAssetVer().code = value; }
-            get { return VersionMgr.GetAssetVer().code; }
+            set { VersionMgr.GetAppVer().code = value; }
+            get { return VersionMgr.GetAppVer().code; }
         }
         
         private const string OTHERS = "Others";
@@ -548,7 +548,7 @@ namespace ZFrame.Editors
         {
             var filelist = AssetBundleLoader.FILE_LIST;
 
-            var ver = VersionMgr.GetAssetVer();
+            var ver = VersionMgr.GetAppVer();
 
             ResInf resInf = new ResInf {
                 version = ver.version,

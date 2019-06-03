@@ -3,9 +3,10 @@ using UnityEditor;
 using UnityEditor.UI;
 using System.Collections;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
-    using Asset;
+    using UGUI;
+
     [CustomEditor(typeof(UITexture)), CanEditMultipleObjects]
     public class UITextureEditor : GraphicEditor
     {

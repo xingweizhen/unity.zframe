@@ -9,7 +9,7 @@ namespace ZFrame.Editors
 {
     using Lua;
     [CustomEditor(typeof(LuaComponent), true)]
-    public class LuaComponentEditor : UGUI.UIWindowEditor
+    public class LuaComponentEditor : UIWindowEditor
     {
         private ReorderableList m_MethodList;
         private SerializedProperty LocalMethods;

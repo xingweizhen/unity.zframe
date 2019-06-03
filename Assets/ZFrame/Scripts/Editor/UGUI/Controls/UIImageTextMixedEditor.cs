@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
     [CustomEditor(typeof(UIImageTextMixed), true)]
     [CanEditMultipleObjects]
     public class UIImageTextMixedEditor : UILabelEditor

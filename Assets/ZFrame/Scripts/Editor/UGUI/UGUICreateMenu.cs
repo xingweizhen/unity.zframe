@@ -8,15 +8,17 @@ using System.Collections.Generic;
 // warning CS0168: 声明了变量，但从未使用
 // warning CS0219: 给变量赋值，但从未使用
 #pragma warning disable 0168, 0219, 0414
-namespace ZFrame.UGUI
+namespace ZFrame.Editors
 {
+    using UGUI;
+
 #if USING_TMP
     using TMPro;
     using _Label = UIText;
     using _TextAnchor = TMPro.TextAlignmentOptions;
     using _FontStyle = TMPro.FontStyles;
 #else
-    using _Label = UILabel;
+    using _Label = UGUI.UILabel;
     using _TextAnchor = TextAnchor;
     using _FontStyle = FontStyle;
 
@@ -27,11 +29,27 @@ namespace ZFrame.UGUI
         private const float kWidth = 160f;
         private const float kThickHeight = 60f;
         private const float kThinHeight = 40f;
-        private const string kStandardSpritePath = "UI/Skin/UISprite.psd";
-        private const string kBackgroundSpriteResourcePath = "UI/Skin/Background.psd";
-        private const string kInputFieldBackgroundPath = "UI/Skin/InputFieldBackground.psd";
-        private const string kKnobPath = "UI/Skin/Knob.psd";
-        private const string kCheckmarkPath = "UI/Skin/Checkmark.psd";
+        private static string kStandardSpritePath {
+            get {
+                var ues = Settings.UGUIEditorSettings.Get();
+                var startIdx = UGUITools.settings.atlasRoot.Length;
+                return ues != null && ues.kStandardSpritePath.Length > startIdx ? 
+                    ues.kStandardSpritePath.Substring(startIdx) : null;
+            }
+        }
+
+        private static string kBackgroundSpriteResourcePath {
+            get {
+                var ues = Settings.UGUIEditorSettings.Get();
+                var startIdx = UGUITools.settings.atlasRoot.Length;
+                return ues != null && ues.kBackgroundSpritePath.Length > startIdx ?
+                    ues.kBackgroundSpritePath.Substring(startIdx) : null;
+            }
+        }
+
+        private static string kInputFieldBackgroundPath { get { return kBackgroundSpriteResourcePath; } }
+        private static string kKnobPath { get { return kStandardSpritePath; } }
+        private static string kCheckmarkPath { get { return kStandardSpritePath; } }
 
 #if LANG_ZHCN
         private const string LANG = "cn";
@@ -105,11 +123,10 @@ namespace ZFrame.UGUI
         static void setUISprite(UISprite sp, string name, string resPath, UISprite.Type spType, Color color)
         {
             sp.name = name;
-            sp.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(resPath);
             sp.type = spType;
             sp.color = color;
-            sp.enabled = sp.sprite;
             sp.raycastTarget = false;
+            sp.SetSprite(resPath);
         }
 
         [MenuItem("ZFrame/UI控件/文本(_Label) &#l")]
@@ -131,10 +148,10 @@ namespace ZFrame.UGUI
         {
             UISprite sp = CreateUIElm<UISprite>(null);
             sp.name = "spImage";
-            sp.color = Color.white;            
+            sp.color = Color.white;
             sp.raycastTarget = false;
-            // TODO 
-            // sp.SetSprite();
+            sp.SetSprite(kStandardSpritePath);
+
             Selection.activeGameObject = sp.gameObject;
         }
 
@@ -355,6 +372,7 @@ namespace ZFrame.UGUI
 
             UISprite spBack = inp.GetComponent<UISprite>();
             setUISprite(spBack, "inpInput", kInputFieldBackgroundPath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            spBack.raycastTarget = true;
 
             _Label lbHold = getUILabel(inp.gameObject, "lbHold_", "输入文本...");
             lbHold.localized = true;
