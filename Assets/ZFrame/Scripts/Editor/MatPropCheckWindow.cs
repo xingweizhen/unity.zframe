@@ -17,6 +17,18 @@ namespace ZFrame.Editors
         private Dictionary<Material, Dictionary<string, Object>> m_Ref = new Dictionary<Material, Dictionary<string, Object>>();
         private Dictionary<Shader, List<string>> m_ShaderTexEnvs = new Dictionary<Shader, List<string>>();
 
+        //private GUIStyle m_EntryEven = "OL EntryBackEven";
+        //private GUIStyle m_EntryOdd = "OL EntryBackOdd";
+        private GUIStyle m_SelTitle = "MeTimeLabel";
+        private GUIStyle m_LargeBtn = "LargeButton";
+        private GUIStyle m_MissingProp;
+
+        private void OnEnable()
+        {
+            m_MissingProp = new GUIStyle(EditorStyles.label);
+            m_MissingProp.normal.textColor = Color.red;
+        }
+
         private List<string> GetShaderTexEnvs(Shader shader)
         {
             List<string> list;
@@ -113,72 +125,110 @@ namespace ZFrame.Editors
             }
         }
 
-        private Vector2 m_RefScroll;
+        private Vector2 m_RefScroll, m_PropScroll;
 
         private void OnGUI()
         {
+            GUILayout.Label("MatPropCheckWindow", m_SelTitle, GUILayout.ExpandHeight(false));
+
             var defColor = GUI.color;
-            if (GUILayout.Button("刷新")) {
-                FindMaterias();
-            }
-            if (GUILayout.Button("移除所有无效的纹理属性")) {
-                RemoveAllInvalidTexEnv();
+
+            if (m_Ref.Count > 0) {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("刷新", m_LargeBtn)) {
+                    FindMaterias();
+                }
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("移除所有材质中多余的纹理属性", m_LargeBtn)) {
+                    RemoveAllInvalidTexEnv();
+                }
+                EditorGUILayout.EndHorizontal();
+            } else {
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("刷新", m_LargeBtn)) {
+                    FindMaterias();
+                }
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
+                GUILayout.FlexibleSpace();
             }
 
             EditorGUILayout.BeginHorizontal();
-
-            EditorGUILayout.BeginVertical(GUILayout.Width(200));
-            m_RefScroll = EditorGUILayout.BeginScrollView(m_RefScroll);
-            Material selectedMat = null;
-            Dictionary<string, Object> texProps = null;
-            foreach (var res in m_Ref) {
-                var selected = Selection.activeObject == res.Key;
-                GUI.color = selected ? Color.yellow : defColor;
-                if (GUILayout.Button(res.Key.name)) {
-                    Selection.activeObject = res.Key;
-                    selectedMat = res.Key;
-                    texProps = res.Value;
-                } else if (selected) {
-                    selectedMat = res.Key;
-                    texProps = res.Value;
-                }
-            }
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.BeginVertical();
-            if (selectedMat != null) {
-                var propNams = GetShaderTexEnvs(selectedMat.shader);
-                foreach (var prop in texProps) {
-                    var contains = propNams.Contains(prop.Key);
-                    GUI.color = contains ? defColor : Color.red;
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(prop.Key, CustomEditorStyles.titleStyle, GUILayout.Width(400));
-                    EditorGUILayout.LabelField(prop.Value.name);
-                    if (!contains && GUILayout.Button("Del")) {
-                        texProps.Remove(prop.Key);
-                        RemoveMaterialTexEnv(selectedMat, prop.Key);
-                        break;
+            {
+                EditorGUILayout.BeginVertical(GUILayout.Width(200));
+                m_RefScroll = EditorGUILayout.BeginScrollView(m_RefScroll);
+                Material selectedMat = null;
+                Dictionary<string, Object> texProps = null;
+                foreach (var res in m_Ref) {
+                    var selected = Selection.activeObject == res.Key;
+                    GUI.color = selected ? Color.yellow : defColor;
+                    if (GUILayout.Button(res.Key.name, EditorStyles.toolbarPopup)) {
+                        Selection.activeObject = res.Key;
+                        selectedMat = res.Key;
+                        texProps = res.Value;
+                    } else if (selected) {
+                        selectedMat = res.Key;
+                        texProps = res.Value;
                     }
-                    EditorGUILayout.EndHorizontal();                    
                 }
                 GUI.color = defColor;
+                EditorGUILayout.EndScrollView();
+                EditorGUILayout.EndVertical();
 
-                if (GUILayout.Button("删除所有多余的纹理引用")) {
-                    var list = new List<string>();
-                    foreach (var prop in texProps) {
-                        if (prop.Value == null) continue;
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                if (selectedMat != null) {
+                    var propNams = GetShaderTexEnvs(selectedMat.shader);
 
-                        if (!propNams.Contains(prop.Key)) {
-                            RemoveMaterialTexEnv(selectedMat, prop.Key);
-                            list.Add(prop.Key);
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label(selectedMat.name, EditorStyles.boldLabel);
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("删除多余的纹理引用", m_LargeBtn)) {
+                        var list = new List<string>();
+                        foreach (var prop in texProps) {
+                            if (prop.Value == null) continue;
+
+                            if (!propNams.Contains(prop.Key)) {
+                                RemoveMaterialTexEnv(selectedMat, prop.Key);
+                                list.Add(prop.Key);
+                            }
                         }
+                        foreach (var propName in list) texProps.Remove(propName);
+                        EditorUtility.SetDirty(selectedMat);
                     }
-                    foreach (var propName in list) texProps.Remove(propName);
-                }
-            }
-            EditorGUILayout.EndVertical();
+                    EditorGUILayout.EndHorizontal();
 
+                    m_PropScroll = EditorGUILayout.BeginScrollView(m_PropScroll);
+                    var nProp = 0;
+                    foreach (var prop in texProps) {
+                        GUILayout.Space(3);
+                        var contains = propNams.Contains(prop.Key);
+                        EditorGUILayout.BeginHorizontal();
+
+                        GUILayout.FlexibleSpace();
+                        GUILayout.Label(prop.Key, contains ? EditorStyles.label : m_MissingProp);
+                        EditorGUILayout.ObjectField(prop.Value, typeof(Texture), false);
+
+                        if (contains) {
+                            GUILayout.Space(30);
+                        } else {
+                            if (GUILayout.Button("X", EditorStyles.toolbarButton, GUILayout.Width(30))) {
+                                texProps.Remove(prop.Key);
+                                RemoveMaterialTexEnv(selectedMat, prop.Key);
+                                EditorUtility.SetDirty(selectedMat);
+                                break;
+                            }
+                        }
+
+                        EditorGUILayout.EndHorizontal();
+                        nProp += 1;
+                    }
+                    EditorGUILayout.EndScrollView();
+                    GUI.color = defColor;
+                }
+                EditorGUILayout.EndVertical();
+            }
             EditorGUILayout.EndHorizontal();
 
             GUI.color = defColor;

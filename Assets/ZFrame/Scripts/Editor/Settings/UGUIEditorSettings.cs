@@ -11,10 +11,10 @@ namespace ZFrame.Settings
         private string m_UItFolder;
         public string uiFolder { get { return m_UItFolder; } }
 
-        [SerializeField, AssetRef("标准图片", typeof(Sprite))]
+        [SerializeField, AssetRef("Standard Sprite", typeof(Sprite))]
         private string m_StandardSpritePath;
 
-        [SerializeField, AssetRef("背景图片", typeof(Sprite))]
+        [SerializeField, AssetRef("Background Sprite", typeof(Sprite))]
         private string m_BackgroundSpritePath;
 
         public string kStandardSpritePath { get { return m_StandardSpritePath; } }

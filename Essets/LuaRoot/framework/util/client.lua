@@ -294,8 +294,8 @@ function OBJDEF.noresponse(code)
     if id then NoResponse[id] = true end
 end
 
-function OBJDEF.nolog(code)
-    local id = chk_msg_type(code, false)
+function OBJDEF.nolog(code, rsp)
+    local id = chk_msg_type(code, rsp)
     if id then SilentNmSC[id] = true end
 end
 

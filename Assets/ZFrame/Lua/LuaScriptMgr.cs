@@ -123,7 +123,7 @@ namespace ZFrame.Lua
             L.SetDict(S_APP_STREAMINGASSETS_PATH, AssetBundleLoader.streamingAssetsPath);
             L.SetDict(B_USING_ASSETBUNDLE, AssetBundleLoader.I != null);
 
-#if DEVELOPMENT_BUILD || UNITY_EDITOR || UNITY_STANDALONE
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
             L.SetDict("development", true);
 #endif
             L.Pop(1);

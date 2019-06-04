@@ -112,7 +112,7 @@ namespace ZFrame.Editors
         public static void AutoSetAssetBundleName(string assetPath)
         {
             var ext = Path.GetExtension(assetPath).ToLower();
-            if (ext == "cs" || ext == "shader") return;
+            if (string.IsNullOrEmpty(ext) || ext == "cs" || ext == "shader") return;
 
             var oboDirs = new HashSet<string>();
             var categoryDirs = new HashSet<string>();

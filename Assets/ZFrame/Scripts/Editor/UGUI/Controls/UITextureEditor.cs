@@ -1,28 +1,34 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 using UnityEditor.UI;
 using System.Collections;
+using System.Reflection;
 
 namespace ZFrame.Editors
 {
     using UGUI;
 
     [CustomEditor(typeof(UITexture)), CanEditMultipleObjects]
-    public class UITextureEditor : GraphicEditor
+    public class UITextureEditor : RawImageEditor
     {
-        private SerializedProperty m_Texture;
         private SerializedProperty m_TexPath;
-        private SerializedProperty m_UVRect;
-        private GUIContent m_UVRectContent;
+        private SerializedProperty __Texture;
+        private SerializedProperty __UVRect;
+        private GUIContent __UVRectContent;
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
-            m_Texture = serializedObject.FindProperty("m_Texture");
+            var baseType = typeof(RawImageEditor);
+
             m_TexPath = serializedObject.FindProperty("m_TexPath");
-            m_UVRectContent = new GUIContent("UV Rect");
-            m_UVRect = serializedObject.FindProperty("m_UVRect");
+
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            __Texture = serializedObject.FindProperty("m_Texture");
+            __UVRect = serializedObject.FindProperty("m_UVRect");
+            __UVRectContent = baseType.GetField("m_UVRectContent", flags).GetValue(this) as GUIContent;// EditorGUIUtility.TrTextContent("UV Rect");
             SetShowNativeSize(((UITexture)target).mainTexture, true);
         }
 
@@ -31,26 +37,22 @@ namespace ZFrame.Editors
             var self = (UITexture)target;
 
             serializedObject.Update();
-            if (!Application.isPlaying && m_Texture.objectReferenceValue) {
+            if (!Application.isPlaying && __Texture.objectReferenceValue) {
                 if (GUILayout.Button("移除序列化的Texture")) {
-                    m_Texture.objectReferenceValue = null;
+                    __Texture.objectReferenceValue = null;
                 }
             }
 
             AppearanceControlsGUI();
             RaycastControlsGUI();
-            EditorGUILayout.PropertyField(m_UVRect, m_UVRectContent);
-            SetShowNativeSize(self.mainTexture, false);
+            EditorGUILayout.PropertyField(__UVRect, __UVRectContent);
+            SetShowNativeSize(self.mainTexture, true);
             NativeSizeButtonGUI();
 
             EditorGUILayout.Separator();
             EditorGUILayout.PropertyField(m_TexPath);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Type"), new GUIContent("Image Type"));
-            
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.ObjectField("Main Texture", self.mainTexture, typeof(Texture), false);
-            EditorGUI.EndDisabledGroup();
-            
+
             serializedObject.ApplyModifiedProperties();
         }
     }

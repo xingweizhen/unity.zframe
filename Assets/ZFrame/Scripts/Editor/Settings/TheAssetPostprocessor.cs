@@ -9,13 +9,16 @@ namespace ZFrame.Editors
     using Settings;
     public class TheAssetPostprocessor : AssetPostprocessor
     {
-        private TextureProcessSettings GetSettings()
+        private const string TEXPROC_SETTINGS = "t:TextureProcessSettings";
+        private const string MODELPROC_SETTINGS = "t:ModelProcessSettings";
+
+        private AssetProcessSettings GetSettings(string filter)
         {
-            var guids = AssetDatabase.FindAssets("t:TextureProcessSettings");
+            var guids = AssetDatabase.FindAssets(filter);
             if (guids != null && guids.Length > 0) {
                 foreach (var guid in guids) {
                     var path = AssetDatabase.GUIDToAssetPath(guid);
-                    var settings = AssetDatabase.LoadAssetAtPath<TextureProcessSettings>(path);
+                    var settings = AssetDatabase.LoadAssetAtPath<AssetProcessSettings>(path);
                     if (settings) return settings;
                 }
             }
@@ -24,16 +27,30 @@ namespace ZFrame.Editors
 
         private void OnPreprocessTexture()
         {
-            var settings = GetSettings();
+            var settings = GetSettings(TEXPROC_SETTINGS);
 
             if (settings != null) settings.OnPreprocess(assetImporter);
         }
 
         private void OnPostprocessTexture(Texture2D texture)
         {
-            var settings = GetSettings();
+            var settings = GetSettings(TEXPROC_SETTINGS);
 
             if (settings != null) settings.OnPostprocess(texture);
+        }
+
+        private void OnPreprocessModel()
+        {
+            var settings = GetSettings(MODELPROC_SETTINGS);
+
+            if (settings != null) settings.OnPreprocess(assetImporter);
+        }
+
+        private void OnPostprocessModel(GameObject g)
+        {
+            var settings = GetSettings(MODELPROC_SETTINGS);
+
+            if (settings != null) settings.OnPostprocess(g);
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)

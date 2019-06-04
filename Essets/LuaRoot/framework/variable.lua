@@ -85,8 +85,6 @@ do
 
     -- JSON库
     _G.cjson = dofile("framework/tinyjson.lua")
-    -- table序列化工具
-    _G.serpent = dofile("framework/serpent.lua")
 
     local Application = _G.UE.Application
 

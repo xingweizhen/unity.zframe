@@ -7,6 +7,14 @@
 
 unpack = table.unpack
 
+do
+    -- table序列化工具
+    local serpent = dofile("framework/serpent.lua")
+    table.block = serpent.block
+    table.line = serpent.line
+    --table.dump = serpent.dump
+end
+
 function table.void(T)
     if T == nil then
         return true

@@ -79,6 +79,7 @@ namespace ZFrame.Editors
                 new SettingsMenu("UGUI编辑设置", typeof(UGUIEditorSettings), "Editor"),
                 new SettingsMenu("AssetBundle Name", typeof(AssetBundleSettings), "Editor"),
                 new SettingsMenu("贴图导入属性", typeof(TextureProcessSettings), "Editor"),
+                new SettingsMenu("模型导入属性", typeof(ModelProcessSettings), "Editor"),
                 new SettingsMenu("美术资源标准", typeof(ArtStandardChecker), "Editor"),
                 new SettingsMenu("应用版本号", typeof(VersionInfo), "Resources"),
             };

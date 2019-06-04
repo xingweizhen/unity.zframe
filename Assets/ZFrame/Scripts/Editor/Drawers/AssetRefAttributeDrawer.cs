@@ -23,7 +23,6 @@ namespace ZFrame.Editors
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            //label = new GUIContent(label);
             var assetRef = (AssetRefAttribute)attribute;
             if (assetRef.name != null) {
                 label.text = assetRef.name;
@@ -32,18 +31,18 @@ namespace ZFrame.Editors
             position.height = EditorGUIUtility.singleLineHeight;
             Object asset = EditorUtil.AssetPathToObject(property.stringValue, assetRef.type);
 
-            Object newObj = null;
+            EditorGUI.BeginChangeCheck();
             if (string.IsNullOrEmpty(label.text)) {
                 label.text = property.stringValue;
-                newObj = EditorGUI.ObjectField(position, label, asset, assetRef.type, false);
+                asset = EditorGUI.ObjectField(position, label, asset, assetRef.type, false);
             } else {
-                newObj = EditorGUI.ObjectField(position, label, asset, assetRef.type, false);
+                asset = EditorGUI.ObjectField(position, label, asset, assetRef.type, false);
                 position.y += EditorGUIUtility.singleLineHeight;
                 EditorGUI.LabelField(position, " ", property.stringValue);
             }
 
-            if (newObj != asset) {
-                property.stringValue = EditorUtil.ObjectToAssetPath(newObj, assetRef.bundleOnly);
+            if (EditorGUI.EndChangeCheck()) {                
+                property.stringValue = EditorUtil.ObjectToAssetPath(asset, assetRef.bundleOnly);
             }
         }
     }

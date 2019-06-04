@@ -35,7 +35,7 @@ namespace ZFrame.UGUI
         public int depth {
             get { return m_Depth; }
             set {                
-                if (m_Depth != value) {
+                if (value == 0 || m_Depth == 0 || m_Depth != value) {
                     m_Depth = value;
                     ResetCanvasSorting();
                 }
