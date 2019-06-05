@@ -8,7 +8,7 @@
 libunity.NewChild("/UIROOT", "Launch/Singleton")
 
 local ENV = _G.ENV
-print(serpent.block(ENV))
+print(table.block(ENV))
 
 UE.Application.targetFrameRate = ENV.debug and -1 or 60
 UE.QualitySettings.antiAliasing = ENV.debug and 8 or 0

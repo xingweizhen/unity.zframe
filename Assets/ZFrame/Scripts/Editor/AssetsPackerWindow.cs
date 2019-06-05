@@ -257,7 +257,7 @@ namespace ZFrame.Editors
             }
         }
 
-        private static void PackAndBuild()
+        public static void PackAndBuild()
         {
             AssetBundleMenu.RemoveUnusedAssest();
             AssetsPackerWindow.PackAssets();
@@ -265,9 +265,9 @@ namespace ZFrame.Editors
             AssetsPackerWindow.BuildApp();
         }
 
-        private static void AutoBuild()
+        public static void AutoBuild()
         {
-            var executeMethod = "AssetsPackerWindow.AutoBuild";
+            var executeMethod = "ZFrame.Editors.AssetsPackerWindow.AutoBuild";
             List<string> args = null;
             foreach (var arg in System.Environment.GetCommandLineArgs()) {
                 if (args != null) {

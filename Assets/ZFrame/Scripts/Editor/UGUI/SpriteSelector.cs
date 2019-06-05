@@ -152,8 +152,9 @@ namespace ZFrame.Editors
 
         public static void Show(SpriteAtlas spriteAtlas, string selectedSprite, Callback callback)
         {
+#if UNITY_2018_2
             UnityEditor.U2D.SpriteAtlasUtility.PackAtlases(new[] { spriteAtlas }, EditorUserBuildSettings.activeBuildTarget);
-
+#endif
             var comp = GetWindow<SpriteSelector>("Select a Sprite");
             comp.selectedSprite = selectedSprite;
             comp.m_Callback = callback;

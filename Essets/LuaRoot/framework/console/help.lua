@@ -5,15 +5,17 @@
 -- @desc    描述
 --
 
-return {
-    __index = function (t, n)
-        print("------------")
-        for k,v in pairs(t) do
-        	if k:sub(1, 2) ~= "__" then
-            	print(k, type(v))
-            end
+local function list(t, n)
+	local List = { "!help" }
+    for k,v in pairs(t) do
+    	if k:sub(1, 2) ~= "__" then
+    		local vType = type(v)
+    		table.insert(List, 1, string.format("%s\t%s", vType, k))
         end
-        print("------------")
     end
-}
+    table.sort(List)
+    print(table.concat(List, "\n"))
+end
+
+return { __index = list }
 

@@ -71,11 +71,15 @@ namespace ZFrame.Settings
 
                     var hasAni = mi.assetPath.IndexOf('@') > 0;
                     mi.importAnimation = hasAni;
-                    if (hasAni) {                        
+                    if (hasAni) {
+#if UNITY_2018_2
                         if (ContainsFlag(flags, (int)Prop.ImportConstraints)) mi.importConstraints = ImportConstraints;
+#endif
                         if (ContainsFlag(flags, (int)Prop.AnimationCompression)) mi.animationCompression = AnimationCompression;
                     } else {
+#if UNITY_2018_2
                         mi.importConstraints = false;
+#endif
                     }
 
                     if (ContainsFlag(flags, (int)Prop.ImportMaterials)) {

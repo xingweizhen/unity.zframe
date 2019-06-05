@@ -13,8 +13,8 @@ local libugui = require "libugui.cs"
 local libasset = require "libasset.cs"
 
 local Command
+local mtHelp = dofile("framework/console/help")
 do
-    local mtHelp = dofile("framework/console/help")
     local DataDEF = dofile("framework/console/datatool")
     Command = {
         lua = function (_, ...)
@@ -29,8 +29,8 @@ do
         end,
         ver = function () 
             local AppVer, AssetVer = libasset.GetVersion()
-            print("App  ", serpent.line(AppVer))
-            print("Asset", serpent.line(AssetVer))
+            print("App  ", table.line(AppVer))
+            print("Asset", table.line(AssetVer))
         end,
 
         ui = setmetatable(dofile("framework/console/uitool"), mtHelp),
@@ -78,7 +78,26 @@ local function add_tool(name, path)
     end
 end
 
+local function add_cmd(action, ...)
+    local Args = {...}
+    local Module, cmd = Command, Args[#Args]
+    if Module then
+        for i=1,#Args-1 do
+            local key = Args[i]
+            local M = rawget(Module, key)
+            if M == nil then
+                M = setmetatable({}, mtHelp)
+                Module[key] = M
+            end
+            Module = M
+        end
+        Module[cmd] = action
+    else
+    end
+end
+
 return {
     add_tool = add_tool,
+    add_cmd = add_cmd,
     parse_cmd = parse_cmd,
 }

@@ -289,19 +289,22 @@ function OBJDEF.unsubscribe_global(code, handler)
     unregist_dispatcher(GlobalDispatchers, code, handler)
 end
 
+-- 定义一个单向消息(仅Client->Server，不需要等待其返回)
 function OBJDEF.noresponse(code)
     local id = chk_msg_type(code, false)
     if id then NoResponse[id] = true end
 end
 
-function OBJDEF.nolog(code, rsp)
-    local id = chk_msg_type(code, rsp)
-    if id then SilentNmSC[id] = true end
-end
-
+-- 定义一个单向消息(仅Server->Client，不会取消网络等待状态)
 function OBJDEF.norequest(code)
     local id = chk_msg_type(code, true)
     if id then IgnoreNmSc[id] = true end
+end
+
+-- 定义一个静默消息（没有日志）
+function OBJDEF.nolog(code, rsp)
+    local id = chk_msg_type(code, rsp)
+    if id then SilentNmSC[id] = true end
 end
 
 function OBJDEF:initialize()
