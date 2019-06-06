@@ -1127,13 +1127,14 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int SetLoopCap(ILuaState lua)
         {
-            var loopGrid = lua.ToComponent(1, typeof(UILoopGrid)) as UILoopGrid;
-            if (loopGrid) {
-                loopGrid.SetTotalItem(lua.ToInteger(2), lua.OptBoolean(3, false));
-                LayoutRebuilder.ForceRebuildLayoutImmediate(loopGrid.transform as RectTransform);
+            var loop = lua.ToComponent(1, typeof(ILoopLayout)) as ILoopLayout;
+            if (loop != null) {
+                loop.SetTotalItem(lua.ToInteger(2), lua.OptBoolean(3, false));
+                LayoutRebuilder.ForceRebuildLayoutImmediate(loop.transform as RectTransform);
+                lua.PushBoolean(true);
+            } else {
+                lua.PushBoolean(false);
             }
-
-            lua.PushBoolean(loopGrid);
 
             return 1;
         }

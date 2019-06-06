@@ -12,13 +12,6 @@ namespace ZFrame.Editors
     using Asset;
     public static class AssetPacker
     {
-        public enum AssetTarget
-        {
-            Standalone = BuildTargetGroup.Standalone,
-            iOS = BuildTargetGroup.iOS,
-            Android = BuildTargetGroup.Android,
-        }
-
         [System.Flags]
         public enum PackSymbol
         {
@@ -86,8 +79,7 @@ namespace ZFrame.Editors
             }
         }
 
-        public static AssetTarget assetTarget = 0;
-        public static BuildTarget buildTarget = 0;
+        public static BuildTarget buildTarget;
         public static PackSymbol symbol;
         public static BuildOptions options = BuildOptions.Development;
         public static AssetMode assetMode = AssetMode.Full;

@@ -44,10 +44,8 @@ namespace ZFrame.UGUI
 		    "<color=#FF00FF>{0}\n{1}</color>", //Exception
         };
 
-        [SerializeField]
-        private Text m_Content;
-
-        public GameObject root;
+        [NamedProperty("根节点")]
+        public Canvas root;
 
         private ScrollRect scrollRect;
         private int hasUpdate;
@@ -55,7 +53,17 @@ namespace ZFrame.UGUI
         private List<Log> m_Logs = new List<Log>(9999);
         private int m_Index;
 
-        private UILoopGrid m_Grid;
+        private ILoopLayout m_Loop;
+
+        private bool IsRootActive()
+        {
+            return root && root.gameObject.activeSelf;
+        }
+
+        private void SetRootActive(bool active)
+        {
+            if (root) root.gameObject.SetActive(active);
+        }
 
         protected override void Awaking()
         {
@@ -64,57 +72,25 @@ namespace ZFrame.UGUI
             scrollRect = GetComponentInChildren<ScrollRect>();
             hasUpdate = 0;
 
-            m_Grid = scrollRect.content.GetComponent(typeof(UILoopGrid)) as UILoopGrid;
-            m_Grid.onItemUpdate += LoopGrid_onItemUpdate;
-
-            HideLogConent();
+            m_Loop = scrollRect.content.GetComponent(typeof(ILoopLayout)) as ILoopLayout;
+            m_Loop.onItemUpdate += LoopGrid_onItemUpdate;
         }
 
         private void LoopGrid_onItemUpdate(GameObject ent, int index)
         {
-            m_Grid.group.SetIndex(ent, index);
+            m_Loop.group.SetIndex(ent, index);
             var lb = ent.GetComponentInChildren(typeof(Text)) as Text;
             lb.text = m_Logs[index].ToString();
         }
 
-        private void ShowLogContent(int index)
-        {
-            m_Index = index;
-            m_Content.text = m_Logs[m_Index].ToString();
-        }
-
-        public void ShowLogContent()
-        {            
-            var go = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
-            var index = m_Grid.group.GetIndex(go.transform.parent);
-
-            m_Content.transform.parent.gameObject.SetActive(true);
-            ShowLogContent(index);    
-        }
-
-        public void HideLogConent()
-        {
-            m_Content.transform.parent.gameObject.SetActive(false);
-        }
-
-        public void ShowPrevLogContent()
-        {
-            if (m_Index > 1) {
-                ShowLogContent(m_Index - 1);
-            }
-        }
-
-        public void ShowNextLogContent()
-        {
-            if (m_Index < m_Logs.Count - 1) {
-                ShowLogContent(m_Index + 1);
-            }
-        }
-
         private void Start()
-        {
-            ((Dropdown)GetComponentInChildren(typeof(Dropdown))).value = (int)LogMgr.logLevel;
-            root.SetActive(false);
+        {            
+            root.worldCamera = UIManager.Instance.GetCanvas(0).worldCamera;
+
+            var drop = GetComponentInChildren(typeof(Dropdown)) as Dropdown;
+            if (drop) drop.value = (int)LogMgr.logLevel;
+
+            SetRootActive(false);
         }
 
         private void OnDestroy()
@@ -124,7 +100,7 @@ namespace ZFrame.UGUI
 
         private void ShowContent()
         {
-            root.SetActive(true);
+            SetRootActive(true);
             hasUpdate = 1;
             scrollRect.verticalNormalizedPosition = 0;
         }
@@ -150,8 +126,7 @@ namespace ZFrame.UGUI
                         if (dot < -0.8f) {
                             ShowContent();
                         } else if (dot > 0.8f) {
-                            root.SetActive(false);
-                        }
+                            SetRootActive(false);                        }
                     }
                     multiTouched = false;
                 }
@@ -163,15 +138,15 @@ namespace ZFrame.UGUI
 
         private void LateUpdate()
         {
-            if (hasUpdate > 0 && root.activeSelf) {
-                m_Grid.SetTotalItem(m_Logs.Count, true);
+            if (hasUpdate > 0 && IsRootActive()) {
+                m_Loop.SetTotalItem(m_Logs.Count, true);
             }
           
             hasUpdate -= 1;
 
             if (Input.GetKeyUp(KeyCode.Tab)) {
-                if (root.activeSelf) {
-                    root.SetActive(false);
+                if (IsRootActive()) {
+                    SetRootActive(false);
                 } else {
                     ShowContent();
                 }

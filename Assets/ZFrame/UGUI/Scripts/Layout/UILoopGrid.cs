@@ -6,7 +6,17 @@ using UnityEngine.UI;
 
 namespace ZFrame.UGUI
 {
-    public class UILoopGrid : GridLayoutGroup, IEventSender
+    public interface ILoopLayout
+    {
+        event System.Action<GameObject, int> onItemUpdate;
+
+        Transform transform { get; }
+        UIGroup group { get; }
+
+        void SetTotalItem(int count, bool forceUpdate);
+    }
+
+    public class UILoopGrid : GridLayoutGroup, IEventSender, ILoopLayout
     {
         [SerializeField]
         private RectOffset m_RawPading;
@@ -127,10 +137,10 @@ namespace ZFrame.UGUI
             protected set { m_TotalItem = value; }
         }
 
-        public void SetTotalItem(int total, bool forceUpdate)
+        public void SetTotalItem(int count, bool forceUpdate)
         {
-            if (!forceUpdate) forceUpdate = m_TotalItem != total;
-            m_TotalItem = total;
+            if (!forceUpdate) forceUpdate = m_TotalItem != count;
+            m_TotalItem = count;
 
             if (forceUpdate) {
                 m_Inited = false;
@@ -193,13 +203,13 @@ namespace ZFrame.UGUI
                 if (m_Scroll.horizontal) {
                     pivot.x = 0;
                     if (m_Scroll.content.pivot.x != 0f) {
-                        LogMgr.W(this, "UILoopGrid requires horizontal scroll's content has a pivot.x == 0");
+                        LogMgr.W(this, "{0} requires horizontal scroll's content has a pivot.x == 0", GetType().Name);
                     }
                 }
                 if (m_Scroll.vertical) {
                     pivot.y = 1;
                     if (m_Scroll.content.pivot.y != 1f) {
-                        LogMgr.W(this, "UILoopGrid requires velocity scroll's content has a pivot.y == 1");
+                        LogMgr.W(this, "{0} requires velocity scroll's content has a pivot.y == 1", GetType().Name);
                     }
                 }
                 rectTransform.pivot = pivot;

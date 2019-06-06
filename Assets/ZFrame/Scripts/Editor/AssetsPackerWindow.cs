@@ -76,7 +76,18 @@ namespace ZFrame.Editors
 
         private static BuildTargetGroup GetBuildTargetGroup()
         {
-            return (BuildTargetGroup)AssetPacker.assetTarget;
+            switch (EditorUserBuildSettings.activeBuildTarget) {
+                case BuildTarget.Android:
+                    return BuildTargetGroup.Android;
+                case BuildTarget.iOS:
+                    return BuildTargetGroup.iOS;
+                case BuildTarget.StandaloneWindows:
+                case BuildTarget.StandaloneWindows64:
+                case BuildTarget.StandaloneOSX:
+                    return BuildTargetGroup.Standalone;
+                default:
+                    return BuildTargetGroup.Unknown;
+            }
         }
 
         private static void GetFolderAndExt(out string folderName, out string extName)
@@ -108,7 +119,7 @@ namespace ZFrame.Editors
             }
         }
 
-        private static string GetPackSymbols(BuildTargetGroup buildTargetGroup)
+        private static string GetPackSymbols(BuildTargetGroup buildTargetGroup, string separator = ";")
         {
             var defineSymbol = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
             var symbolArray = defineSymbol.Split(new[] {';'}, System.StringSplitOptions.RemoveEmptyEntries);
@@ -125,7 +136,7 @@ namespace ZFrame.Editors
                 }
             }
 
-            return string.Join(";", listSymbol.ToArray());
+            return string.Join(separator, listSymbol.ToArray());
         }
 
         private static int UpdateVersionCode(int versionCode, string assetVersion)
@@ -282,15 +293,12 @@ namespace ZFrame.Editors
                     // args[0]: platform
                     switch (args[0]) {
                         case "android":
-                            AssetPacker.assetTarget = AssetPacker.AssetTarget.Android;
                             AssetPacker.buildTarget = BuildTarget.Android;
                             break;
                         case "windows":
-                            AssetPacker.assetTarget = AssetPacker.AssetTarget.Standalone;
                             AssetPacker.buildTarget = BuildTarget.StandaloneWindows64;
                             break;
                         case "ios":
-                            AssetPacker.assetTarget = AssetPacker.AssetTarget.iOS;
                             AssetPacker.buildTarget = BuildTarget.iOS;
                             break;
                         default:
@@ -389,6 +397,8 @@ namespace ZFrame.Editors
 
         private void OnEnable()
         {
+            AssetPacker.buildTarget = EditorUserBuildSettings.activeBuildTarget;
+
             var buildTargetGroup = GetBuildTargetGroup();
 
             // Init Symbol
@@ -444,7 +454,7 @@ namespace ZFrame.Editors
             horiOffset = 20;
             VERT_Btn(ref vertOffset, horiOffset, BtnSizeLV2, "<size=20>3. 更新资源包*</size>", UpdateAssets,
                 "重新生成filelist文件\n然后把生成的所有资源包拷贝到StreamingAssets目录");
-            if (AssetPacker.assetTarget == AssetPacker.AssetTarget.Android) {
+            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android) {
                 var btnSize = new Vector2(BtnSizeLV2.x / 2, BtnSizeLV2.y);
                 var offset = vertOffset;
                 var appid = PlayerSettings.applicationIdentifier;
@@ -486,38 +496,13 @@ namespace ZFrame.Editors
             UsingAssetsArea(ref vertOffset);
         }
 
+        private Vector2 m_SymbleScroll;
         /// <summary>
         /// 打包前宏配置
         /// </summary>
         private void SymbleArea(ref int vertOffset)
         {
-            if (AssetPacker.assetTarget == 0)
-                AssetPacker.assetTarget = (AssetPacker.AssetTarget)EditorUserBuildSettings.selectedBuildTargetGroup;
-            if (AssetPacker.buildTarget == 0)
-                AssetPacker.buildTarget = EditorUserBuildSettings.activeBuildTarget;
-
             var pos = new Rect(LEFT, vertOffset, BigBtnWidth, btn_height);
-            //EditorGUI.LabelField(pos, "选择平台");
-            //pos.x += 80;
-            //pos.width -= 80;
-            //var assetTarget = (AssetPacker.AssetTarget)EditorGUI.EnumPopup(pos, AssetPacker.assetTarget);
-            //if (assetTarget != AssetPacker.assetTarget) {
-            //    AssetPacker.assetTarget = assetTarget;
-            //    switch (assetTarget) {
-            //        case AssetPacker.AssetTarget.Standalone:
-            //            break;
-            //        case AssetPacker.AssetTarget.iOS:
-            //            AssetPacker.buildTarget = BuildTarget.iOS;
-            //            break;
-            //        case AssetPacker.AssetTarget.Android:
-            //            AssetPacker.buildTarget = BuildTarget.Android;
-            //            break;
-            //        default: break;
-            //    }
-            //}
-
-            //vertOffset += btn_height + 5;
-
             pos = new Rect(LEFT, vertOffset, BigBtnWidth, btn_height);
             EditorGUI.LabelField(pos, new GUIContent("预定义符号*", "配置是否开启各种非正式版特性"));
             pos.x += 80;
@@ -528,13 +513,16 @@ namespace ZFrame.Editors
             EditorGUI.LabelField(pos, ((int)AssetPacker.symbol).ToString());
             vertOffset += btn_height;
 
-            EditorGUI.BeginDisabledGroup(true);
             pos.x = LEFT;
             pos.y = vertOffset;
+            pos.height = EditorGUIUtility.singleLineHeight * 3;
             pos.width = BigBtnWidth;
-            EditorGUI.TextArea(pos, GetPackSymbols(GetBuildTargetGroup()));
-            EditorGUI.EndDisabledGroup();
-            vertOffset += btn_height + 5;
+            GUILayout.BeginArea(pos);
+            m_SymbleScroll = EditorGUILayout.BeginScrollView(m_SymbleScroll, EditorStyles.helpBox);
+            GUILayout.Label(GetPackSymbols(GetBuildTargetGroup(), "\n"), EditorStyles.miniLabel);
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndArea();
+            vertOffset += (int)pos.height + 5;
 
             pos = new Rect(LEFT, vertOffset, BigBtnWidth, btn_height);
             EditorGUI.LabelField(pos, "编译选项");

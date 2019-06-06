@@ -1,5 +1,4 @@
-﻿//#define USE_DOTween
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -66,7 +65,7 @@ namespace ZFrame.Tween
 
 namespace ZFrame.Tween
 {
-#if USE_DOTween
+#if USE_DOTWEEN
     using DG.Tweening;
     using DG.Tweening.Core;
 

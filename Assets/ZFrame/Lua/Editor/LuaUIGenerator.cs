@@ -108,7 +108,7 @@ namespace ZFrame.Editors
         { typeof(UIInputField), "inp, text" },
 #endif
             {typeof(UIInput), "inp, text"},
-            {typeof(UILoopGrid), "go, i"},
+            {typeof(ILoopLayout), "go, i"},
             {typeof(UISlider), "bar, value"},
             {typeof(UIProgress), "bar, value"},
         };
