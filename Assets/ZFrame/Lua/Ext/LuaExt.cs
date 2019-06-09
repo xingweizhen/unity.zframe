@@ -122,6 +122,10 @@ public static class LuaExt
     {
         LuaDLL.lua_geti(self, index, n);
     }
+    public static void GetFieldByPath(this ILuaState self, int index, string path)
+    {
+        LuaDLL.xlua_pgettable_bypath(self, index, path);
+    }
 
     /// <summary>
     /// Does the equivalent to t[k] = v, where t is the value at the given valid 
@@ -142,6 +146,11 @@ public static class LuaExt
         LuaDLL.xlua_pushinteger(self, n);
         LuaDLL.lua_insert(self, -2);
         LuaDLL.xlua_psettable(self, index);
+    }
+    
+    public static void SetFieldByPath(this ILuaState self, int index, string path)
+    {
+        LuaDLL.xlua_psettable_bypath(self, index, path);
     }
 
     /// <summary>
@@ -354,6 +363,7 @@ public static class LuaExt
     {
         return LuaDLL.lua_isnumber(self, index);
     }
+
     public static bool IsLong(this ILuaState self, int index)
     {
         return LuaDLL.lua_isint64(self, index);
@@ -822,11 +832,11 @@ public static class LuaExt
     #endregion
 
     #region 重载了Push系列
-    public static void PushX(this ILuaState self, double x) { self.PushNumber(x); }
-    public static void PushX(this ILuaState self, int x) { LuaDLL.xlua_pushinteger(self, x); }
-    public static void PushX(this ILuaState self, long x) { LuaDLL.lua_pushint64(self, x); }
-    public static void PushX(this ILuaState self, string x) { LuaDLL.lua_pushstring(self, x); }
-    public static void PushX(this ILuaState self, bool x) { LuaDLL.lua_pushboolean(self, x); }
+    // public static void PushX(this ILuaState self, double x) { self.PushNumber(x); }
+    // public static void PushX(this ILuaState self, int x) { LuaDLL.xlua_pushinteger(self, x); }
+    // public static void PushX(this ILuaState self, long x) { LuaDLL.lua_pushint64(self, x); }
+    // public static void PushX(this ILuaState self, string x) { LuaDLL.lua_pushstring(self, x); }
+    // public static void PushX(this ILuaState self, bool x) { LuaDLL.lua_pushboolean(self, x); }
     #endregion
 
     #region 自封装函数

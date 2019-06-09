@@ -19,16 +19,14 @@ namespace ZFrame.UGUI
     public class UILoopGrid : GridLayoutGroup, IEventSender, ILoopLayout
     {
         [SerializeField]
-        private RectOffset m_RawPading;
-        public RectOffset rawPading { get { return m_RawPading; } }
+        private RectOffset m_RawPadding;
+        public RectOffset rawPadding { get { return m_RawPadding; } }
 
         [SerializeField]
         private GameObject m_Template;
 
         [SerializeField]
         private bool m_AutoStretch = false;
-
-        private string m_TmplName;
 
         private UIGroup m_Group;
 
@@ -43,20 +41,14 @@ namespace ZFrame.UGUI
         }
         private Vector2 curViewSize = Vector2.zero;
         protected int m_LimitLine = -1;
-        public int limitLine { 
-            get {
-                if (m_Scroll) {
-                    var viewSize = GetViewSize();
-                    if (curViewSize == Vector2.zero || (curViewSize.x != viewSize.x || curViewSize.y != viewSize.y)) {
-                        if (m_Scroll.horizontal) {
-                            m_LimitLine = Mathf.CeilToInt(viewSize.x / (cellSize.x + spacing.x));
-                        } else if (m_Scroll.vertical) {
-                            m_LimitLine = Mathf.CeilToInt(viewSize.y / (cellSize.y + spacing.y));
-                        }
-                    }
-                    curViewSize = viewSize;
-                }
-                return m_LimitLine;
+        public int limitLine { get { return m_LimitLine; } }
+
+        public void UpdateLimitLine(Vector2 viewSize)
+        {
+            if (m_Scroll.horizontal) {
+                m_LimitLine = Mathf.CeilToInt(viewSize.x / (cellSize.x + spacing.x));
+            } else if (m_Scroll.vertical) {
+                m_LimitLine = Mathf.CeilToInt(viewSize.y / (cellSize.y + spacing.y));
             }
         }
 
@@ -145,6 +137,8 @@ namespace ZFrame.UGUI
             if (forceUpdate) {
                 m_Inited = false;
                 m_ValueDirty = true;
+                curViewSize = GetViewSize();
+                UpdateLimitLine(curViewSize);
                 startLine = Mathf.Clamp(startLine, 0, maxLine);
                 UpdateLayout();
                 UpdateItems();
@@ -157,6 +151,7 @@ namespace ZFrame.UGUI
         protected float m_OutValue;
         protected float m_StepValue;
 
+        protected ObjPool<GameObject> m_ItemPool;
         protected List<GameObject> m_Items = new List<GameObject>();
 
         protected ScrollRect m_Scroll;
@@ -170,10 +165,18 @@ namespace ZFrame.UGUI
             return Vector2.zero;
         }
 
-        protected override void Awake()
+        protected  override void Awake()
         {
             base.Awake();
-            m_TmplName = m_Template.name;
+            
+            m_ItemPool = new ObjPool<GameObject>(m_Template,
+                go => {
+                    group.Add(go);
+                    go.Attach(transform, false);
+                }, go => {
+                    group.Remove(go);
+                    go.Attach(m_Template.transform);
+                });
         }
 
         protected override void Start()
@@ -194,7 +197,7 @@ namespace ZFrame.UGUI
 #if UNITY_EDITOR
             if (!Application.isPlaying) return;
 #endif
-                m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
+            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
             if (m_Scroll == null) {
                 LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
             } else {
@@ -206,14 +209,16 @@ namespace ZFrame.UGUI
                         LogMgr.W(this, "{0} requires horizontal scroll's content has a pivot.x == 0", GetType().Name);
                     }
                 }
+
                 if (m_Scroll.vertical) {
                     pivot.y = 1;
                     if (m_Scroll.content.pivot.y != 1f) {
                         LogMgr.W(this, "{0} requires velocity scroll's content has a pivot.y == 1", GetType().Name);
                     }
                 }
+
                 rectTransform.pivot = pivot;
-                
+
             }
 
             //m_TotalItem = 0;
@@ -255,12 +260,12 @@ namespace ZFrame.UGUI
                 var minOffset = myBounds.min - allBounds.max;
                 var viewSize = GetViewSize();
                 if (m_Scroll.horizontal) {
-                    m_InValue = -(viewSize.x + minOffset.x + m_RawPading.left);
-                    m_OutValue = -(viewSize.x + maxOffset.x + m_RawPading.left);
+                    m_InValue = -(viewSize.x + minOffset.x + m_RawPadding.left);
+                    m_OutValue = -(viewSize.x + maxOffset.x + m_RawPadding.left);
                     m_StepValue = cellSize.x + spacing.x;
                 } else if (m_Scroll.vertical) {
-                    m_InValue = -viewSize.y - maxOffset.y + m_RawPading.top;
-                    m_OutValue = -viewSize.y - minOffset.y + m_RawPading.top;
+                    m_InValue = -viewSize.y - maxOffset.y + m_RawPadding.top;
+                    m_OutValue = -viewSize.y - minOffset.y + m_RawPadding.top;
                     m_StepValue = cellSize.y + spacing.y;
                 }
 
@@ -283,13 +288,21 @@ namespace ZFrame.UGUI
                 anchoredOff = rectTransform.anchoredPosition;
 
             if (m_Scroll.horizontal) {
-                scrollValue = -anchoredPos.x - m_RawPading.left - anchoredOff.x;
+                scrollValue = -anchoredPos.x - m_RawPadding.left - anchoredOff.x;
             } else if (m_Scroll.vertical) {
-                scrollValue = anchoredPos.y - m_RawPading.top + anchoredOff.y;
+                scrollValue = anchoredPos.y - m_RawPadding.top + anchoredOff.y;
             } else return;
 
+            var viewSize = GetViewSize();
+            var viewSizeChanged = curViewSize != viewSize;
+            if (viewSizeChanged) {
+                curViewSize = viewSize;
+                UpdateLimitLine(curViewSize);
+                UpdateItems();
+            }
+            
             var start = Mathf.Clamp(Mathf.FloorToInt(scrollValue / m_StepValue), 0, maxLine);
-            if (start != startLine) {
+            if (start != startLine || viewSizeChanged) {
                 var prevLine = startLine;
                 startLine = start;
                 UpdateLayout();
@@ -308,15 +321,12 @@ namespace ZFrame.UGUI
             
             var nViewItem = (limitLine + 2) * constraintCount;
             for (int i = m_Items.Count; i < nViewItem; ++i) {
-                var item = GoTools.NewChild(gameObject, m_Template);
-                group.Add(item);
-                item.name = m_TmplName + i;
+                var item = m_ItemPool.Get();
                 m_Items.Add(item);
             }
 
             for (int i = m_Items.Count - 1; i >= nViewItem; --i) {
-                group.Remove(m_Items[i]);
-                Destroy(m_Items[i]);
+                m_ItemPool.Release(m_Items[i]);
                 m_Items.RemoveAt(i);
             }
 
@@ -332,25 +342,25 @@ namespace ZFrame.UGUI
         protected void UpdateHorizontalPadding()
         {
             var step = Mathf.RoundToInt(cellSize.x + spacing.x);
-            m_Padding.top = m_RawPading.top;
-            m_Padding.bottom = m_RawPading.bottom;
+            m_Padding.top = m_RawPadding.top;
+            m_Padding.bottom = m_RawPadding.bottom;
             var nFront = Mathf.Max(0, startLine - 1);
-            m_Padding.left = m_RawPading.left + nFront * step;
+            m_Padding.left = m_RawPadding.left + nFront * step;
 
             var endContraint = cols - limitLine - 2 - nFront;
-            m_Padding.right = m_RawPading.right + Mathf.Max(0, endContraint) * step;
+            m_Padding.right = m_RawPadding.right + Mathf.Max(0, endContraint) * step;
         }
 
         protected void UpdateVerticalPadding()
         {
             var step = Mathf.RoundToInt(cellSize.y + spacing.y);
-            m_Padding.left = m_RawPading.left;
-            m_Padding.right = m_RawPading.right;
+            m_Padding.left = m_RawPadding.left;
+            m_Padding.right = m_RawPadding.right;
             var nFront = Mathf.Max(0, startLine - 1);
-            m_Padding.top = m_RawPading.top + nFront * step;
+            m_Padding.top = m_RawPadding.top + nFront * step;
 
             var endContraint = rows - limitLine - 2 - nFront;
-            m_Padding.bottom = m_RawPading.bottom + Mathf.Max(0, endContraint) * step;
+            m_Padding.bottom = m_RawPadding.bottom + Mathf.Max(0, endContraint) * step;
         }
 
         protected void UpdateLayout()
@@ -362,14 +372,14 @@ namespace ZFrame.UGUI
                 case Constraint.Flexible: {
                         var size = rectTransform.rect.size;
                         if (startAxis == Axis.Horizontal) {
-                            var width = size.x - m_Padding.left - m_Padding.right + spacing.x;
+                            var width = size.x - m_Padding.horizontal + spacing.x;
                             var cellW = cellSize.x + spacing.x;
                             cols = Mathf.FloorToInt(width / cellW);
                             rows = Mathf.CeilToInt(m_TotalItem / (float)cols);
                             constraintCount = cols;
                             UpdateVerticalPadding();
                         } else {
-                            var height = size.y - m_Padding.bottom - m_Padding.top + spacing.y;
+                            var height = size.y - m_Padding.vertical + spacing.y;
                             var cellH = cellSize.y + spacing.y;
                             rows = Mathf.FloorToInt(height / cellH);
                             cols = Mathf.CeilToInt(m_TotalItem / (float)rows);

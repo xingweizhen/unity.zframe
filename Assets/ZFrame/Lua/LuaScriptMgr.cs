@@ -130,7 +130,7 @@ namespace ZFrame.Lua
 
             // "none break space"
             L.GetGlobal("string");
-            L.SetDict("nbs", "\u00A0");
+            L.SetDict("nbs", UGUI.UILabel.NBS);
             L.Pop(1);
 
             m_Tb.CallFunc(0, "start", gameObject);

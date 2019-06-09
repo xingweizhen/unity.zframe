@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Origin: {x: 0, y: 0, z: 0}
   m_Canvases:
   - {fileID: 223068384908564322}
-  m_Keys: 1b000000
+  m_Keys: 1b0000001a010000
 --- !u!223 &223068384908564322
 Canvas:
   m_ObjectHideFlags: 1

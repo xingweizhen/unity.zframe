@@ -58,7 +58,7 @@ public static class WrapDefines
                 typeof(UnityEngine.EventSystems.PointerEventData),
                 typeof(UnityEngine.UI.Graphic),
                 typeof(UnityEngine.UI.MaskableGraphic),
-                //typeof(UnityEngine.UI.Text),
+                typeof(UnityEngine.UI.Text),
                 typeof(UnityEngine.UI.Image),
                 typeof(UnityEngine.UI.RawImage),
 
@@ -100,9 +100,7 @@ public static class WrapDefines
                 typeof(ZFrame.Tween.BaseTweener),
 
                 // Other
-                //typeof(MonoBehavior),
                 typeof(CMD5),
-                //typeof(ThreeDButton),
 
                 typeof(RadioWave),
 

@@ -141,25 +141,23 @@ public static class TableAPI
     }
     #endregion
     
-    #region Table - Unity Object
-    public static void SetUObj(this ILuaState self, int index, string key, Object value)
+    public static void SetObject(this ILuaState self, int index, string key, System.Object value)
     {
         if (index < 0) index = self.GetTop() + 1 + index;
 
         self.PushString(key);
-        self.PushX(value);
+        self.PushLightUserData(value);
         self.SetTable(index);
     }
 
-    public static void SetUObjI(this ILuaState self, int index, int n, Object value)
+    public static void SetObject(this ILuaState self, int index, int n, System.Object value)
     {
         if (index < 0) index = self.GetTop() + 1 + index;
 
         self.PushInteger(n);
-        self.PushX(value);
+        self.PushLightUserData(value);
         self.SetTable(index);
     }
-    #endregion
 
     public static bool GetBoolean(this ILuaState self, int index, string key, bool def = false)
     {

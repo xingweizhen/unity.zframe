@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 // warning CS0168: 声明了变量，但从未使用
 // warning CS0219: 给变量赋值，但从未使用
@@ -109,8 +110,13 @@ namespace ZFrame.Editors
             lb.font = Asset.AssetLoader.EditorLoadAsset(
                 typeof(TMP_FontAsset), "fonts/mainfont." + UGUITools.settings.defaultLang + '/' + "FONT") as TMP_FontAsset;
 #else
-            if (UGUITools.settings.font)
+            if (UGUITools.settings.font) {
                 lb.font = UGUITools.settings.font;
+                using (var so = new SerializedObject(lb)) {
+                    so.FindProperty("m_FontPath").stringValue = UGUITools.settings.fontPath;
+                    so.ApplyModifiedProperties();
+                }
+            }
 #endif
             lb.fontSize = 24;
             lb.text = text;
@@ -258,7 +264,7 @@ namespace ZFrame.Editors
         static void CreateUISlider()
         {
             UISlider sld = CreateUIElm<UISlider>(null);
-            sld.name = "sldSlider";
+            sld.name = "barSlider";
             var rectTrans = sld.GetComponent<RectTransform>();
             rectTrans.sizeDelta = new Vector2(160, 20);
 
@@ -382,12 +388,13 @@ namespace ZFrame.Editors
             rectTrans.sizeDelta = s_ThickGUIElementSize;
 
             UISprite spBack = inp.GetComponent<UISprite>();
-            InitUISprite(spBack, "inpInput", kInputFieldBackgroundPath, UISprite.Type.Sliced, s_DefaultSelectableColor);
+            InitUISprite(spBack, "inpInput", kInputFieldBackgroundPath, Image.Type.Sliced, s_DefaultSelectableColor);
             spBack.raycastTarget = true;
 
             _Label lbHold = CreateUILabel(inp.gameObject, "lbHold_", "输入文本...");
-            lbHold.localized = true;
             inp.placeholder = lbHold;
+            lbHold.localized = true;
+            lbHold.alignment = TextAnchor.MiddleLeft;
             lbHold.rectTransform.anchorMin = new Vector2(0, 0f);
             lbHold.rectTransform.anchorMax = new Vector2(1, 1f);
             lbHold.rectTransform.offsetMin = new Vector2(10, 3f);
@@ -397,6 +404,7 @@ namespace ZFrame.Editors
 
             _Label lbText = CreateUILabel(inp.gameObject, "lbText_", "");
             inp.textComponent = lbText;
+            lbHold.alignment = TextAnchor.MiddleLeft;
             lbText.supportRichText = false; // 输入框不支持富文本
             lbText.rectTransform.anchorMin = new Vector2(0, 0f);
             lbText.rectTransform.anchorMax = new Vector2(1, 1f);

@@ -71,12 +71,11 @@ namespace ZFrame.Lua
             lua.SetDict("SetSprite", SetSprite);
             lua.SetDict("SetTexture", SetTexture);
             lua.SetDict("SetInteractable", SetInteractable);
-            lua.SetDict("SetBlockRaycasts", SetBlockRaycasts);
+            lua.SetDict("SetBlocksRaycasts", SetBlocksRaycasts);
             lua.SetDict("SetGrayscale", SetGrayscale);
             lua.SetDict("SetFlip", SetFlip);
             lua.SetDict("SetShadow", SetShadow);
             lua.SetDict("SetOutline", SetOutline);
-            lua.SetDict("SetBlocksRaycasts", SetBlocksRaycasts);
             lua.SetDict("IsVisible", IsVisible);
 
             // Layout
@@ -125,8 +124,6 @@ namespace ZFrame.Lua
             lua.SetDict("GetGroupIdx", GetGroupIdx);
 
             lua.SetDict("SetStateSprite", SetStateSprite);
-
-            lua.SetDict("SetLabelAlign", SetLabelAlign);
 
             // api
             lua.SetDict("CopyToClipboard", CopyToClipboard);
@@ -883,24 +880,24 @@ namespace ZFrame.Lua
 
             return 0;
         }
-
+        
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        private static int SetBlockRaycasts(ILuaState lua)
+        private static int SetBlocksRaycasts(ILuaState lua)
         {
             var go = lua.ToGameObject(1);
             if (go == null) return 0;
 
-            var raycast = lua.ToBoolean(2);
+            var blocks = lua.ToBoolean(2);
 
             var cvGrp = go.GetComponent(typeof(CanvasGroup)) as CanvasGroup;
             if (cvGrp) {
-                cvGrp.blocksRaycasts = raycast;
+                cvGrp.blocksRaycasts = blocks;
                 return 0;
             }
 
-            var graphic = go.GetComponent(typeof(Graphic)) as Graphic;
-            if (graphic) {
-                graphic.raycastTarget = raycast;
+            var gh = go.GetComponent(typeof(Graphic)) as Graphic;
+            if (gh) {
+                gh.raycastTarget = blocks;
                 return 0;
             }
 
@@ -956,29 +953,6 @@ namespace ZFrame.Lua
                 var outline = text.gameObject.NeedComponent<Outline>();
                 outline.effectColor = c;
                 outline.effectDistance = new Vector2(x, y);
-            }
-
-            return 0;
-        }
-
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        private static int SetBlocksRaycasts(ILuaState lua)
-        {
-            var go = lua.ToGameObject(1);
-            if (go == null) return 0;
-
-            var bBlocks = lua.ToBoolean(2);
-
-            var cvGrp = go.GetComponent(typeof(CanvasGroup)) as CanvasGroup;
-            if (cvGrp) {
-                cvGrp.blocksRaycasts = bBlocks;
-                return 0;
-            }
-
-            var gh = go.GetComponent(typeof(Graphic)) as Graphic;
-            if (gh) {
-                gh.raycastTarget = bBlocks;
-                return 0;
             }
 
             return 0;
@@ -1147,7 +1121,7 @@ namespace ZFrame.Lua
                 if (scroll.horizontal) {
                     scroll.horizontalNormalizedPosition = lua.ToSingle(2);
                 } else if (scroll.vertical) {
-                    scroll.horizontalNormalizedPosition = 1 - lua.ToSingle(2);
+                    scroll.verticalNormalizedPosition = 1 - lua.ToSingle(2);
                 }
             }
 
@@ -1568,11 +1542,10 @@ namespace ZFrame.Lua
         public static int MakeSequence(ILuaState lua)
         {
             var args = lua.ToParamsObject<ZTweener>(2, lua.GetTop() - 1);
-            var tweenParam = lua.ToJsonObj(1);
-            var loops = (int)tweenParam.ConvTo("loops", 0);
-            var loopType = (LoopType)tweenParam.ConvTo("loopType", LoopType.Restart);
-            var updateType = (UpdateType)tweenParam.ConvTo("updateType", UpdateType.Normal);
-            var ignoreTimescale = tweenParam.ConvTo("ignoreTimescale", true);
+            var loops = lua.GetInteger(1, "loops");
+            var loopType = (LoopType)lua.GetEnum(1, "loopType", LoopType.Restart);
+            var updateType = (UpdateType)lua.GetEnum(1, "updateType", UpdateType.Normal);
+            var ignoreTimescale = lua.GetBoolean(1, "ignoreTimescale", true);
 
             var seq = ZTween.MakeSequence(args);
             seq.LoopFor(loops, loopType)
@@ -1834,18 +1807,6 @@ namespace ZFrame.Lua
             return 0;
         }
 
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        private static int SetLabelAlign(ILuaState lua)
-        {
-            var label = lua.ToComponent(1, typeof(Text)) as Text;
-            if (label != null) {
-                var index = (TextAnchor)lua.ToEnumValue(2, typeof(TextAnchor));
-                label.alignment = index;
-                return 1;
-            }
-
-            return 0;
-        }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int CopyToClipboard(ILuaState lua)

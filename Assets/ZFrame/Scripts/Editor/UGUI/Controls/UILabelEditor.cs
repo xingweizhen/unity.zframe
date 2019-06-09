@@ -16,7 +16,8 @@ namespace ZFrame.Editors
         //private static List<string> m_Results = new List<string>();
         private List<string> m_AutoKeys = new List<string>();
 
-        private SerializedProperty textFormat, localize, omit, m_RawText, m_Text, m_bNoBreakSpace;
+        private SerializedProperty m_Localized, m_Ellipsis, m_RawText, m_Text, m_NonBreakingSpace;
+        private SerializedProperty m_FontPath;
 
         protected override void OnEnable()
         {
@@ -27,12 +28,12 @@ namespace ZFrame.Editors
             m_AutoKeys.Clear();
 
             base.OnEnable();
-            omit = serializedObject.FindProperty("omit");
-            textFormat = serializedObject.FindProperty("textFormat");
-            localize = serializedObject.FindProperty("m_Localized");
+            m_Ellipsis = serializedObject.FindProperty("m_Ellipsis");
+            m_Localized = serializedObject.FindProperty("m_Localized");
             m_RawText = serializedObject.FindProperty("m_RawText");
             m_Text = serializedObject.FindProperty("m_Text");
-            m_bNoBreakSpace = serializedObject.FindProperty("m_bNoBreakSpace");
+            m_FontPath = serializedObject.FindProperty("m_FontPath");
+            m_NonBreakingSpace = serializedObject.FindProperty("m_NonBreakingSpace");
         }
 
         public override void OnInspectorGUI()
@@ -41,17 +42,30 @@ namespace ZFrame.Editors
             var cachedFont = self.font;
             var locText = m_Text.stringValue;
             
-            base.OnInspectorGUI();            
+            base.OnInspectorGUI();
+            if (cachedFont != self.font) {
+                var path = AssetDatabase.GetAssetPath(self.font);
+                var ai = AssetImporter.GetAtPath(path);
+                if (ai != null && !string.IsNullOrEmpty(ai.assetBundleName)) {
+                    m_FontPath.stringValue = string.Format("{0}/{1}", ai.assetBundleName, self.font.name);
+                } else {
+                    m_FontPath.stringValue = null;
+                }
+            }
             
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Extern Properties", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(m_bNoBreakSpace);
-            EditorGUILayout.PropertyField(omit);
-            EditorGUILayout.PropertyField(textFormat);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.LabelField("Font Path", 
+                string.IsNullOrEmpty(m_FontPath.stringValue) ? "<NOT AssetBundle>" : m_FontPath.stringValue);
+            EditorGUILayout.PropertyField(m_NonBreakingSpace);
+            EditorGUILayout.PropertyField(m_Ellipsis);
+            EditorGUI.indentLevel--;
+            
             if (UILabel.LOC) {
-                EditorGUILayout.PropertyField(localize);
+                EditorGUILayout.PropertyField(m_Localized);
 
-                if (localize.boolValue) {
+                if (m_Localized.boolValue) {
                     if (locText != m_Text.stringValue) m_AutoKeys.Clear();
                     if (m_AutoKeys.Count == 0 && !m_AutoKeys.Contains(m_Text.stringValue)) {
                         using (var itor = UILabel.LOC.Find(self.text, UGUITools.settings.defaultLang)) {

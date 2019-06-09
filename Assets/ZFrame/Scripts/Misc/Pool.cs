@@ -96,7 +96,7 @@ namespace ZFrame
 
     public class ObjPool<T> : PoolBase<T> where T : Object
     {
-        private T m_Obj;
+        private readonly T m_Obj;
         public ObjPool(T Obj, System.Action<T> actionOnGet, System.Action<T> actionOnRelease, int limit = 0)
             : base(actionOnGet, actionOnRelease, limit)
         {

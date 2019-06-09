@@ -10,8 +10,11 @@ namespace ZFrame
     
 		protected T m_Value;
     
-		public static NoBoxingValue<T> Apply(T value)
+		public static object Apply(T value)
 		{
+	#if UNITY_EDITOR
+			if (Instance == null) return value;
+	#endif
 			Instance.m_Value = value;
 			return Instance;
 		}

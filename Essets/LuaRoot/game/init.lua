@@ -35,20 +35,17 @@ end, function () return {
 } end)
 
 libscene.add_level("Demo", function ()
-	print("Demo cb")
+    ui.open("UI/DemoUI")
 end)
 
 -- ui.setenv("libgame", require "libgame.cs")
 
 -- 注册/初始化命令行功能
 if ENV.debug or ENV.development or _G.UserSettings["enable_console"] then
-    local CONSOLE = _G.PKG["framework/console/console"]
     libui.key_event("F1", function ()
 	    local Wnd = ui.find("FRMConsole")
 	    if Wnd == nil then
-	        Wnd = ui.show("UI/FRMConsole", 110)
-	    	local input = libunity.Find(Wnd.go, "inpCmd")
-	    	libugui.Select(input, true)
+	        ui.show("UI/FRMConsole", 110)
 	    else
 	        Wnd:close()
 	    end

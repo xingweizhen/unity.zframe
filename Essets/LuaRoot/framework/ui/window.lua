@@ -99,7 +99,7 @@ local OBJDEF = {
 	libtimer = libtimer,
 	libscene = libscene,
 	libui = libui, libnet = libnet,
-	ui = ui, cjson = cjson, serpent = serpent,
+	ui = ui, cjson = cjson,
 	AUD = AUD,
 
 	--setfenv = setfenv, getfenv = getfenv,

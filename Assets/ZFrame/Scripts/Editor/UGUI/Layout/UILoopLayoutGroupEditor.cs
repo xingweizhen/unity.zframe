@@ -18,9 +18,14 @@ namespace ZFrame.Editors
         SerializedProperty m_ChildForceExpandWidth;
         SerializedProperty m_ChildForceExpandHeight;
 
-        SerializedProperty m_RawPading, m_Template, m_MinSize;
+        SerializedProperty m_RawPadding, m_Template, m_MinSize, m_Revert;
 
         SerializedProperty m_Event;
+        
+        private readonly GUIContent m_TrChildControlSize = new GUIContent("Child Controls Size");
+        private readonly GUIContent m_TrChildForceExpand = new GUIContent("Child Force Expand");
+        private readonly GUIContent m_TrWidth = new GUIContent("Width");
+        private readonly GUIContent m_TrHeight = new GUIContent("Height");
 
         protected virtual void OnEnable()
         {
@@ -32,9 +37,10 @@ namespace ZFrame.Editors
             m_ChildForceExpandWidth = serializedObject.FindProperty("m_ChildForceExpandWidth");
             m_ChildForceExpandHeight = serializedObject.FindProperty("m_ChildForceExpandHeight");
 
-            m_RawPading = serializedObject.FindProperty("m_RawPading");
+            m_RawPadding = serializedObject.FindProperty("m_RawPadding");
             m_Template = serializedObject.FindProperty("m_Template");
             m_MinSize = serializedObject.FindProperty("m_MinSize");
+            m_Revert = serializedObject.FindProperty("m_Revert");
 
             m_Event = serializedObject.FindProperty("m_Event");
         }
@@ -42,7 +48,7 @@ namespace ZFrame.Editors
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(m_RawPading, true);
+            EditorGUILayout.PropertyField(m_RawPadding, true);
             
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(m_Padding, true);
@@ -52,34 +58,38 @@ namespace ZFrame.Editors
             EditorGUILayout.PropertyField(m_ChildAlignment, true);
 
             Rect rect = EditorGUILayout.GetControlRect();
-            rect = EditorGUI.PrefixLabel(rect, -1, EditorGUIUtility.TrTextContent("Child Controls Size"));
+            rect = EditorGUI.PrefixLabel(rect, -1, m_TrChildControlSize);
             rect.width = Mathf.Max(50, (rect.width - 4) / 3);
             EditorGUIUtility.labelWidth = 50;
-            ToggleLeft(rect, m_ChildControlWidth, EditorGUIUtility.TrTextContent("Width"));
+            ToggleLeft(rect, m_ChildControlWidth, m_TrWidth);
             rect.x += rect.width + 2;
-            ToggleLeft(rect, m_ChildControlHeight, EditorGUIUtility.TrTextContent("Height"));
+            ToggleLeft(rect, m_ChildControlHeight, m_TrHeight);
             EditorGUIUtility.labelWidth = 0;
 
             rect = EditorGUILayout.GetControlRect();
-            rect = EditorGUI.PrefixLabel(rect, -1, EditorGUIUtility.TrTextContent("Child Force Expand"));
+            rect = EditorGUI.PrefixLabel(rect, -1, m_TrChildForceExpand);
             rect.width = Mathf.Max(50, (rect.width - 4) / 3);
             EditorGUIUtility.labelWidth = 50;
-            ToggleLeft(rect, m_ChildForceExpandWidth, EditorGUIUtility.TrTextContent("Width"));
+            ToggleLeft(rect, m_ChildForceExpandWidth, m_TrWidth);
             rect.x += rect.width + 2;
-            ToggleLeft(rect, m_ChildForceExpandHeight, EditorGUIUtility.TrTextContent("Height"));
+            ToggleLeft(rect, m_ChildForceExpandHeight, m_TrHeight);
             EditorGUIUtility.labelWidth = 0;
 
+            EditorGUILayout.Separator();
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
             EditorGUILayout.PropertyField(m_Template);
             EditorGUILayout.PropertyField(m_MinSize);
+            EditorGUILayout.PropertyField(m_Revert);
+            EditorGUI.EndDisabledGroup();
 
             var self = target as UILoopLayoutGroup;
             if (!Application.isPlaying) {
-                if (self.rawPading != null) {
+                if (self.rawPadding != null) {
                     if (self.padding == null) self.padding = new RectOffset();
-                    self.padding.left = self.rawPading.left;
-                    self.padding.right = self.rawPading.right;
-                    self.padding.bottom = self.rawPading.bottom;
-                    self.padding.top = self.rawPading.top;
+                    self.padding.left = self.rawPadding.left;
+                    self.padding.right = self.rawPadding.right;
+                    self.padding.bottom = self.rawPadding.bottom;
+                    self.padding.top = self.rawPadding.top;
                 }
             } else {
                 EditorGUILayout.Separator();
@@ -105,7 +115,7 @@ namespace ZFrame.Editors
             toggle = EditorGUI.ToggleLeft(position, label, toggle);
             EditorGUI.indentLevel = oldIndent;
             if (EditorGUI.EndChangeCheck()) {
-                property.boolValue = property.hasMultipleDifferentValues ? true : !property.boolValue;
+                property.boolValue = property.hasMultipleDifferentValues || !property.boolValue;
             }
             EditorGUI.showMixedValue = false;
         }

@@ -27,6 +27,27 @@ namespace ZFrame.UGUI
 
     public class UILabel : Text, ILabel, ITweenable, ITweenable<float>, ITweenable<Color>, ITweenable<string>
     {
+        public const string NBS = "\u00A0";
+        
+        private static readonly Dictionary<string, Font> LoadedFonts = new Dictionary<string, Font>();
+
+        private static Font GetFont(string fontPath)
+        {
+            Font ret = null;
+            if (LoadedFonts.TryGetValue(fontPath, out ret)) {
+                if (ret != null) return ret;
+                LoadedFonts.Remove(fontPath);
+            }
+
+            AbstractAssetBundleRef abRef;
+            if (AssetLoader.Instance.TryGetAssetBundle(fontPath, out abRef)) {
+                ret = abRef.Load(fontPath, typeof(Font)) as Font;
+                if (ret != null) LoadedFonts.Add(fontPath, ret);
+            }
+
+            return ret;
+        }
+        
         private const string OMIT_STR = "...";
         private static readonly Regex LinkRegex = new Regex(@"<link=(.+?)>(.*?)</link>");
         private static StringBuilder LinkBuilder = new StringBuilder();
@@ -58,10 +79,15 @@ namespace ZFrame.UGUI
 
         public event TextChanged onTextChanged;
 
-        public bool omit;
+        [SerializeField]
+        [Tooltip("截掉溢出部分文本，并用...代替")]
+        private bool m_Ellipsis;
         private string m_OmitText;
         public bool omited { get { return !string.IsNullOrEmpty(m_OmitText); } }
 
+        [SerializeField, HideInInspector]
+        private string m_FontPath;
+        
         [SerializeField]
         private bool m_Localized;
         public bool localized { get { return m_Localized; } set { m_Localized = value; } }
@@ -72,13 +98,17 @@ namespace ZFrame.UGUI
             }
         }
 
-        [SerializeField]
-        private bool m_bNoBreakSpace = false;
+        /// <summary>
+        /// 是否用Non-Breaking Space代替普通空格
+        /// </summary>
+        [SerializeField, NamedProperty("NBS")]
+        [Tooltip("是否用Non-Breaking Space代替普通空格")]
+        private bool m_NonBreakingSpace = false;
         
         private void UpdateOmit()
         {
             m_OmitText = null;
-            if (omit) {
+            if (m_Ellipsis) {
                 var settings = GetGenerationSettings(Vector2.zero);
                 var generator = cachedTextGeneratorForLayout;
                 var width = generator.GetPreferredWidth(m_Text, settings) / pixelsPerUnit;
@@ -165,17 +195,6 @@ namespace ZFrame.UGUI
             set { m_RawText = value; }
         }
 
-        public string textFormat = "{0}";
-        public void SetFormatArgs(params object[] args)
-        {
-            text = string.Format(textFormat, args);
-        }
-
-        public void UpdateNumber(float value)
-        {
-            text = string.Format(textFormat, value);
-        }
-
         public LinkInfo FindLink(Vector3 screenPos, Camera cam)
         {
             Vector2 point;
@@ -204,6 +223,10 @@ namespace ZFrame.UGUI
         
         protected void InitText()
         {
+            if (font == null && !string.IsNullOrEmpty(m_FontPath)) {
+                font = GetFont(m_FontPath);
+            }
+            
             if (localized && LOC && m_Lang != LOC.currentLang) {
                 m_Lang = LOC.currentLang;
                 UpdateLoc();
@@ -309,8 +332,8 @@ namespace ZFrame.UGUI
                 return;
 
             var genText = m_GenText;
-            if (m_bNoBreakSpace) {
-                genText = genText.Replace(" ", "\u00A0");
+            if (m_NonBreakingSpace) {
+                genText = genText.Replace(" ", NBS);
             }
 
             // We don't care if we the font Texture changes while we are doing our Update.

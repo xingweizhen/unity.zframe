@@ -33,25 +33,6 @@ public static class LuaIndexTo
         }
     }
 
-    public static void Get(this ILuaState self, string gKey, params object[] Keys)
-    {
-        self.GetGlobal(gKey);
-        for (int i = 0; i < Keys.Length; ++i) {
-            if (!self.IsTable(-1)) return;
-            self.PushAnyObject(Keys[i]);
-            self.GetTable(-2);
-            self.Replace(-2);
-        }
-    }
-
-    public static T Get<T>(this ILuaState self, string gKey, params object[] Keys)
-    {
-        self.Get(gKey, Keys);
-        T ret;
-        self.ToTranslator().Get(self, -1, out ret);
-        self.Pop(1);
-        return ret;
-    }
     #endregion
 
     /// <summary>
@@ -550,7 +531,7 @@ public static class LuaIndexTo
         public TValue value;
         private KeyValue() { }
 
-        public readonly static KeyValue<TKey, TValue> Tmp = new KeyValue<TKey, TValue>();
+        public static readonly KeyValue<TKey, TValue> Tmp = new KeyValue<TKey, TValue>();
     }
     public static IEnumerator<KeyValue<TKey, TValue>> ToEnumerator<TKey, TValue>(this ILuaState self, int index)
     {

@@ -35,12 +35,18 @@ namespace ZFrame.UGUI
         [SerializeField, NamedProperty("长按时常(秒)")] private float m_LongpressTime = 0.5f;
         public float longpressTime { get { return m_LongpressTime; } }
 
+        public string fontPath { get { return m_FontPath; } }
         private Font m_Font;
+
         public Font font {
             get {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                    return AssetLoader.EditorLoadAsset(typeof(Font), m_FontPath) as Font;
+#endif
                 if (m_Font == null && !string.IsNullOrEmpty(m_FontPath)) {
                     if (AssetLoader.Instance == null) {
-#if UNITY_EDITOR
+#if UNITY_EDITOR      
                         m_Font = AssetLoader.EditorLoadAsset(typeof(Font), m_FontPath) as Font;
 #endif
                     } else {

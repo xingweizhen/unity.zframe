@@ -6,6 +6,18 @@ namespace XLua.LuaDLL
     public partial class Lua
     {
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void lua_pushinteger(IntPtr L, long value);
+        
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern long lua_tointegerx(IntPtr L, int index, out int isnum);
+
+        public static long lua_tointeger(IntPtr L, int index)
+        {
+            int isnum;
+            return lua_tointegerx(L, index, out isnum);
+        }
+        
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int lua_setfield(IntPtr L, int index, string name);
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]

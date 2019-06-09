@@ -22,7 +22,7 @@ namespace ZFrame.Editors
         SerializedProperty m_Constraint;
         SerializedProperty m_ConstraintCount;
 
-        SerializedProperty m_RawPading, m_Template;
+        SerializedProperty m_RawPadding, m_Template;
 
         SerializedProperty m_Event;
 
@@ -38,7 +38,7 @@ namespace ZFrame.Editors
             m_Constraint = serializedObject.FindProperty("m_Constraint");
             m_ConstraintCount = serializedObject.FindProperty("m_ConstraintCount");
 
-            m_RawPading = serializedObject.FindProperty("m_RawPading");
+            m_RawPadding = serializedObject.FindProperty("m_RawPadding");
             m_Template = serializedObject.FindProperty("m_Template");
 
             m_Event = serializedObject.FindProperty("m_Event");
@@ -47,7 +47,7 @@ namespace ZFrame.Editors
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(m_RawPading, true);
+            EditorGUILayout.PropertyField(m_RawPadding, true);
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(m_Padding, true);
             EditorGUI.EndDisabledGroup();
@@ -68,12 +68,12 @@ namespace ZFrame.Editors
 
             var self = target as UILoopGrid;
             if (!Application.isPlaying) {
-                if (self.rawPading != null) {
+                if (self.rawPadding != null) {
                     if (self.padding == null) self.padding = new RectOffset();
-                    self.padding.left = self.rawPading.left;
-                    self.padding.right = self.rawPading.right;
-                    self.padding.bottom = self.rawPading.bottom;
-                    self.padding.top = self.rawPading.top;
+                    self.padding.left = self.rawPadding.left;
+                    self.padding.right = self.rawPadding.right;
+                    self.padding.bottom = self.rawPadding.bottom;
+                    self.padding.top = self.rawPadding.top;
                 }
             } else {
                 EditorGUILayout.Separator();

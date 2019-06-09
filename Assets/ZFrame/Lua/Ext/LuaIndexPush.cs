@@ -78,23 +78,36 @@ public static class LuaIndexPush
             for (int i = 0; i < array.Count; ++i) {
                 self.SetValue(I2V.PushJson, -1, i + 1, array[i]);
             }
-        } else if (json is ProxyNumber) {
-            var value = (ProxyNumber)json;
-            if (value.value is ulong) {
-                self.PushULong((ulong)value.value);
-            } else if (value.value is long) {
-                self.PushLong((long)value.value);
-            } else {
-                self.PushX((double)value);
+        } else {
+            switch (json.GetTypeCode()) {
+                case System.TypeCode.Byte:
+                case System.TypeCode.Char:
+                case System.TypeCode.Int16:
+                case System.TypeCode.Int32:
+                case System.TypeCode.SByte:
+                case System.TypeCode.UInt16:
+                case System.TypeCode.UInt32:
+                    self.PushInteger(json.ToInt32(null));
+                    break;
+                case System.TypeCode.Int64:
+                case System.TypeCode.UInt64:
+                case System.TypeCode.Decimal:
+                    self.PushLong(json.ToInt64(null));
+                    break;
+                case System.TypeCode.Double:
+                case System.TypeCode.Single:
+                    self.PushNumber(json.ToDouble(null));
+                    break;
+                case System.TypeCode.Boolean:
+                    self.PushBoolean(json.ToBoolean(null));
+                    break;
+                case System.TypeCode.String:
+                    self.PushString(json.ToString(null));
+                    break;
+                case System.TypeCode.Object:
+                    self.PushAnyObject(json.ToType(typeof(object), null));
+                    break;
             }
-        } else if (json is ProxyString) {
-            var value = (ProxyString)json;
-            self.PushX((string)value);
-        } else if (json is ProxyBoolean) {
-            var value = (ProxyBoolean)json;
-            self.PushX((bool)value);
-        } else if (json is ProxyUserdata) {
-            self.PushAnyObject(json.ToType(typeof(object), null));
         }
     }
 

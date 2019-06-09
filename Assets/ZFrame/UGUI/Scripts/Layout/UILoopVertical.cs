@@ -19,73 +19,31 @@ namespace ZFrame.UGUI
             if (rectTransform != m_Scroll.content)
                 anchoredOff = rectTransform.anchoredPosition;
 
-            return anchoredPos.y - anchoredOff.y;
+            return anchoredPos.y + anchoredOff.y;
         }
-
-        protected void RequireItemView(int index)
+        protected override float GetItemSize(RectTransform item)
         {
-            RectTransform item = null;
-            if (index == startIndex + m_Items.Count) {
-                item = m_Items[0];
-                item.SetAsLastSibling();
-                m_Items.RemoveAt(0);
-                m_Items.Add(item);
-                m_Padding.top += Mathf.RoundToInt(LayoutUtility.GetPreferredHeight(item) + m_Spacing);
-
-                OnItemUpdate(item.gameObject, index);
-                LayoutRebuilder.ForceRebuildLayoutImmediate(item);
-                if (m_Padding.bottom > m_RawPading.bottom) {                    
-                    m_Padding.bottom -= Mathf.RoundToInt(LayoutUtility.GetPreferredHeight(item) + m_Spacing);
-                }
-            } else if (index < startIndex) {
-                var lastIndex = m_Items.Count - 1;
-                item = m_Items[lastIndex];
-                item.SetAsFirstSibling();
-                m_Items.RemoveAt(lastIndex);
-                m_Items.Insert(0, item);
-                m_Padding.bottom += Mathf.RoundToInt(LayoutUtility.GetPreferredHeight(item) + m_Spacing);
-
-                OnItemUpdate(item.gameObject, index);
-                LayoutRebuilder.ForceRebuildLayoutImmediate(item);
-                m_Padding.top -= Mathf.RoundToInt(LayoutUtility.GetPreferredHeight(item) + m_Spacing);
+            return LayoutUtility.GetPreferredHeight(item) + m_Spacing;
+        }
+        
+        protected override void AddHeadPadding(float value)
+        {
+            if (value > 0 || m_HeadPadding > m_RawPadding.top) {
+                m_HeadPadding += value;
             }
         }
 
-        protected override void OnScrollValueChanged(Vector2 value)
+        protected override void AddTailPadding(float value)
         {
-#if UNITY_EDITOR
-            if (!Application.isPlaying) return;
-#endif
-            float scrollValue = GetScrollValue();
-
-            if (scrollValue < firstPos) {
-                var pos = firstPos;
-                while (scrollValue < pos && startIndex > 0) {
-                    pos -= LayoutUtility.GetPreferredHeight(m_Items[0]) + m_Spacing;
-                    RequireItemView(startIndex - 1);
-                    startIndex -= 1;
-                }
-            } else {
-                var endValue = scrollValue + GetViewLength();
-                var pos = lastPos;
-                while (endValue > pos && startIndex + m_Items.Count < m_TotalItem) {
-                    pos += LayoutUtility.GetPreferredHeight(m_Items[m_Items.Count - 1]) + m_Spacing;
-                    RequireItemView(startIndex + m_Items.Count);
-                    startIndex += 1;
-                }
+            if (value > 0 || m_TailPadding > m_RawPadding.bottom) {
+                m_TailPadding += value;
             }
         }
 
-        protected override void UpdateFirstAndLastPos()
+        protected override void UpdatePadding(float head, float tail)
         {
-#if UNITY_EDITOR
-            if (!Application.isPlaying) return;
-#endif
-            var firstItem = m_Items[0];
-            firstPos = -firstItem.anchoredPosition.y - firstItem.rect.yMin;
-
-            var lastItem = m_Items[m_Items.Count - 1];
-            lastPos = -lastItem.anchoredPosition.y - lastItem.rect.yMax;
+            m_Padding.top = Mathf.RoundToInt(m_HeadPadding + head);
+            m_Padding.bottom = Mathf.RoundToInt(m_TailPadding + tail);
         }
 
         public override void CalculateLayoutInputHorizontal()
@@ -107,7 +65,22 @@ namespace ZFrame.UGUI
         public override void SetLayoutVertical()
         {
             SetChildrenAlongAxis(1, true);
-            UpdateFirstAndLastPos();
+            
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return;
+#endif
+            if (!m_Inited) {
+                m_Inited = true;
+                if (m_Revert) {
+                    m_Scroll.verticalNormalizedPosition = 0;
+                }
+            }
+
+            var firstItem = m_Items[0];
+            firstPos = -firstItem.anchoredPosition.y - firstItem.rect.yMin;
+
+            var lastItem = m_Items[m_Items.Count - 1];
+            lastPos = -lastItem.anchoredPosition.y - lastItem.rect.yMax;
         }
     }
 }

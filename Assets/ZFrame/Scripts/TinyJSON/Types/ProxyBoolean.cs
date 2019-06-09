@@ -7,12 +7,16 @@ namespace TinyJSON
 	{
 		private bool value;
 
-
 		public ProxyBoolean( bool value )
 		{
 			this.value = value;
 		}
 
+		public override TypeCode GetTypeCode()
+		{
+			return TypeCode.Boolean;
+		}
+		
         public override void Set(IConvertible value)
         {
             this.value = (bool)value;

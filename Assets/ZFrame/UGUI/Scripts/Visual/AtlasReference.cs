@@ -14,7 +14,7 @@ namespace ZFrame.UGUI
             public string source, destina;
         }
 
-        [SerializeField]
+        [SerializeField, ElementList]
         private AtlasRef[] m_Refs;
 
         public string GetRef(string source)

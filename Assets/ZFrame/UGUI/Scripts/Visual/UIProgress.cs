@@ -46,8 +46,9 @@ namespace ZFrame.UGUI
             }
         }
 
-        [SerializeField]
-        private UILabel m_LayerLabel;
+        [SerializeField] private UILabel m_LayerLabel;
+
+        [SerializeField] private string m_LayerFmt = "{0}";
 
         [SerializeField]
         private SliderEvent m_OnValueChanged = new SliderEvent();
@@ -174,9 +175,9 @@ namespace ZFrame.UGUI
 
             if (m_LayerLabel) {
                 if (m_CurrValue > minValue) {
-                    m_LayerLabel.SetFormatArgs(Mathf.Min(m_Layer + 1, maxLayer));
+                    m_LayerLabel.text = string.Format(m_LayerFmt, Mathf.Min(m_Layer + 1, maxLayer));
                 } else {
-                    m_LayerLabel.SetFormatArgs(0);
+                    m_LayerLabel.text = string.Format(m_LayerFmt, 0);
                 }
             }
         }
