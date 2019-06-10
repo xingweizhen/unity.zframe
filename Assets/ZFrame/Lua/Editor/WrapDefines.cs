@@ -114,6 +114,7 @@ public static class WrapDefines
         new List<string>() { "UnityEngine.MonoBehaviour", "runInEditMode" },
         new List<string>() { "UnityEngine.Texture", "imageContentsHash" },
         new List<string>() { "UnityEngine.UI.Graphic", "OnRebuildRequested" },
+        new List<string>() { "UnityEngine.UI.Text", "OnRebuildRequested" },
         new List<string>() { "UnityEngine.WWW", "GetMovieTexture" },
         new List<string>() { "UnityEngine.QualitySettings", "streamingMipmapsRenderersPerFrame" },
 

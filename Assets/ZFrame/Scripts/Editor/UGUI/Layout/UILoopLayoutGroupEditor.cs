@@ -21,7 +21,7 @@ namespace ZFrame.Editors
         SerializedProperty m_RawPadding, m_Template, m_MinSize, m_Revert;
 
         SerializedProperty m_Event;
-        
+
         private readonly GUIContent m_TrChildControlSize = new GUIContent("Child Controls Size");
         private readonly GUIContent m_TrChildForceExpand = new GUIContent("Child Force Expand");
         private readonly GUIContent m_TrWidth = new GUIContent("Width");
@@ -47,13 +47,17 @@ namespace ZFrame.Editors
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(m_RawPadding, true);
-            
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.PropertyField(m_Padding, true);
-            EditorGUI.EndDisabledGroup();
+            var self = (UILoopLayoutGroup)target;
 
+            serializedObject.Update();
+
+            var paddingChanged = false;
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(m_RawPadding, true);
+            paddingChanged = EditorGUI.EndChangeCheck();
+            EditorGUILayout.LabelField("Padding", string.Format("left:{0} right:{1} top:{2}, bottom:{3}",
+                self.padding.left, self.padding.right, self.padding.top, self.padding.bottom));
+            
             EditorGUILayout.PropertyField(m_Spacing, true);
             EditorGUILayout.PropertyField(m_ChildAlignment, true);
 
@@ -75,34 +79,29 @@ namespace ZFrame.Editors
             ToggleLeft(rect, m_ChildForceExpandHeight, m_TrHeight);
             EditorGUIUtility.labelWidth = 0;
 
-            EditorGUILayout.Separator();
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
             EditorGUILayout.PropertyField(m_Template);
             EditorGUILayout.PropertyField(m_MinSize);
             EditorGUILayout.PropertyField(m_Revert);
+            EventDataDrawer.Layout(m_Event, "Require Item", false, false);
             EditorGUI.EndDisabledGroup();
 
-            var self = target as UILoopLayoutGroup;
-            if (!Application.isPlaying) {
-                if (self.rawPadding != null) {
-                    if (self.padding == null) self.padding = new RectOffset();
-                    self.padding.left = self.rawPadding.left;
-                    self.padding.right = self.rawPadding.right;
-                    self.padding.bottom = self.rawPadding.bottom;
-                    self.padding.top = self.rawPadding.top;
-                }
-            } else {
+            serializedObject.ApplyModifiedProperties();
+
+            if (Application.isPlaying) {
                 EditorGUILayout.Separator();
                 EditorGUILayout.LabelField(string.Format("Total Item: {0}", self.totalItem));
                 EditorGUILayout.LabelField(string.Format("Start Index: {0}", self.startIndex));
                 EditorGUILayout.LabelField(string.Format("First Pos: {0}", self.firstPos));
                 EditorGUILayout.LabelField(string.Format("Last Pos: {0}", self.lastPos));
+            } else if (paddingChanged) {
+                if (self.padding == null) self.padding = new RectOffset();
+                self.padding.left = self.rawPadding.left;
+                self.padding.right = self.rawPadding.right;
+                self.padding.bottom = self.rawPadding.bottom;
+                self.padding.top = self.rawPadding.top;
+                UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(self.GetComponent<RectTransform>());
             }
-            EditorGUILayout.Separator();
-
-            EditorUtil.DrawInteractEvent(m_Event, false, false);
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void ToggleLeft(Rect position, SerializedProperty property, GUIContent label)

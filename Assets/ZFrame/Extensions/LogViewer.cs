@@ -102,7 +102,6 @@ namespace ZFrame.UGUI
         {
             SetRootActive(true);
             hasUpdate = 1;
-            scrollRect.verticalNormalizedPosition = 0;
         }
 
         private bool multiTouched = false;
@@ -126,7 +125,8 @@ namespace ZFrame.UGUI
                         if (dot < -0.8f) {
                             ShowContent();
                         } else if (dot > 0.8f) {
-                            SetRootActive(false);                        }
+                            SetRootActive(false);
+                        }
                     }
                     multiTouched = false;
                 }

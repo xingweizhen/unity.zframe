@@ -12,29 +12,7 @@ namespace ZFrame
     using Editors;
 
     public static class EditorUtil
-    {
-        public static void DrawInteractEvent(SerializedProperty data, bool enableType = true, bool enableName = true)
-        {
-            EditorGUILayout.LabelField(data.displayName);
-
-            var eventType = data.FindPropertyRelative("type");
-            var eventName = data.FindPropertyRelative("name");
-            var eventParam = data.FindPropertyRelative("param");
-
-            EditorGUI.BeginDisabledGroup(!enableType);
-            EditorGUILayout.PropertyField(eventType);
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginDisabledGroup(!enableName);
-            EditorGUILayout.PropertyField(eventName);
-            EditorGUI.EndDisabledGroup();
-
-            var enumValue = eventName.enumValueIndex;
-            EditorGUI.BeginDisabledGroup(enumValue == (int)UIEvent.Auto || enumValue == (int)UIEvent.Close);
-            EditorGUILayout.PropertyField(eventParam);
-            EditorGUI.EndDisabledGroup();
-        }
-        
+    {        
         public static string SearchField(string value, params GUILayoutOption[] options)
         {
             MethodInfo info = typeof(EditorGUILayout).GetMethod("ToolbarSearchField", 

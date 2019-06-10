@@ -17,11 +17,11 @@ namespace ZFrame.Editors
 
             EditorGUILayout.LabelField("Event Setting", EditorStyles.boldLabel);
             ++EditorGUI.indentLevel;
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_Event"), false, false);
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_BeginDrag"), false, false);
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_Drag"), false, false);
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_EndDrag"), false, false);
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_ChildOverlap"), false, false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_Event"), "Value Changed", false, false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_BeginDrag"), false, false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_Drag"), false, false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_EndDrag"), false, false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_ChildOverlap"), false, false);
             --EditorGUI.indentLevel;
 
             serializedObject.ApplyModifiedProperties();

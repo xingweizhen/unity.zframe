@@ -18,8 +18,8 @@ namespace ZFrame.Editors
             EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Event Setting", EditorStyles.boldLabel);
             ++EditorGUI.indentLevel;
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_ValueChanged"), false);
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_Submit"), false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_ValueChanged"), false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_Submit"), false);
             --EditorGUI.indentLevel;
 
             serializedObject.ApplyModifiedProperties();

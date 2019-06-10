@@ -23,7 +23,7 @@ namespace ZFrame.Editors
 
             EditorGUILayout.LabelField("Event Setting", EditorStyles.boldLabel);
             ++EditorGUI.indentLevel;
-            EditorUtil.DrawInteractEvent(serializedObject.FindProperty("m_Event"), false);
+            EventDataDrawer.Layout(serializedObject.FindProperty("m_Event"), "On Click", false);
             --EditorGUI.indentLevel;
 
             EditorGUILayout.Separator();

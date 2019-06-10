@@ -46,11 +46,16 @@ namespace ZFrame.Editors
 
         public override void OnInspectorGUI()
         {
+            var self = target as UILoopGrid;
             serializedObject.Update();
+
+            var paddingChanged = false;
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_RawPadding, true);
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.PropertyField(m_Padding, true);
-            EditorGUI.EndDisabledGroup();
+            paddingChanged = EditorGUI.EndChangeCheck();
+            EditorGUILayout.LabelField("Padding", string.Format("left:{0} right:{1} top:{2}, bottom:{3}",
+                self.padding.left, self.padding.right, self.padding.top, self.padding.bottom));
+
             EditorGUILayout.PropertyField(m_CellSize, true);
             EditorGUILayout.PropertyField(m_AutoStretch, true);
             EditorGUILayout.PropertyField(m_Spacing, true);
@@ -64,27 +69,26 @@ namespace ZFrame.Editors
                 EditorGUI.indentLevel--;
             }
 
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
             EditorGUILayout.PropertyField(m_Template, true);
+            EventDataDrawer.Layout(m_Event, "Require Item", false, false);
+            EditorGUI.EndDisabledGroup();
 
-            var self = target as UILoopGrid;
-            if (!Application.isPlaying) {
-                if (self.rawPadding != null) {
-                    if (self.padding == null) self.padding = new RectOffset();
-                    self.padding.left = self.rawPadding.left;
-                    self.padding.right = self.rawPadding.right;
-                    self.padding.bottom = self.rawPadding.bottom;
-                    self.padding.top = self.rawPadding.top;
-                }
-            } else {
+            serializedObject.ApplyModifiedProperties();
+
+            if (Application.isPlaying) {
                 EditorGUILayout.Separator();
                 EditorGUILayout.LabelField(string.Format("Total Item: {0}", self.totalItem));
                 EditorGUILayout.LabelField(string.Format("Start Line: {0}", self.startLine));
+            } else if (paddingChanged) {
+                if (self.padding == null) self.padding = new RectOffset();
+                self.padding.left = self.rawPadding.left;
+                self.padding.right = self.rawPadding.right;
+                self.padding.bottom = self.rawPadding.bottom;
+                self.padding.top = self.rawPadding.top;
+                UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(self.GetComponent<RectTransform>());
             }
-            EditorGUILayout.Separator();
 
-            EditorUtil.DrawInteractEvent(m_Event, false, false);
-
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }

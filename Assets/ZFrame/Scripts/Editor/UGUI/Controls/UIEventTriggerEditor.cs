@@ -20,7 +20,7 @@ namespace ZFrame.Editors
         {
             m_Events = serializedObject.FindProperty("m_Events");
             m_EventsList = new ReorderableList(serializedObject, m_Events, true, true, true, true);
-            m_EventsList.elementHeight = (EditorGUIUtility.singleLineHeight + 2) * 3;
+            m_EventsList.elementHeight = (EditorGUIUtility.singleLineHeight + 2) * 2;
 
             m_EventsList.drawHeaderCallback = (rect) => EditorGUI.LabelField(rect, "事件列表");
             m_EventsList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) => {

@@ -12,7 +12,7 @@ namespace ZFrame.UGUI
     public class UIScrollView : ScrollRect, ITweenable, ITweenable<float>, IEventSender
     {        
         #region 事件通知
-        [SerializeField, HideInInspector, NamedProperty("滑动事件")]
+        [SerializeField, HideInInspector]
         private EventData m_Event = new EventData(TriggerType.None, UIEvent.Send);
         [SerializeField, HideInInspector]
         private EventData m_BeginDrag = new EventData(TriggerType.None, UIEvent.Send);
