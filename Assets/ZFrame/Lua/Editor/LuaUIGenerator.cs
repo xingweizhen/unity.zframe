@@ -99,7 +99,15 @@ namespace ZFrame.Editors
             return line.Trim() == define;
         }
 
-        private static Dictionary<System.Type, string> s_DArgs = new Dictionary<System.Type, string>() {
+        private static Dictionary<int, string> s_ScrollViewArgs = new Dictionary<int, string>() {
+            {(int)TriggerType.None, "scr, delta" },
+            {(int)TriggerType.BeginDrag, "scr, evtData" },
+            {(int)TriggerType.Drag, "scr, evtData" },
+            {(int)TriggerType.EndDrag, "scr, evtData" },
+            {UIScrollView.TGR_OVERLAP, "trans, overlap" },
+        };
+
+        private static Dictionary<System.Type, object> s_DArgs = new Dictionary<System.Type, object>() {
             {typeof(UIButton), "btn"},
             {typeof(UIToggle), "tgl, value"},
             {typeof(UIDropdown), "drp, index"},
@@ -111,6 +119,7 @@ namespace ZFrame.Editors
             {typeof(ILoopLayout), "go, i"},
             {typeof(UISlider), "bar, value"},
             {typeof(UIProgress), "bar, value"},
+            {typeof(UIScrollView), s_ScrollViewArgs},
         };
 
         private static Dictionary<TriggerType, string> s_DActions = new Dictionary<TriggerType, string>() {
@@ -130,15 +139,22 @@ namespace ZFrame.Editors
             {TriggerType.Unselect, "unselect"},
         };
 
-        private static string GetArgs(IEventSender sender)
+        private static string GetArgs(IEventSender sender, TriggerType type)
         {
             foreach (var kv in s_DArgs) {
                 if (kv.Key.IsInstanceOfType(sender)) {
-                    return kv.Value;
+                    if (kv.Value is string)
+                        return (string)kv.Value;
+
+                    var iType = (int)type;
+                    foreach (var _kv in (Dictionary<int, string>)kv.Value) {
+                        if (iType == _kv.Key) return _kv.Value;
+                    }
+                    break;
                 }
             }
 
-            return "sender";
+            return "sender, param";
         }
 
         // 根据控件类型得到回调函数名
@@ -490,7 +506,7 @@ namespace ZFrame.Editors
                             if (listFuncs.Contains(funcName)) continue;
                             listFuncs.Add(funcName);
                             Event.param = funcName;
-                            var args = GetArgs(Events);
+                            var args = GetArgs(Events, Event.type);
                             if (string.IsNullOrEmpty(args)) {
                                 generateFunc(strbld, funcName);
                             } else {

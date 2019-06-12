@@ -101,6 +101,22 @@ namespace ZFrame.UGUI
             protected set { m_TotalItem = value; }
         }
         protected int m_ViewItem;
+        public int nViewItem {
+            get { return m_ViewItem; }
+            protected set {
+                m_ViewItem = value;
+
+                for (var i = m_Items.Count; i < value; ++i) {
+                    var item = m_ItemPool.Get();
+                    m_Items.Add((RectTransform)item.GetComponent(typeof(RectTransform)));
+                }
+
+                for (var i = m_Items.Count - 1; i >= value; --i) {
+                    m_ItemPool.Release(m_Items[i].gameObject);
+                    m_Items.RemoveAt(i);
+                }
+            }
+        }
 
         protected ObjPool<GameObject> m_ItemPool;
         protected List<RectTransform> m_Items = new List<RectTransform>();
@@ -131,24 +147,21 @@ namespace ZFrame.UGUI
             } else {
                 viewport = GetViewLength();
                 m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
-                var pivot = rectTransform.pivot;
+                var selfPivot = rectTransform.pivot;
+                var contentPivot = m_Scroll.content.pivot;
                 if (m_Scroll.horizontal) {
-                    pivot.x = 0;
-                    if (m_Scroll.content.pivot.x != 0f) {
-                        LogMgr.W(this, "{0} requires horizontal scroll's content has a pivot.x == 0", GetType().Name);
-                    }
+                    selfPivot.x = m_Revert ? 1 : 0;
+                    contentPivot.x = selfPivot.x;
                 }
                 if (m_Scroll.vertical) {
-                    pivot.y = 1;
-                    if (m_Scroll.content.pivot.y != 1f) {
-                        LogMgr.W(this, "{0} requires velocity scroll's content has a pivot.y == 1", GetType().Name);
-                    }
-                }
-                rectTransform.pivot = pivot;
+                    selfPivot.y = m_Revert ? 0 : 1;
+                    contentPivot.y = selfPivot.y;
+                }                
+                rectTransform.pivot = selfPivot;
+                m_Scroll.content.pivot = contentPivot;
 
                 m_Template.SetActive(false);
-                m_ViewItem = Mathf.CeilToInt(GetViewLength() / m_MinSize);
-                UpdateItems();
+                nViewItem = Mathf.CeilToInt(GetViewLength() / m_MinSize);
             }
 
             m_TotalItem = 0;
@@ -222,8 +235,7 @@ namespace ZFrame.UGUI
             if (!Mathf.Approximately(viewport, newViewport)) {
                 viewport = newViewport;
                 var nItem = m_Items.Count;
-                m_ViewItem = Mathf.CeilToInt(viewport / m_MinSize);
-                UpdateItems();
+                nViewItem = Mathf.CeilToInt(viewport / m_MinSize);
                 for (var i = nItem; i < m_ViewItem; ++i) {
                     m_Items[i].gameObject.SetActive(true);
                     OnItemUpdate(m_Items[i].gameObject, startIndex + i);
@@ -260,20 +272,7 @@ namespace ZFrame.UGUI
                 }
             }
         }
-
-        protected void UpdateItems()
-        {
-            for (var i = m_Items.Count; i < m_ViewItem; ++i) {
-                var item = m_ItemPool.Get();
-                m_Items.Add((RectTransform)item.GetComponent(typeof(RectTransform)));
-            }
-
-            for (var i = m_Items.Count - 1; i >= m_ViewItem; --i) {
-                m_ItemPool.Release(m_Items[i].gameObject);
-                m_Items.RemoveAt(i);
-            }
-        }
-
+        
         protected void UpdateRemainPadding(int total)
         {
             var remainItem = m_Revert ? startIndex : total - (startIndex + m_Items.Count);

@@ -12,7 +12,6 @@ namespace ZFrame.Editors
     [CanEditMultipleObjects]
     public class UILoopGridEditor : Editor 
     {
-        SerializedProperty m_Padding;
         SerializedProperty m_CellSize;
         SerializedProperty m_AutoStretch;
         SerializedProperty m_Spacing;
@@ -28,7 +27,6 @@ namespace ZFrame.Editors
 
         protected virtual void OnEnable()
         {
-            m_Padding = serializedObject.FindProperty("m_Padding");
             m_CellSize = serializedObject.FindProperty("m_CellSize");
             m_AutoStretch = serializedObject.FindProperty("m_AutoStretch");
             m_Spacing = serializedObject.FindProperty("m_Spacing");

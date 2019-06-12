@@ -65,7 +65,6 @@ public static class WrapDefines
                 typeof(UnityEngine.UI.Selectable),
                 typeof(UnityEngine.UI.Button),
                 typeof(UnityEngine.UI.Toggle),
-                //typeof(UnityEngine.UI.InputField),
                 typeof(UnityEngine.UI.Slider),
                 typeof(UnityEngine.UI.Dropdown),
                 typeof(UnityEngine.UI.Dropdown.OptionData),
@@ -102,7 +101,7 @@ public static class WrapDefines
                 // Other
                 typeof(CMD5),
 
-                typeof(RadioWave),
+                //typeof(RadioWave),
 
             };
         }

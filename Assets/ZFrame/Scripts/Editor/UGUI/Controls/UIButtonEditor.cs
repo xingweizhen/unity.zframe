@@ -15,8 +15,6 @@ namespace ZFrame.Editors
         {
             base.OnInspectorGUI();
 
-            EditorGUILayout.Separator();
-
             if (((UIButton)target).transition == UnityEngine.UI.Selectable.Transition.None) {
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("m_TargetGraphic"));
             }

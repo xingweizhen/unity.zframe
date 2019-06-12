@@ -19,8 +19,13 @@ namespace ZFrame.UGUI
             if (rectTransform != m_Scroll.content)
                 anchoredOff = rectTransform.anchoredPosition;
 
-            return anchoredPos.y + anchoredOff.y;
+            var value = anchoredPos.y + anchoredOff.y;
+            if (m_Revert) {
+                value += m_Scroll.content.rect.height + rectTransform.rect.height;
+            }
+            return value;
         }
+
         protected override float GetItemSize(RectTransform item)
         {
             return LayoutUtility.GetPreferredHeight(item) + m_Spacing;

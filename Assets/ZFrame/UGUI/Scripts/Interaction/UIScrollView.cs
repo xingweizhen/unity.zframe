@@ -10,18 +10,20 @@ namespace ZFrame.UGUI
     using UnityEngine.UI;
 
     public class UIScrollView : ScrollRect, ITweenable, ITweenable<float>, IEventSender
-    {        
+    {
+        public const int TGR_OVERLAP = 100;
+
         #region 事件通知
         [SerializeField, HideInInspector]
         private EventData m_Event = new EventData(TriggerType.None, UIEvent.Send);
         [SerializeField, HideInInspector]
-        private EventData m_BeginDrag = new EventData(TriggerType.None, UIEvent.Send);
+        private EventData m_BeginDrag = new EventData(TriggerType.BeginDrag, UIEvent.Send);
         [SerializeField, HideInInspector]
-        private EventData m_Drag = new EventData(TriggerType.None, UIEvent.Send);
+        private EventData m_Drag = new EventData(TriggerType.Drag, UIEvent.Send);
         [SerializeField, HideInInspector]
-        private EventData m_EndDrag = new EventData(TriggerType.None, UIEvent.Send);
+        private EventData m_EndDrag = new EventData(TriggerType.EndDrag, UIEvent.Send);
         [SerializeField, HideInInspector]
-        private EventData m_ChildOverlap = new EventData(TriggerType.None, UIEvent.Send);
+        private EventData m_ChildOverlap = new EventData((TriggerType)TGR_OVERLAP, UIEvent.Send);
 
         IEnumerator<EventData> IEnumerable<EventData>.GetEnumerator()
         {

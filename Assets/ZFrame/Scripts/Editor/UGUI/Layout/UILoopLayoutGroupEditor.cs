@@ -10,7 +10,6 @@ namespace ZFrame.Editors
     [CustomEditor(typeof(UILoopLayoutGroup), true)]
     public class UILoopLayoutGroupEditor : Editor
     {
-        SerializedProperty m_Padding;
         SerializedProperty m_Spacing;
         SerializedProperty m_ChildAlignment;
         SerializedProperty m_ChildControlWidth;
@@ -29,7 +28,6 @@ namespace ZFrame.Editors
 
         protected virtual void OnEnable()
         {
-            m_Padding = serializedObject.FindProperty("m_Padding");
             m_Spacing = serializedObject.FindProperty("m_Spacing");
             m_ChildAlignment = serializedObject.FindProperty("m_ChildAlignment");
             m_ChildControlWidth = serializedObject.FindProperty("m_ChildControlWidth");
@@ -90,8 +88,9 @@ namespace ZFrame.Editors
 
             if (Application.isPlaying) {
                 EditorGUILayout.Separator();
-                EditorGUILayout.LabelField(string.Format("Total Item: {0}", self.totalItem));
-                EditorGUILayout.LabelField(string.Format("Start Index: {0}", self.startIndex));
+                EditorGUILayout.LabelField(string.Format("Total/View Item: {0}/{1}", self.totalItem, self.nViewItem));
+                EditorGUILayout.LabelField(string.Format("Start/End Index: {0}/{1}", 
+                    self.startIndex, Mathf.Min(self.totalItem, self.startIndex + self.nViewItem)));
                 EditorGUILayout.LabelField(string.Format("First Pos: {0}", self.firstPos));
                 EditorGUILayout.LabelField(string.Format("Last Pos: {0}", self.lastPos));
             } else if (paddingChanged) {

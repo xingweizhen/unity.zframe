@@ -44,36 +44,37 @@ namespace ZFrame.Editors
             var eventType = data.FindPropertyRelative("type");
             var eventName = data.FindPropertyRelative("name");
             var eventParam = data.FindPropertyRelative("param");
-            using (new EditorGUILayout.HorizontalScope()) {
-                EditorGUILayout.PrefixLabel(displayName, EditorStyles.label);
 
-                var indentLevel = EditorGUI.indentLevel;
-                EditorGUI.indentLevel = 0;
+            var rect = EditorGUILayout.GetControlRect();
+            EditorGUI.LabelField(rect, displayName);
 
-                EditorGUI.BeginDisabledGroup(!enableType);
-                EditorGUILayout.PropertyField(eventType, GUIContent.none);
-                EditorGUI.EndDisabledGroup();
+            var indentLevel = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
 
-                EditorGUI.BeginDisabledGroup(!enableName);
-                EditorGUILayout.PropertyField(eventName, GUIContent.none);
-                EditorGUI.EndDisabledGroup();
+            rect.xMin += EditorGUIUtility.labelWidth;
+            rect.width /= 2;
 
-                EditorGUI.indentLevel = indentLevel;
+            EditorGUI.BeginDisabledGroup(!enableType);
+            if (System.Enum.IsDefined(typeof(TriggerType), eventType.intValue)) {
+                eventType.intValue = (int)(TriggerType)EditorGUI.EnumPopup(rect, (TriggerType)eventType.intValue);
+            } else {
+                EditorGUI.LabelField(rect, string.Format("[{0}]", eventType.intValue), EditorStyles.popup);
             }
+            EditorGUI.EndDisabledGroup();
 
-            using (new EditorGUILayout.HorizontalScope()) {
-                EditorGUILayout.PrefixLabel(" ", EditorStyles.label);
+            rect.x += rect.width;
+            EditorGUI.BeginDisabledGroup(!enableName);
+            EditorGUI.PropertyField(rect, eventName, GUIContent.none);
+            EditorGUI.EndDisabledGroup();
 
-                var indentLevel = EditorGUI.indentLevel;
-                EditorGUI.indentLevel = 0;
+            var paramRt = EditorGUILayout.GetControlRect();
+            paramRt.xMin += EditorGUIUtility.labelWidth;
+            var enumValue = eventName.enumValueIndex;
+            EditorGUI.BeginDisabledGroup(enumValue == (int)UIEvent.Auto || enumValue == (int)UIEvent.Close);
+            EditorGUI.PropertyField(paramRt, eventParam, GUIContent.none);
+            EditorGUI.EndDisabledGroup();
 
-                var enumValue = eventName.enumValueIndex;
-                EditorGUI.BeginDisabledGroup(enumValue == (int)UIEvent.Auto || enumValue == (int)UIEvent.Close);
-                EditorGUILayout.PropertyField(eventParam, GUIContent.none);
-                EditorGUI.EndDisabledGroup();
-                EditorGUI.indentLevel = indentLevel;
-            }
-            EditorGUILayout.Separator();
+            EditorGUI.indentLevel = indentLevel;
         }
 
         public static void Layout(SerializedProperty data, bool enableType = true, bool enableName = true)
