@@ -11,6 +11,7 @@ namespace ZFrame.Editors
     {
         private const string TEXPROC_SETTINGS = "t:TextureProcessSettings";
         private const string MODELPROC_SETTINGS = "t:ModelProcessSettings";
+        private const string AUDIOPROC_SETTINGS = "t:AudioProcessSettings";
 
         private AssetProcessSettings GetSettings(string filter)
         {
@@ -51,6 +52,20 @@ namespace ZFrame.Editors
             var settings = GetSettings(MODELPROC_SETTINGS);
 
             if (settings != null) settings.OnPostprocess(g);
+        }
+
+        private void OnPreprocessAudio()
+        {
+            var settings = GetSettings(AUDIOPROC_SETTINGS);
+
+            if (settings != null) settings.OnPreprocess(assetImporter);
+        }
+
+        private void OnPostprocessAudio(AudioClip clip)
+        {
+            var settings = GetSettings(AUDIOPROC_SETTINGS);
+
+            if (settings != null) settings.OnPostprocess(clip);
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
