@@ -13,17 +13,14 @@ namespace ZFrame
         private string m_LaunchPrefab;
 
 #if UNITY_EDITOR
-        public bool printLoadedLuaStack {
-            get { return UnityEditor.EditorPrefs.GetBool(Prefs.kPrintLuaLoading); }
-        }
+        private bool m_PrintLoadedLuaStack;
+        public bool printLoadedLuaStack { get { return m_PrintLoadedLuaStack; } }
 
-        public bool useLuaAssetBundle {
-            get { return UnityEditor.EditorPrefs.GetBool(Prefs.kUseLuaAssetBundle); }
-        }
+        private bool m_UseLuaAssetBundle;
+        public bool useLuaAssetBundle { get { return m_UseLuaAssetBundle; } }
 
-        public bool useAssetBundleLoader {
-            get { return useLuaAssetBundle || UnityEditor.EditorPrefs.GetBool(Prefs.kUseAssetBundleLoader); }
-        }
+        private bool m_UseAssetBundleLoader;
+        public bool useAssetBundleLoader { get { return useLuaAssetBundle || m_UseAssetBundleLoader; } }
 #elif UNITY_STANDALONE
 	public bool printLoadedLuaStack { get { return false; } }
     public bool useLuaAssetBundle { get; private set; }
@@ -159,6 +156,10 @@ namespace ZFrame
             } else {
                 useLuaAssetBundle = true;
             }
+#else
+            m_PrintLoadedLuaStack = UnityEditor.EditorPrefs.GetBool(Prefs.kPrintLuaLoading);
+            m_UseLuaAssetBundle = UnityEditor.EditorPrefs.GetBool(Prefs.kUseLuaAssetBundle);
+            m_UseAssetBundleLoader = UnityEditor.EditorPrefs.GetBool(Prefs.kUseAssetBundleLoader);
 #endif
 
 #if UNITY_5_5_OR_NEWER

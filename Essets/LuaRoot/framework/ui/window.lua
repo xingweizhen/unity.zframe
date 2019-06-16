@@ -8,15 +8,6 @@
 local ipairs, pairs, libunity, libugui
     = ipairs, pairs, libunity, libugui
 
--- 所有UI逻辑代码的chunk
-local LC_CHUNK = setmetatable({}, {
-		__index = function (t, n)
-			local chunk = loadfile(n)
-			t[n] = chunk
-			return chunk
-		end,
-	})
-
 -- 窗口导航栈
 local WNDStack = _G.DEF.Stack.new()
 
@@ -137,6 +128,18 @@ OBJDEF.__tostring = function (self)
 	end
 end
 
+-- 所有UI逻辑代码的chunk
+local function get_lcchunk(pkgName)
+	if pkgName then
+		local chunk = rawget(_G.PKG, pkgName)
+		if chunk == nil then
+			chunk = loadfile(pkgName)
+			rawset(_G.PKG, pkgName, chunk)
+		end
+		return chunk
+	end
+end
+
 local function set_blocksraycast(go, value)
 	-- local cvGrp = go:GetComponent("CanvasGroup")
 	-- if cvGrp then cvGrp.blocksRaycasts = value end
@@ -170,7 +173,7 @@ local function on_open(go, pkgName)
 	Wnd.go = go
 
 	if rawget(Wnd, "Ref") == nil then
-		local chunk = pkgName and LC_CHUNK[pkgName]
+		local chunk = get_lcchunk(pkgName)
 		if chunk == nil then 
 			libunity.LogE("窗口{0}对应的lua脚本[{1}]不存在", Wnd, pkgName) 
 			return

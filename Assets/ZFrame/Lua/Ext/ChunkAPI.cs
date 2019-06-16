@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using UnityEngine;
 using XLua;
 using ILuaState = System.IntPtr;
@@ -9,19 +11,53 @@ using ZFrame.Asset;
 public static class ChunkAPI  
 {
     public static string LuaROOT = string.Format("{0}/Essets/LuaRoot",
-          System.IO.Path.GetDirectoryName(Application.dataPath.Replace("\\", "/")));
+        Path.GetDirectoryName(Application.dataPath.Replace("\\", "/")));
 
     public static string GetFilePath(string file)
     {
         return string.IsNullOrEmpty(file) ? LuaROOT : string.Format("{0}/{1}", LuaROOT, file);
     }
 
+    [Conditional(LogMgr.UNITY_EDITOR)]
+    public static void InitFileWatcher(ref FileSystemWatcher watcher, 
+        FileSystemEventHandler onChanged, RenamedEventHandler onRenamed)
+    {
+        try {
+#if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+            System.Environment.SetEnvironmentVariable("MONO_MANAGED_WATCHER", "enabled");
+#endif
+            watcher = new FileSystemWatcher(LuaROOT, "*.lua") {
+                //NotifyFilter = NotifyFilters.LastWrite ,
+                IncludeSubdirectories = true,
+                EnableRaisingEvents = true,
+            };
+            
+            if (onChanged != null) {
+                watcher.Changed += onChanged;
+                watcher.Created += onChanged;
+                watcher.Deleted += onChanged;
+            }
+
+            if (onRenamed != null) {
+                watcher.Renamed += onRenamed;
+            }
+        } catch (System.Exception e) {
+            LogMgr.W("InitFileWatcher Failure: {0}", e);
+        }
+    }
+
+    [Conditional(LogMgr.UNITY_EDITOR)]
+    public static void UninitFileWatcher(FileSystemWatcher watcher)
+    {
+        if (watcher != null) watcher.Dispose();
+    }
+    
     public static byte[] __Loader(ref string file)
     {
 #if UNITY_EDITOR
         if (AssetsMgr.Instance && AssetsMgr.Instance.printLoadedLuaStack) {
             LogMgr.D("Lua Loading: {0}", file);
-            using (var wr = System.IO.File.AppendText("lualoading.tmp")) {
+            using (var wr = File.AppendText("lualoading.tmp")) {
                 wr.WriteLine(file);
             }
 

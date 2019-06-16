@@ -111,18 +111,6 @@ public static class UnityEngine_Vector2
     }
 
     [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-    static int GetClassType(ILuaState L)
-    {
-        int count = L.GetTop();
-        if (count == 0) {
-            L.PushLightUserData(typeof(Vector2));
-            return 1;
-        } else {
-            return MetaMethods.GetType(L);
-        }
-    }
-
-    [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
     static int get_kEpsilon(ILuaState L)
     {
         L.PushNumber(Vector2.kEpsilon);

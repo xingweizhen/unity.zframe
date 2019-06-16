@@ -123,18 +123,6 @@ public static class UnityEngine_Quaternion
     }
 
     [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-    static int GetClassType(ILuaState L)
-    {
-        int count = L.GetTop();
-        if (count == 0) {
-            L.PushLightUserData(typeof(Quaternion));
-            return 1;
-        } else {
-            return MetaMethods.GetType(L);
-        }
-    }
-
-    [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
     static int get_kEpsilon(ILuaState L)
     {
         L.PushNumber(Quaternion.kEpsilon);

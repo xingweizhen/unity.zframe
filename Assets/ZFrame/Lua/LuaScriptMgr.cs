@@ -46,6 +46,10 @@ namespace ZFrame.Lua
         }
         public ILuaState L { get { return Env.L; } }
         public bool IsLua { get { return Env != null; } }
+        
+#if UNITY_EDITOR
+        private System.IO.FileSystemWatcher m_FileSysWatcher;
+#endif
 
         protected virtual void InitLuaEnv()
         {
@@ -190,9 +194,30 @@ namespace ZFrame.Lua
             // 执行预加载
             AssetLoader.Instance.ExecutePreload(OnAssetBundleLoaded);
 
-#if !UNITY_EDITOR
-            //GameSettings.Instance.GetSettings();
-#endif
+            ChunkAPI.InitFileWatcher(ref m_FileSysWatcher,
+                (sender, args) => {
+                    L.GetGlobal("PKG", "framework/hotupdate", "onchanged");
+                    if (L.IsFunction(-1)) {
+                        var b = L.BeginPCall();
+                        L.PushString(args.FullPath.Substring(ChunkAPI.LuaROOT.Length + 1));
+                        L.PushX(args.ChangeType);
+                        L.ExecPCall(2, 0, b);
+                    } else L.Pop(1);
+                }, 
+                (sender, args) => {
+                    L.GetGlobal("PKG", "framework/hotupdate", "onrenamed");
+                    if (L.IsFunction(-1)) {
+                        var b = L.BeginPCall();
+                        L.PushString(args.FullPath.Substring(ChunkAPI.LuaROOT.Length + 1));
+                        L.PushString(args.OldFullPath.Substring(ChunkAPI.LuaROOT.Length + 1));
+                        L.ExecPCall(2, 0, b);
+                    } else L.Pop(1);
+                });
+        }
+
+        private void OnDestroy()
+        {
+            ChunkAPI.UninitFileWatcher(m_FileSysWatcher);
         }
 
         private static void OnAssetBundleLoaded(string a, object o, object p)

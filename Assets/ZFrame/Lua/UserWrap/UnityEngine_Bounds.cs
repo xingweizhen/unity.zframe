@@ -129,18 +129,6 @@ public static class UnityEngine_Bounds
 	}
 
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-	static int GetClassType(IntPtr L)
-	{
-		int count = L.GetTop();
-		if (count == 0) {
-			L.PushLightUserData(typeof(Bounds));
-			return 1;
-		} else {
-			return MetaMethods.GetType(L);
-		}
-	}
-
-	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static int get_center(IntPtr L)
 	{
 		var obj = L.ToBounds(1);
