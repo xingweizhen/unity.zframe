@@ -24,7 +24,17 @@ namespace ZFrame.Settings
 	        public int flags;
         }
 
-        public abstract System.Enum props { get; set;  }
+        [SerializeField]
+        private string m_IgnorePattern;
+
+        protected bool IsPathIgnore(string path)
+        {
+            if (string.IsNullOrEmpty(m_IgnorePattern)) return false;
+
+            return System.Text.RegularExpressions.Regex.IsMatch(path, m_IgnorePattern);
+        }
+
+        public abstract System.Enum props { get; set; }
 
 		public abstract void OnPreprocess(AssetImporter ai);
 		public abstract void OnPostprocess(Object obj);

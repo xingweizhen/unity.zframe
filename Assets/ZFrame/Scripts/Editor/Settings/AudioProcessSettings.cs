@@ -45,7 +45,9 @@ namespace ZFrame.Settings
 
                 if (ContainsAsset(folders, ai.assetPath)) {
                     if (ContainsFlag(flags, (int)Prop.ForceToMono)) ai.forceToMono = ForceToMono;
+#if UNITY_2017_3_OR_NEWER
                     if (ContainsFlag(flags, (int)Prop.Ambisonic)) ai.ambisonic = Ambisonic;
+#endif
                     if (ContainsFlag(flags, (int)Prop.LoadInBackground)) ai.loadInBackground = LoadInBackground;
                     if (ContainsFlag(flags, (int)Prop.PreloadAudioData)) ai.preloadAudioData = PreloadAudioData;
 
@@ -77,6 +79,8 @@ namespace ZFrame.Settings
 
         public override void OnPreprocess(AssetImporter ai)
         {
+            if (IsPathIgnore(ai.assetPath)) return;
+
             var audi = (AudioImporter)ai;
             foreach (var setting in m_SettingsList) {
                 setting.OnPreprocess(audi);
@@ -85,6 +89,8 @@ namespace ZFrame.Settings
 
         public override void OnPostprocess(Object obj)
         {
+            if (obj && IsPathIgnore(obj.name)) return;
+
             var clip = (AudioClip)obj;
             foreach (var setting in m_SettingsList) {
                 setting.OnPostprocess(clip);

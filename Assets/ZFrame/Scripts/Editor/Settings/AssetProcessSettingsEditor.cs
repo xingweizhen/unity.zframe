@@ -10,6 +10,13 @@ namespace ZFrame.Editors
     [CustomEditor(typeof(AssetProcessSettings), true)]
     public class AssetProcessSettingsEditor : ZFrameSettings4FolderEditor
     {
+        protected override void DrawSettingsHeader()
+        {
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_IgnorePattern"));
+            EditorGUILayout.Separator();
+            base.DrawSettingsHeader();
+        }
+
         protected override void DrawSettings()
         {
             var self = (AssetProcessSettings)target;
@@ -17,9 +24,12 @@ namespace ZFrame.Editors
             var enumType = self.props.GetType();
             var flags = settings.FindPropertyRelative("flags");
             self.props = (System.Enum)System.Enum.ToObject(enumType, flags.intValue);
-            
-            flags.intValue = System.Convert.ToInt32(EditorGUILayout.EnumFlagsField("属性管理", self.props));
 
+#if UNITY_2017_3_OR_NEWER
+            flags.intValue = System.Convert.ToInt32(EditorGUILayout.EnumFlagsField("属性管理", self.props));
+#else
+            flags.intValue = System.Convert.ToInt32(EditorGUILayout.EnumMaskPopup("属性管理", self.props));
+#endif
             EditorGUI.indentLevel++;
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(flags);

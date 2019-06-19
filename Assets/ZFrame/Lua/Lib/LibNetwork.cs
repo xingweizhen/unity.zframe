@@ -149,8 +149,8 @@ namespace ZFrame.Lua
             string strHeader = lua.ToString(4);
             float timeout = (float)lua.OptNumber(5, 10);
 
-            //测试日志，输出请求host
-            Debug.Log(string.Format("tag:{0};url:{1};strHeader:{2}", tag, url, strHeader));
+            // 测试日志，输出请求host
+            LogMgr.D("tag:{0};url:{1};strHeader:{2}", tag, url, strHeader);
 
             string postData = null;
             var luaT = lua.Type(3);
