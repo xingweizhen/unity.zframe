@@ -33,6 +33,13 @@ public static class LuaIndexTo
         }
     }
 
+    public static void GetByPath(this ILuaState self, string path)
+    {
+        self.GetGlobal("_G");
+        self.GetFieldByPath(-1, path);
+        self.Replace(-2);
+    }
+
     #endregion
 
     /// <summary>

@@ -76,6 +76,8 @@ namespace ZFrame.Settings
 
         public override void OnPreprocess(AssetImporter ai)
         {
+            if (IsPathIgnore(ai.assetPath)) return;
+
             var ti = (TextureImporter)ai;
             foreach (var setting in m_SettingsList) {
                 setting.OnPreprocess(ti);
@@ -84,6 +86,8 @@ namespace ZFrame.Settings
 
         public override void OnPostprocess(Object obj)
         {
+            if (obj && IsPathIgnore(obj.name)) return;
+
             var tex = (Texture)obj;
             foreach (var setting in m_SettingsList) {
                 setting.OnPostprocess(tex);

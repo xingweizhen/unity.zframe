@@ -61,10 +61,12 @@ namespace ZFrame.Editors
 
 		protected virtual void DrawSettingsHeader()
 		{
-			EditorGUILayout.BeginHorizontal();
-			EditorGUI.BeginChangeCheck();
-			m_SelIndex = EditorGUILayout.Popup(m_SelIndex, m_SettingsNames, "dropdown");
-			if (EditorGUI.EndChangeCheck()) UpdateSelectedItem();
+            EditorGUI.BeginChangeCheck();
+            m_SelIndex = GUILayout.SelectionGrid(m_SelIndex, m_SettingsNames, 4);
+            //m_SelIndex = EditorGUILayout.Popup(m_SelIndex, m_SettingsNames, "dropdown");
+            if (EditorGUI.EndChangeCheck()) UpdateSelectedItem();
+
+            EditorGUILayout.BeginHorizontal();
 
 			if (GUILayout.Button("新增", "buttonleft")) {
 				m_SelIndex = m_SettingsList.arraySize;
