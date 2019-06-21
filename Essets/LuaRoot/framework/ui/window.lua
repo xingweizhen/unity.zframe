@@ -35,48 +35,42 @@ RefDEF.__index = function (t, k)
 
 	local go, val = rawget(t, "go")
 	local preffix = k:sub(1, 2)
-	if preffix == "lb" then
-		val = libugui.FindUIText(go, k)
-	elseif preffix == "sp" then
-		val = libunity.FindByName(go, k, "Graphic")
+	if preffix == "lb" or preffix == "sp" then
+		val = libugui.FindGraphic(go, k)
 	else
-		local child = libunity.Find(go, k)
-		if child then go = child elseif #k > 3 then return end
+		-- 长度大于3才会查找子对象，否则从自身上查找组件
+		if #k > 3 then
+			go = libunity.Find(go, k)
+			if go == nil then return end
 
-		local preffix = k:sub(1, 3)
-		if preffix == "Grp" then
-			if go then
+			local preffix = k:sub(1, 3)
+			if preffix == "Grp" then
 				val = setmetatable({ go = go, grp = libugui.InitGroup(go), }, RefDEF)
 				local entGo = libunity.Find(go, 0)
 				if entGo then
 					entGo:SetActive(false)
 					val.Ent = setmetatable({ go = entGo }, RefDEF)
 				end
-			else
-				val = false
-			end
-		elseif preffix == "Sub" then
-			if go then
+			elseif preffix == "Sub" then
 				val = setmetatable({ go = go, }, RefDEF)
-			else
-				val = false
+			elseif preffix == "Elm" then
+				val = go 
 			end
-		elseif preffix == "Elm" then
-			val = go
-		elseif preffix == "btn" then
-			val = go:GetComponent("UIButton")
-		elseif preffix == "tgl" then
-			val = go:GetComponent("UIToggle")
-		elseif preffix == "evt" then
-			val = go:GetComponent("UIEventTrigger")
-		elseif preffix == "inp" then
-			val = go:GetComponent("InputField") or go:GetComponent("TMP_InputField")
-		elseif preffix == "bar" then
-			val = go:GetComponent("Slider") or go:GetComponent("UIProgress")
+		end
+
+		if val == nil then
+			-- 查找<IEventSystemHandler>，尽管对命名无要求，还是需要尽量遵循以下规则
+			-- 		btn : UIButton
+			-- 		tgl : UIToggle
+			-- 		evt : UIEventTrigger
+			-- 		inp : InputField
+			-- 		bar : Slider or UIProgress or ScrollBar
+			-- 		scr : ScrollRect
+			val = libugui.FindEventHandler(go)
 		end
 	end
 
-	t[k] = val
+	if val then t[k] = val end
 	return val
 end
 

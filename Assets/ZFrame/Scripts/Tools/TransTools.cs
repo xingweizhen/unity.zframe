@@ -133,7 +133,8 @@ public static class TransTools
     {
         var ret = self.Find(name);
         if (ret && (includeInactive || ret.gameObject.activeInHierarchy)) return ret;
-        
+
+        ret = null;
         for (int i = 0; i < self.childCount; ++i) {
             var t = self.GetChild(i);
             ret = t.FindByName(name, includeInactive);

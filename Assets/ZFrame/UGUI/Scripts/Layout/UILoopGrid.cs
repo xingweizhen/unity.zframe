@@ -14,6 +14,7 @@ namespace ZFrame.UGUI
         UIGroup group { get; }
 
         void SetTotalItem(int count, bool forceUpdate);
+        void ResetLayout();
     }
 
     public class UILoopGrid : GridLayoutGroup, IEventSender, ILoopLayout
@@ -145,6 +146,8 @@ namespace ZFrame.UGUI
                 UpdateView(startLine);
             }
         }
+        
+        void ILoopLayout.ResetLayout() { }
 
         protected bool m_ValueDirty;
         protected float m_InValue;
@@ -177,6 +180,13 @@ namespace ZFrame.UGUI
                     group.Remove(go);
                     go.Attach(m_Template.transform);
                 });
+            
+            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
+            if (m_Scroll == null) {
+                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
+            } else {
+                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
+            }
         }
 
         protected override void Start()
@@ -198,10 +208,7 @@ namespace ZFrame.UGUI
             if (!Application.isPlaying) return;
 #endif
             m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll == null) {
-                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
-            } else {
-                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
+            if (m_Scroll) {
                 var pivot = rectTransform.pivot;
                 if (m_Scroll.horizontal) {
                     pivot.x = 0;
