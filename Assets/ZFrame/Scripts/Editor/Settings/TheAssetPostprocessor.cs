@@ -15,15 +15,7 @@ namespace ZFrame.Editors
 
         private AssetProcessSettings GetSettings(string filter)
         {
-            var guids = AssetDatabase.FindAssets(filter);
-            if (guids != null && guids.Length > 0) {
-                foreach (var guid in guids) {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    var settings = AssetDatabase.LoadAssetAtPath<AssetProcessSettings>(path);
-                    if (settings) return settings;
-                }
-            }
-            return null;
+            return FrameworkSettingsWindow.GetSettings(filter) as AssetProcessSettings;
         }
 
         private void OnPreprocessTexture()

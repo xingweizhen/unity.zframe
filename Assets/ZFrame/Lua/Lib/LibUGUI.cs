@@ -34,8 +34,8 @@ namespace ZFrame.Lua
         public static int OpenLib(ILuaState lua)
         {
             lua.NewTable();
-            //lua.SetDict("GenLuaTable", GenLuaTable);
-            lua.SetDict("FindUIText", FindUIText);
+            lua.SetDict("FindGraphic", FindGraphic);
+            lua.SetDict("FindEventHandler", FindEventHandler);
 
             lua.SetDict("CreateWindow", CreateWindow);
             lua.SetDict("CloseWindow", CloseWindow);
@@ -140,138 +140,31 @@ namespace ZFrame.Lua
 
         #region 界面结构 & 其他
 
-#if false
-    private static bool GenMonoRef(System.Type type, ILuaState lua, Transform trans, string keyName = null)
-    {
-        var com = trans.FindComponent(type);
-        if (com) {
-            if (string.IsNullOrEmpty(keyName)) keyName = trans.name;
-            lua.SetUObj(-1, keyName, com);
-            return true;
-        }
-        return false;
-    }
-
-    private static void GenGraphicRef(ILuaState lua, Transform trans)
-    {
-        var list = ListPool<Component>.Get();
-        trans.GetComponentsInChildren(typeof(Graphic), list, true);
-        foreach (var t in list) {
-            var com = t;
-            if (com is TMPro.TextMeshProUGUI) {
-                com = com.FindComponent(typeof(UIText)) as UIText;
-            }
-            var cname = com.name;
-            var r = cname[0];
-            if (r == '&') continue;
-            var c = cname[cname.Length - 1];
-            if (c == '=' || c == '_') continue;
-            lua.SetUObj(-1, cname, com);
-        }
-        ListPool<Component>.Release(list);
-    }
-
-    private static void GenMonoRefSelf(ILuaState lua, Transform trans)
-    {
-        if (GenMonoRef(typeof(Button), lua, trans, "btn")) return;
-        if (GenMonoRef(typeof(Toggle), lua, trans, "tgl")) return;
-        if (GenMonoRef(typeof(UIEventTrigger), lua, trans, "evt")) return;
-        if (GenMonoRef(typeof(Slider), lua, trans, "bar")) return;
-        if (GenMonoRef(typeof(UIProgress), lua, trans, "bar")) return;
-        if (GenMonoRef(typeof(TMPro.TMP_InputField), lua, trans, "inp")) return;
-        if (GenMonoRef(typeof(InputField), lua, trans, "inp")) return;
-        if (GenMonoRef(typeof(Dropdown), lua, trans, "drp")) return;
-    }
-
-    private static void GenLuaTable(ILuaState lua, Transform trans)
-    {
-        for (int i = 0; i < trans.childCount; ++i) {
-            var t = trans.GetChild(i);
-            var tname = t.name;
-            if (tname.Length < 3) continue;
-
-            var e = tname[tname.Length - 1];
-            if (e == '_') continue;
-
-            if (tname.OrdinalStartsWith("Grp")) {
-                lua.PushString(tname);
-                lua.NewTable();
-                GenMonoRefSelf(lua, t);
-                lua.SetUObj(-1, "go", t.gameObject);
-                lua.SetUObj(-1, "grp", t.gameObject.NeedComponent(typeof(UIGroup)));
-                GenLuaTable(lua, t);
-
-                lua.SetTable(-3);
-            } else if (tname.OrdinalStartsWith("Sub")) {
-                lua.PushString(tname);
-                lua.NewTable();
-                GenMonoRefSelf(lua, t);
-                lua.SetUObj(-1, "go", t.gameObject);
-                GenLuaTable(lua, t);
-
-                lua.SetTable(-3);
-            } else if (tname.OrdinalStartsWith("ent")) {
-                if (char.IsDigit(e)) continue;
-                
-                lua.PushString("Ent");
-                lua.NewTable();
-                GenMonoRefSelf(lua, t);
-                lua.SetUObj(-1, "go", t.gameObject);
-                GenLuaTable(lua, t);
-
-                lua.SetTable(-3);
-                t.gameObject.SetActive(false);
-            } else if (tname.OrdinalStartsWith("Elm")) {
-                lua.SetUObj(-1, tname, t);
-            } else {
-                if (tname.OrdinalStartsWith("btn") && GenMonoRef(typeof(Button), lua, t)) continue;
-                if (tname.OrdinalStartsWith("tgl") && GenMonoRef(typeof(Toggle), lua, t)) continue;
-                if (tname.OrdinalStartsWith("evt") && GenMonoRef(typeof(UIEventTrigger), lua, t)) continue;
-                if (tname.OrdinalStartsWith("inp")) {
-                    if (GenMonoRef(typeof(TMPro.TMP_InputField), lua, t)) continue;
-                    if (GenMonoRef(typeof(InputField), lua, t)) continue;
-                }
-
-                if (tname.OrdinalStartsWith("bar")) {
-                    if (GenMonoRef(typeof(Slider), lua, t)) continue;
-                    if (GenMonoRef(typeof(UIProgress), lua, t)) continue;
-                }
-
-                GenGraphicRef(lua, t);
-            }
-        }
-    }
-
-    [MonoPInvokeCallback(typeof(LuaCSFunction))]
-    private static int GenLuaTable(ILuaState lua)
-    {
-        GameObject go = lua.ToGameObject(1);
-        if (go) {
-            string key = lua.OptString(2, null);
-            var trans = go.transform;
-            lua.NewTable();
-            {
-                if (!string.IsNullOrEmpty(key)) {
-                    lua.SetUObj(-1, key, go);
-                }
-                GenMonoRefSelf(lua, trans);
-                GenLuaTable(lua, trans);
-            }
-            return 1;
-        }
-        return 0;
-    }
-#endif
-
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        private static int FindUIText(ILuaState lua)
+        private static int FindGraphic(ILuaState lua)
         {
             var parent = lua.ToComponent(1, typeof(Transform)) as Transform;
             var childName = lua.OptString(2, null);
-            if (parent && !string.IsNullOrEmpty(childName)) {
-                var child = TransTools.FindByName(parent, childName);
+            if (parent) {
+                var child = string.IsNullOrEmpty(childName) ? parent : parent.FindByName(childName);
                 if (child) {
-                    lua.PushLightUserData(child.GetComponent(typeof(IText)));
+                    lua.PushLightUserData(child.GetComponent(typeof(Graphic)));
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int FindEventHandler(ILuaState lua)
+        {
+            var parent = lua.ToComponent(1, typeof(Transform)) as Transform;
+            var childName = lua.OptString(2, null);
+            if (parent) {
+                var child = string.IsNullOrEmpty(childName) ? parent : parent.FindByName(childName);
+                if (child) {
+                    lua.PushLightUserData(child.GetComponent(typeof(IEventSystemHandler)));
                     return 1;
                 }
             }
@@ -1103,6 +996,7 @@ namespace ZFrame.Lua
         {
             var loop = lua.ToComponent(1, typeof(ILoopLayout)) as ILoopLayout;
             if (loop != null) {
+                if (lua.OptBoolean(3, false)) loop.ResetLayout();
                 loop.SetTotalItem(lua.ToInteger(2), lua.OptBoolean(3, false));
                 LayoutRebuilder.ForceRebuildLayoutImmediate(loop.transform as RectTransform);
                 lua.PushBoolean(true);

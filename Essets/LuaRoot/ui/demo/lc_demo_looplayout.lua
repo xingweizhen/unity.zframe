@@ -59,10 +59,12 @@ function init_logic()
 	self.Verts = {
 		"L", "Next\nNext", "San\nSan-Line\nNode",
 	}
-	libugui.SetLoopCap(Ref.SubVert.SubView.SubContent.GrpList.go, 100, true)
-	libugui.SetLoopCap(Ref.SubHori.SubView.SubContent.GrpList.go, 100, true)
-	libugui.SetLoopCap(Ref.SubHGrid.SubView.SubContent.GrpList.go, 100, true)
-	libugui.SetLoopCap(Ref.SubVGrid.SubView.SubContent.GrpList.go, 100, true)
+	
+	libugui.SetScrollValue(Ref.SubVert.go, 0)
+	libugui.SetLoopCap(Ref.SubVert.SubView.SubContent.GrpList.go, 100, true, true)
+	libugui.SetLoopCap(Ref.SubHori.SubView.SubContent.GrpList.go, 100, true, true)
+	libugui.SetLoopCap(Ref.SubHGrid.SubView.SubContent.GrpList.go, 100, true, true)
+	libugui.SetLoopCap(Ref.SubVGrid.SubView.SubContent.GrpList.go, 100, true, true)
 end
 
 function show_view()

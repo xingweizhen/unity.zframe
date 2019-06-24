@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace ZFrame.UGUI
 {
     [DisallowMultipleComponent]
-    public class UIWindow : MonoBehaviour, IPoolable
+    public class UIWindow : MonoBehaviour, IPoolable, IEventTransfer
     {
         protected static Dictionary<string, UIWindow> s_OpenWindows = new Dictionary<string, UIWindow>();
         public string cachedName { get; private set; }
@@ -95,7 +95,7 @@ namespace ZFrame.UGUI
                 s_OpenWindows.Remove(cachedName);
         }
 
-        public virtual void SendEvent(Component sender, UIEvent eventName, string eventParam, object data = null) { }
+        public virtual void SendEvent(Component sender, UIEvent eventName, string eventParam, object data) { }
 
         private void OnDestroy()
         {

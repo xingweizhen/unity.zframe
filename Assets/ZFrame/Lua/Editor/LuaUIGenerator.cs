@@ -79,10 +79,9 @@ namespace ZFrame.Editors
             Selection.activeTransform = rect;
         }
 
-        [MenuItem("Custom/UI脚本生成（Lua)...")]
         public static void ShowWindow()
         {
-            EditorWindow edtWnd = EditorWindow.GetWindow(typeof(LuaUIGenerator));
+            EditorWindow edtWnd = GetWindow(typeof(LuaUIGenerator));
             edtWnd.minSize = new Vector2(800, 650);
             edtWnd.maxSize = edtWnd.minSize;
         }

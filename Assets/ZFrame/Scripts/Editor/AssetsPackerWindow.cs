@@ -11,10 +11,11 @@ using System.Collections.Generic;
 namespace ZFrame.Editors
 {
     using Asset;
+    using Settings;
     using PackSymbol = AssetPacker.PackSymbol;
     public class AssetsPackerWindow : EditorWindow
     {
-        [MenuItem("Custom/资源打包...")]
+        [MenuItem("ZFrame/资源打包...")]
         static void OpenWindow()
         {
             GetWindowWithRect(typeof(AssetsPackerWindow), new Rect(0, 0, 220, 600), false, "资源打包");
@@ -190,11 +191,13 @@ namespace ZFrame.Editors
 
             if (AssetPacker.buildTarget == BuildTarget.Android) {
                 PlayerSettings.Android.bundleVersionCode = UpdateVersionCode(PlayerSettings.Android.bundleVersionCode, assetVersion);
-                PlayerSettings.Android.keystoreName = "../tools/keystore/kingsgroup_lastday.keystore";
-                PlayerSettings.Android.keyaliasPass = "kingsgroup";
-                PlayerSettings.Android.keystorePass = "kingsgroup";
                 PlayerSettings.bundleVersion = assetVersion;
                 productName = string.Format("{0}_{1}", productName, AssetPacker.assetMode);
+                
+                var settings = FrameworkSettingsWindow.GetSettings("t:BuildPlayerSettings") as BuildPlayerSettings;
+                if (settings != null) {
+                    settings.ApplyAndroidKeystore();
+                }
             } else if (AssetPacker.buildTarget == BuildTarget.iOS) {
                 var versionCode = int.Parse(PlayerSettings.iOS.buildNumber);
                 versionCode = UpdateVersionCode(versionCode, assetVersion);

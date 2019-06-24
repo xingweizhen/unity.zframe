@@ -84,14 +84,19 @@ namespace ZFrame.UGUI
             return name == UIEvent.Close || !string.IsNullOrEmpty(param);
         }
 
-        public void Send(Component sender, UIWindow wnd, object data = null)
+        public void Send(Component sender, IEventTransfer transfer, object data = null)
         {
-            if (IsActive()) wnd.SendEvent(sender, name, param, data);
+            if (IsActive()) transfer.SendEvent(sender, name, param, data);
         }
     }
 
     public interface IEventSender : IEnumerable<EventData>
     {
         void SetEvent(TriggerType id, UIEvent eventName, string param);
+    }
+
+    public interface IEventTransfer
+    {
+        void SendEvent(Component sender, UIEvent eventName, string eventParam, object data);
     }
 }

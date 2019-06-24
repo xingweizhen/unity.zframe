@@ -21,11 +21,11 @@ namespace ZFrame.UGUI
             yield return m_Event;
         }
 
-        private UIWindow __Wnd;
-        protected UIWindow Wnd {
+        private IEventTransfer __Wnd;
+        protected IEventTransfer Wnd {
             get {
                 if (__Wnd == null) {
-                    __Wnd = GetComponentInParent(typeof(UIWindow)) as UIWindow;
+                    __Wnd = GetComponentInParent(typeof(IEventTransfer)) as IEventTransfer;
                 }
                 return __Wnd;
             }
@@ -133,6 +133,13 @@ namespace ZFrame.UGUI
                     group.Remove(go);
                     go.Attach(m_Template.transform);
                 });
+            
+            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
+            if (m_Scroll == null) {
+                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
+            } else {
+                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
+            }
         }
 
         protected override void OnEnable()
@@ -142,11 +149,8 @@ namespace ZFrame.UGUI
             if (!Application.isPlaying) return;
 #endif
             m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll == null) {
-                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
-            } else {
+            if (m_Scroll) {
                 viewport = GetViewLength();
-                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
                 var selfPivot = rectTransform.pivot;
                 var contentPivot = m_Scroll.content.pivot;
                 if (m_Scroll.horizontal) {
@@ -165,13 +169,7 @@ namespace ZFrame.UGUI
             }
 
             m_TotalItem = 0;
-            m_Inited = false;
-            startIndex = m_Revert ? -1 : 0;
-            
-            m_Padding.left = m_RawPadding.left;
-            m_Padding.right = m_RawPadding.right;
-            m_Padding.top = m_RawPadding.top;
-            m_Padding.bottom = m_RawPadding.bottom;
+            ResetLayout();
         }
 
         protected override void OnDisable()
@@ -313,6 +311,20 @@ namespace ZFrame.UGUI
                 }
                 for (var i = m_TotalItem; i < m_Items.Count; ++i) m_Items[i].gameObject.SetActive(false);
             }
+        }
+
+        public void ResetLayout()
+        {
+            m_TotalItem = 0;
+            m_HeadPadding = 0;
+            m_TailPadding = 0;
+            m_Inited = false;
+            startIndex = m_Revert ? -1 : 0;
+            
+            m_Padding.left = m_RawPadding.left;
+            m_Padding.right = m_RawPadding.right;
+            m_Padding.top = m_RawPadding.top;
+            m_Padding.bottom = m_RawPadding.bottom;
         }
     }
 }
