@@ -47,7 +47,7 @@ namespace ZFrame
 
             var wnd = GetComponent(typeof(UIWindow)) as UIWindow;
             if (wnd) {
-                wnd.SendEvent(wnd, UIEvent.Send, "start_loading");
+                wnd.SendEvent(wnd, UIEvent.Send, "start_loading", null);
             }
 
             strTrace = new System.Text.StringBuilder("\n");

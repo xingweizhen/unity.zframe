@@ -83,6 +83,7 @@ namespace ZFrame.Editors
                 new SettingsMenu("音频导入属性", typeof(AudioProcessSettings), "Editor"),
                 new SettingsMenu("美术资源标准", typeof(ArtStandardChecker), "Editor"),
                 new SettingsMenu("应用版本号", typeof(VersionInfo), "Resources"),
+                new SettingsMenu("打包配置项", typeof(BuildPlayerSettings), "Editor"),
             };
             m_Menu = new string[m_Settings.Length];
             for (var i = 0; i < m_Menu.Length; ++i) m_Menu[i] = m_Settings[i].name;
@@ -134,6 +135,19 @@ namespace ZFrame.Editors
             var exist = System.IO.Directory.Exists(path);
             if (!exist) path += " (Missing)";
             EditorGUI.LabelField(rect, path, exist ? EditorStyles.label : "ErrorLabel");
+        }
+        
+        public static ScriptableObject GetSettings(string filter)
+        {
+            var guids = AssetDatabase.FindAssets(filter);
+            if (guids != null && guids.Length > 0) {
+                foreach (var guid in guids) {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var settings = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+                    if (settings) return settings;
+                }
+            }
+            return null;
         }
     }
 }

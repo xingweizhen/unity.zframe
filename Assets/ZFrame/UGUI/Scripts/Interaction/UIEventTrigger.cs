@@ -40,11 +40,11 @@ namespace ZFrame.UGUI
         [AudioRef]
         public string clickSfx;
 
-        private UIWindow __Wnd;
-        protected UIWindow Wnd {
+        private IEventTransfer __Wnd;
+        protected IEventTransfer Wnd {
             get {
                 if (__Wnd == null) {
-                    __Wnd = GetComponentInParent(typeof(UIWindow)) as UIWindow;
+                    __Wnd = GetComponentInParent(typeof(IEventTransfer)) as IEventTransfer;
                 }
                 return __Wnd;
             }
