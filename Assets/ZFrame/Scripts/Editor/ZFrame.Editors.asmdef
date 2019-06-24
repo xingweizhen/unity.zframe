@@ -1,0 +1,11 @@
+{
+    "name": "ZFrame.Editors",
+    "references": [
+        "ZFrame.Core",
+        "ZFrame.UGUI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
