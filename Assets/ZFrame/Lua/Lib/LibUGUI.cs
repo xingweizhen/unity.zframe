@@ -996,7 +996,7 @@ namespace ZFrame.Lua
         {
             var loop = lua.ToComponent(1, typeof(ILoopLayout)) as ILoopLayout;
             if (loop != null) {
-                if (lua.OptBoolean(3, false)) loop.ResetLayout();
+                if (lua.OptBoolean(4, false)) loop.ResetLayout();
                 loop.SetTotalItem(lua.ToInteger(2), lua.OptBoolean(3, false));
                 LayoutRebuilder.ForceRebuildLayoutImmediate(loop.transform as RectTransform);
                 lua.PushBoolean(true);

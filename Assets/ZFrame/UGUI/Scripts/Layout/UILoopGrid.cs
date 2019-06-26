@@ -96,12 +96,6 @@ namespace ZFrame.UGUI
             }
         }
 
-        protected override void OnTransformParentChanged()
-        {
-            base.OnTransformParentChanged();
-            __Wnd = null;
-        }
-
         protected void OnItemUpdate(GameObject go, int index)
         {
             if (onItemUpdate != null) onItemUpdate.Invoke(go, index);
@@ -157,7 +151,42 @@ namespace ZFrame.UGUI
         protected ObjPool<GameObject> m_ItemPool;
         protected List<GameObject> m_Items = new List<GameObject>();
 
-        protected ScrollRect m_Scroll;
+        private ScrollRect __Scroll;
+        protected ScrollRect m_Scroll {
+            get {
+                if (__Scroll == null) {
+                    __Scroll = GetComponentInParent<ScrollRect>();
+                    if (__Scroll) {
+                        __Scroll.onValueChanged.AddListener(OnScrollValueChanged);
+
+                        var pivot = rectTransform.pivot;
+                        if (__Scroll.horizontal) {
+                            pivot.x = 0;
+                            if (__Scroll.content.pivot.x != 0f) {
+                                LogMgr.W(this, "{0} requires horizontal scroll's content has a pivot.x == 0", GetType().Name);
+                            }
+                        }
+
+                        if (__Scroll.vertical) {
+                            pivot.y = 1;
+                            if (__Scroll.content.pivot.y != 1f) {
+                                LogMgr.W(this, "{0} requires velocity scroll's content has a pivot.y == 1", GetType().Name);
+                            }
+                        }
+
+                        rectTransform.pivot = pivot;
+                    }
+                }
+                return __Scroll;
+            }
+            set {
+                if (__Scroll != value) {
+                    if (__Scroll) __Scroll.onValueChanged.RemoveListener(OnScrollValueChanged);
+                    __Scroll = value;
+                }
+            }
+        }
+
         protected Vector2 GetViewSize()
         {
             if (m_Scroll) {
@@ -168,10 +197,10 @@ namespace ZFrame.UGUI
             return Vector2.zero;
         }
 
-        protected  override void Awake()
+        protected override void Awake()
         {
             base.Awake();
-            
+
             m_ItemPool = new ObjPool<GameObject>(m_Template,
                 go => {
                     group.Add(go);
@@ -180,65 +209,27 @@ namespace ZFrame.UGUI
                     group.Remove(go);
                     go.Attach(m_Template.transform);
                 });
-            
-            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll == null) {
-                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
-            } else {
-                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
-            }
-        }
 
-        protected override void Start()
-        {
-            base.Start();
 #if UNITY_EDITOR
-            if (!Application.isPlaying) return;
+            if (Application.isPlaying)
 #endif
-            m_Template.SetActive(false);
+                m_Template.SetActive(false);
 
             m_ValueDirty = true;
             startLine = 0;
         }
 
-        protected override void OnEnable()
+        protected override void OnDestroy()
         {
-            base.OnEnable();
-#if UNITY_EDITOR
-            if (!Application.isPlaying) return;
-#endif
-            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll) {
-                var pivot = rectTransform.pivot;
-                if (m_Scroll.horizontal) {
-                    pivot.x = 0;
-                    if (m_Scroll.content.pivot.x != 0f) {
-                        LogMgr.W(this, "{0} requires horizontal scroll's content has a pivot.x == 0", GetType().Name);
-                    }
-                }
-
-                if (m_Scroll.vertical) {
-                    pivot.y = 1;
-                    if (m_Scroll.content.pivot.y != 1f) {
-                        LogMgr.W(this, "{0} requires velocity scroll's content has a pivot.y == 1", GetType().Name);
-                    }
-                }
-
-                rectTransform.pivot = pivot;
-
-            }
-
-            //m_TotalItem = 0;
-            //m_LimitLine = -1;
-            //m_Inited = false;
+            base.OnDestroy();
+            m_Scroll = null;
         }
 
-        protected override void OnDisable()
+        protected override void OnTransformParentChanged()
         {
-            base.OnDisable();
-            if (m_Scroll) {
-                m_Scroll.onValueChanged.RemoveListener(OnScrollValueChanged);
-            }
+            base.OnTransformParentChanged();
+            __Wnd = null;
+            m_Scroll = null;
         }
 
         protected override void OnRectTransformDimensionsChange()

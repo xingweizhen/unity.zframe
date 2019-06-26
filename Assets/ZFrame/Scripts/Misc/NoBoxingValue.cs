@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿
 namespace ZFrame
 {
-	public abstract class NoBoxingValue<T>
+	public abstract class NoBoxingValue<T> where T : struct
 	{	
 		public static NoBoxingValue<T> Instance;
     

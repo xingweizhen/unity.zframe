@@ -71,9 +71,7 @@ namespace ZFrame.UGUI
 #endif
 			if (!m_Inited) {
 				m_Inited = true;
-				if (m_Revert) {
-					m_Scroll.horizontalNormalizedPosition = 1;
-				}
+                m_Scroll.horizontalNormalizedPosition = m_Revert ? 1 : 0;
 			}
 			
 			var firstItem = m_Items[0];

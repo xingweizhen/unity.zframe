@@ -31,12 +31,6 @@ namespace ZFrame.UGUI
             }
         }
 
-        protected override void OnTransformParentChanged()
-        {
-            base.OnTransformParentChanged();
-            __Wnd = null;
-        }
-
         protected void OnItemUpdate(GameObject go, int index)
         {
             if (onItemUpdate != null) onItemUpdate.Invoke(go, index);
@@ -86,13 +80,45 @@ namespace ZFrame.UGUI
         /// 有效列表中最后一个元素的开始位置
         /// </summary>
         public float lastPos { get; protected set; }
-        
+
         public float viewport { get; protected set; }
 
         protected float m_RemainPadding;
         protected float m_HeadPadding, m_TailPadding;
-        
-        protected ScrollRect m_Scroll;
+
+        private ScrollRect __Scroll;
+        protected ScrollRect m_Scroll {
+            get {
+                if (__Scroll == null) {
+                    __Scroll = GetComponentInParent<ScrollRect>();
+                    if (__Scroll) {
+                        __Scroll.onValueChanged.AddListener(OnScrollValueChanged);
+                        viewport = GetViewLength();
+                        var selfPivot = rectTransform.pivot;
+                        var contentPivot = __Scroll.content.pivot;
+                        if (__Scroll.horizontal) {
+                            selfPivot.x = m_Revert ? 1 : 0;
+                            contentPivot.x = selfPivot.x;
+                        }
+                        if (__Scroll.vertical) {
+                            selfPivot.y = m_Revert ? 0 : 1;
+                            contentPivot.y = selfPivot.y;
+                        }
+                        rectTransform.pivot = selfPivot;
+                        __Scroll.content.pivot = contentPivot;
+
+                        nViewItem = Mathf.CeilToInt(GetViewLength() / m_MinSize);
+                    }
+                }
+                return __Scroll;
+            }
+            set {
+                if (__Scroll != value) {
+                    if (__Scroll) __Scroll.onValueChanged.RemoveListener(OnScrollValueChanged);
+                    __Scroll = value;
+                }
+            }
+        }
 
         protected bool m_Inited;
         protected int m_TotalItem;
@@ -121,10 +147,10 @@ namespace ZFrame.UGUI
         protected ObjPool<GameObject> m_ItemPool;
         protected List<RectTransform> m_Items = new List<RectTransform>();
 
-        protected  override void Awake()
+        protected override void Awake()
         {
             base.Awake();
-            
+
             m_ItemPool = new ObjPool<GameObject>(m_Template,
                 go => {
                     group.Add(go);
@@ -133,53 +159,27 @@ namespace ZFrame.UGUI
                     group.Remove(go);
                     go.Attach(m_Template.transform);
                 });
-            
-            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll == null) {
-                LogMgr.W(this, "没有找到<ScrollRect>，建议使用普通的布局脚本。");
-            } else {
-                m_Scroll.onValueChanged.AddListener(OnScrollValueChanged);
-            }
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
 #if UNITY_EDITOR
-            if (!Application.isPlaying) return;
+            if (Application.isPlaying)
 #endif
-            m_Scroll = GetComponentInParent(typeof(ScrollRect)) as ScrollRect;
-            if (m_Scroll) {
-                viewport = GetViewLength();
-                var selfPivot = rectTransform.pivot;
-                var contentPivot = m_Scroll.content.pivot;
-                if (m_Scroll.horizontal) {
-                    selfPivot.x = m_Revert ? 1 : 0;
-                    contentPivot.x = selfPivot.x;
-                }
-                if (m_Scroll.vertical) {
-                    selfPivot.y = m_Revert ? 0 : 1;
-                    contentPivot.y = selfPivot.y;
-                }                
-                rectTransform.pivot = selfPivot;
-                m_Scroll.content.pivot = contentPivot;
-
                 m_Template.SetActive(false);
-                nViewItem = Mathf.CeilToInt(GetViewLength() / m_MinSize);
-            }
 
-            m_TotalItem = 0;
             ResetLayout();
         }
 
-        protected override void OnDisable()
+        protected override void OnDestroy()
         {
-            base.OnDisable();
-            if (m_Scroll) {
-                m_Scroll.onValueChanged.RemoveListener(OnScrollValueChanged);
-            }
+            base.OnDestroy();
+            m_Scroll = null;
         }
-        
+
+        protected override void OnTransformParentChanged()
+        {
+            base.OnTransformParentChanged();
+            __Wnd = null;
+            m_Scroll = null;
+        }
+
         protected Vector2 GetViewSize()
         {
             if (m_Scroll) {
@@ -223,7 +223,7 @@ namespace ZFrame.UGUI
                 AddHeadPadding(-GetItemSize(item));
             }
         }
-        
+
         protected virtual void OnScrollValueChanged(Vector2 value)
         {
 #if UNITY_EDITOR
@@ -238,7 +238,7 @@ namespace ZFrame.UGUI
                     m_Items[i].gameObject.SetActive(true);
                     OnItemUpdate(m_Items[i].gameObject, startIndex + i);
                 }
-                
+
             }
             float scrollValue = GetScrollValue();
 
@@ -270,7 +270,7 @@ namespace ZFrame.UGUI
                 }
             }
         }
-        
+
         protected void UpdateRemainPadding(int total)
         {
             var remainItem = m_Revert ? startIndex : total - (startIndex + m_Items.Count);
@@ -279,7 +279,7 @@ namespace ZFrame.UGUI
             } else {
                 m_RemainPadding = 0;
             }
-            
+
             if (m_Revert) {
                 UpdatePadding(m_RemainPadding, 0);
             } else {
@@ -320,7 +320,7 @@ namespace ZFrame.UGUI
             m_TailPadding = 0;
             m_Inited = false;
             startIndex = m_Revert ? -1 : 0;
-            
+
             m_Padding.left = m_RawPadding.left;
             m_Padding.right = m_RawPadding.right;
             m_Padding.top = m_RawPadding.top;

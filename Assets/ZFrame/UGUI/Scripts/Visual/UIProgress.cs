@@ -11,7 +11,7 @@ namespace ZFrame.UGUI
     using Direction = Slider.Direction;
     using SliderEvent = Slider.SliderEvent;
 
-    public class UIProgress : UIBehaviour, IEventSender, ITweenable, ITweenable<float>
+    public class UIProgress : UIBehaviour, IEventSender, ITweenable, ITweenable<float>, IEventSystemHandler
     {
         public readonly float minValue = 0f;
         public readonly float maxValue = 1f;

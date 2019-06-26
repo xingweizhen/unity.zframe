@@ -7,7 +7,7 @@ namespace ZFrame.Asset
     [CreateAssetMenu(menuName ="资源库/预加载资源")]
     public class PreloadAssets : ScriptableObject
     {
-        [SerializeField, ElementList("资源列表")]
+        [SerializeField]
         private PreloadAsset[] m_Preloads;
         public PreloadAsset[] assets { get { return m_Preloads; } }
     }
