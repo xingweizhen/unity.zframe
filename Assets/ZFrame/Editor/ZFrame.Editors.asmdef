@@ -1,9 +1,12 @@
 {
-    "name": "ZFrame.UGUI",
+    "name": "ZFrame.Editors",
     "references": [
         "ZFrame.Core",
+        "ZFrame.UGUI",
         "ZFrame.Tween"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": []
 }

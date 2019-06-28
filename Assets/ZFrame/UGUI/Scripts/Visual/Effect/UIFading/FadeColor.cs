@@ -35,17 +35,17 @@ namespace ZFrame.UGUI
         {
             Graphic graphic = target.GetComponent<Graphic>();
             if (graphic) {
-                graphic.color = (Color)source;
+                graphic.color = m_Source;
             }
         }
 
         protected override ZTweener AnimateFade(bool forward)
         {
-            var tweenTar = forward ? destina : source;
+            var tweenTar = forward ? m_Destina : m_Source;
 
             Graphic graphic = target.GetComponent<Graphic>();
             if (graphic) {
-                return graphic.TweenColor((Color)tweenTar, duration);
+                return graphic.TweenColor(tweenTar, duration);
             }
 
             LogMgr.W("FadeColor失败：没有找到<Graphic>");

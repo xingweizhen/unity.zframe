@@ -1281,29 +1281,34 @@ namespace ZFrame.Lua
                     var tweenable = go.GetComponent(tweenName) as ITweenable;
                     if (tweenable == null) {
                         switch (tweenName) {
+                            case "AnchoredPos":
+                                tweenable = go.NeedComponent(typeof(RectAnchoredPosTweener)) as ITweenable;
+                                break;
                             case "Position":
-                                tweenable = go.NeedComponent(typeof(TweenPosition)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformPositionTweener)) as ITweenable;
+                                ((TransformPositionTweener)tweenable).space = Space.Self;
                                 break;
                             case "PositionW":
-                                tweenable = go.NeedComponent(typeof(TweenPositionW)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformPositionTweener)) as ITweenable;
+                                ((TransformPositionTweener)tweenable).space = Space.World;
                                 break;
                             case "Rotation":
-                                tweenable = go.NeedComponent(typeof(TweenRotation)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformRotationTweener)) as ITweenable;
                                 break;
                             case "EulerAngles":
-                                tweenable = go.NeedComponent(typeof(TweenEulerAngles)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformEulerAnglesTweener)) as ITweenable;
                                 break;
                             case "Scale":
-                                tweenable = go.NeedComponent(typeof(TweenScaling)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformScaleTweener)) as ITweenable;
                                 break;
                             case "Transform":
-                                tweenable = go.NeedComponent(typeof(TweenTransform)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(TransformFollowTweener)) as ITweenable;
                                 break;
                             case "Alpha":
-                                tweenable = go.NeedComponent(typeof(TweenAlpha)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(CanvasAlphaTweener)) as ITweenable;
                                 break;
                             case "Size":
-                                tweenable = go.NeedComponent(typeof(TweenSize)) as ITweenable;
+                                tweenable = go.NeedComponent(typeof(RectSizeTweener)) as ITweenable;
                                 break;
                             default: break;
                         }
@@ -1343,12 +1348,8 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int DOTween(ILuaState lua)
         {
-
-            object tweenType = lua.ToAnyObject(1);
-            object tweenObj = lua.ToUnityObject(2);
-
-            var tweenable = ToTweenable(tweenObj, tweenType);
-            if (tweenable == null) return 0;
+            var tweenType = lua.ToAnyObject(1);
+            var tweenObj = lua.ToUnityObject(2);
 
             ZTweener tw = null;
             float duration = lua.GetNumber(5, "duration", 0f);
@@ -1360,7 +1361,7 @@ namespace ZFrame.Lua
                     tw = lua.ToTweener(tweenObj, I2V.ToSingle, 3, 4, duration);
                     break;
                 case LuaTypes.LUA_TSTRING:
-                    tw = lua.ToTweener(tweenObj, I2V.Tostring, 3, 4, duration);
+                    tw = lua.ToTweener(tweenObj, I2V.L_ToString, 3, 4, duration);
                     break;
                 case LuaTypes.LUA_TTABLE:
                     switch (lua.Class(4)) {
@@ -1389,6 +1390,9 @@ namespace ZFrame.Lua
 
             // Fallback to boxing process... 
             if (tw == null) {
+                var tweenable = ToTweenable(tweenObj, tweenType);
+                if (tweenable == null) return 0;
+
                 object to = lua.ToAnyObject(4);
                 object from = lua.ToAnyObject(3);
                 tw = tweenable.Tween(from, to, duration);
@@ -1413,11 +1417,11 @@ namespace ZFrame.Lua
                     .SetUpdate(updateType, ignoreTimescale);
 
                 if (onStart != null) {
-                    tw.StartWith((_tw) => onStart.Action(tw.target));
+                    tw.StartWith((_tw) => onStart.Action(_tw.target));
                 } else tw.StartWith(null);
 
                 if (onUpdate != null) {
-                    tw.UpdateWith((_tw) => onUpdate.Action(_tw.elapsed, tw.target));
+                    tw.UpdateWith((_tw) => onUpdate.Action(_tw.elapsed, _tw.target));
                 } else tw.UpdateWith(null);
 
                 if (onComplete != null) {

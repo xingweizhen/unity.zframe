@@ -15,7 +15,7 @@ public static class I2V
 
     public static readonly Index2Value<double> ToNumber = (ILuaState lua, int index, out double value) => value = lua.ToNumber(index);
     public static readonly Index2Value<float> ToSingle = (ILuaState lua, int index, out float value) => value = lua.ToSingle(index);
-    public static readonly Index2Value<string> Tostring = (ILuaState lua, int index, out string value) => value = lua.ToString(index);
+    public static readonly Index2Value<string> L_ToString = (ILuaState lua, int index, out string value) => value = lua.ToString(index);
     public static readonly Index2Value<int> ToInteger = (ILuaState lua, int index, out int value) => value = lua.ToInteger(index);
     public static readonly Index2Value<long> ToLong = (ILuaState lua, int index, out long value) => value = lua.ToLong(index);
     public static readonly Index2Value<bool> ToBoolean = (ILuaState lua, int index, out bool value) => value = lua.ToBoolean(index);
