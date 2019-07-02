@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
+    [TweenMenu("Transform/Position", "Transform: Position")]
     public class TweenTransformPosition : TweenTransformProperty
     {
         public override void ResetStatus()
@@ -15,19 +16,17 @@ namespace ZFrame.Tween
         protected override ZTweener StartTween(bool reset, bool forward)
         {
             if (m_Space == Space.World) {
-                return target ? target.TweenPosition(m_From, m_To, duration)
-                    .SetUpdate(UpdateType.Normal, ignoreTimescale).SetTag(this) : null;
+                return target ? target.TweenPosition(m_From, m_To, duration) : null;
             }
 
-            return target ? target.TweenLocalPosition(m_From, m_To, duration)
-                    .SetUpdate(UpdateType.Normal, ignoreTimescale).SetTag(this) : null;
+            return target ? target.TweenLocalPosition(m_From, m_To, duration) : null;
         }
 
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TweenTransformPosition))]
         private class MyEditor : TweenTransformEditor
         {
-            public override string TweenName { get { return "Transform: Position"; } }
+            
         }
 #endif
     }

@@ -36,7 +36,7 @@ local function invoking_toast(group)
     	local CurrToast = ToastGroup.Curr
     	if CurrToast == nil or CurrToast ~= Toast then
     		if CurrToast then
-	    		libugui.DOFade(CurrToast.Ref.go, "Out", on_fade_out)
+	    		libugui.DOTween(CurrToast.Ref.go, -1, on_fade_out)
 	    	end
 	    	ToastGroup.Curr = Toast
 
@@ -55,7 +55,7 @@ local InitFunctions = {
 		Ref.lbTips.color = self.color or "#C5C5C5"
 		Ref.spIcon:SetSprite(self.args.icon)
 		Ref.spIcon.color = self.color or "#FFFFFF"
-		libugui.DOFade(Ref.go, "In", on_fade_out, true)
+		libugui.DOTween(Ref.go, 1, on_fade_out, true)
 	end,
 }
 
@@ -90,7 +90,7 @@ function OBJDEF:init()
 		end
 	end
 	libugui.SetAlpha(Ref.go, 0)
-	libugui.DOFade(Ref.go, "In", on_fade_out, true)
+	libugui.DOTween(Ref.go, 1, on_fade_out, true)
 end
 
 function OBJDEF:show(stay, color, group)

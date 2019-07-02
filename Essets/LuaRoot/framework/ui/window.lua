@@ -194,7 +194,7 @@ local function on_open(go, pkgName)
 	if Wnd.instantly then
 		libunity.Invoke(go, 0, do_create_wnd, go)
 	else
-		libugui.DOFade(go, "In", do_create_wnd, true)
+		libugui.DOTween(go, 1, do_create_wnd, true)
 	end
 end
 
@@ -249,7 +249,7 @@ local function u_close(go, instantly, stacked)
 		if instantly then
 			libunity.Recycle(go)
 		else
-			libugui.DOFade(go, "Out", libunity.Recycle, false)
+			libugui.DOTween(go, -1, libunity.Recycle, false)
 		end
 	end
 end

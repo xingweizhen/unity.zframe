@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
+    [TweenMenu("Transform/Rect SizeDelta", "RectTransform: SizeDelta")]
     public sealed class TweenRectTransformSizeDelta : TweenVector2<RectTransform>
     {
         public override void ResetStatus()
@@ -14,15 +15,14 @@ namespace ZFrame.Tween
 
         protected override ZTweener StartTween(bool reset, bool forward)
         {
-            return target ? target.TweenSize(m_From, m_To, duration)
-                .SetUpdate(UpdateType.Normal, ignoreTimescale).SetTag(this) : null;
+            return target ? target.TweenSize(m_From, m_To, duration) : null;
         }
 
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TweenRectTransformSizeDelta))]
         private class MyEditor : TweenValueEditor
         {
-            public override string TweenName { get { return "RectTransform: SizeDelta"; } }
+            
         }
 #endif
     }

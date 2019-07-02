@@ -7,8 +7,21 @@ using UnityEditor;
 
 namespace ZFrame.Tween
 {
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = false)]
+    public sealed class TweenMenuAttribute : System.Attribute
+    {
+        public readonly string menu;
+        public readonly string name;
+
+        public TweenMenuAttribute(string menu, string name)
+        {
+            this.menu = menu;
+            this.name = name;
+        }
+    }
+
     public abstract class TweenObject : MonoBehaviour
-    {        
+    {
         public float delay = 0;
         public float duration = 1;
         public Ease ease = Ease.Linear;
@@ -26,11 +39,11 @@ namespace ZFrame.Tween
                 return duration * (loops == 0 ? 1 : loops) + delay;
             }
         }
-
-        public abstract bool DoTween(bool reset, bool forward);
-
+        
         public bool tweenAutomatically = true;
 
+        public abstract bool DoTween(bool reset, bool forward);
+        
         /// <summary>
         /// 重置数值为当前值
         /// </summary>
@@ -41,19 +54,19 @@ namespace ZFrame.Tween
 
         internal abstract class Editor : UnityEditor.Editor
         {
-            public abstract string TweenName { get; }
-
             private SerializedProperty m_Duration, m_UpdateType, m_Ease, m_Delay, m_Loops, m_IgnoreTimescale, m_LoopType;
+            private SerializedProperty tweenAutomatically;
 
             protected virtual void OnEnable()
             {
                 m_Delay = serializedObject.FindProperty("delay");
-                m_Duration = serializedObject.FindProperty("duration");                
+                m_Duration = serializedObject.FindProperty("duration");
                 m_Ease = serializedObject.FindProperty("ease");
                 m_Loops = serializedObject.FindProperty("loops");
                 m_LoopType = serializedObject.FindProperty("loopType");
                 m_UpdateType = serializedObject.FindProperty("updateType");
-                m_IgnoreTimescale = serializedObject.FindProperty("ignoreTimescale");                
+                m_IgnoreTimescale = serializedObject.FindProperty("ignoreTimescale");
+                tweenAutomatically = serializedObject.FindProperty("tweenAutomatically");
             }
 
             protected virtual void OnContentGUI()
@@ -72,6 +85,7 @@ namespace ZFrame.Tween
                     OnContentGUI();
                     EditorGUILayout.PropertyField(m_UpdateType);
                     EditorGUILayout.PropertyField(m_IgnoreTimescale);
+                    EditorGUILayout.PropertyField(tweenAutomatically);
 
                     serializedObject.ApplyModifiedProperties();
                 } else {
@@ -86,7 +100,11 @@ namespace ZFrame.Tween
 
                     rt.x = rt.xMax;
                     rt.xMax = rect.xMax - 20;
-                    EditorGUI.LabelField(rt, TweenName, EditorStyles.boldLabel);
+
+                    TweenMenuAttribute attr = null;
+                    System.Type selfType = self.GetType();
+                    TweenGroup.Editor.allTypes.TryGetValue(selfType, out attr);
+                    EditorGUI.LabelField(rt, attr != null ? attr.name : selfType.Name, EditorStyles.boldLabel);
 
                     rt.x = rt.xMax;
                     rt.width = 20;

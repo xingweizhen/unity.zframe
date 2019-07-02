@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
+    [TweenMenu("UI and 2D/Canvas Alpha", "UGUI: Canvas Alpha")]
     public sealed class TweenCanvasAlpha : TweenFloat<CanvasGroup>
     {
         public override void ResetStatus()
@@ -14,15 +15,14 @@ namespace ZFrame.Tween
 
         protected override ZTweener StartTween(bool reset, bool forward)
         {
-            return target ? target.TweenAlpha(m_From, m_To, duration)
-                .SetUpdate(UpdateType.Normal, ignoreTimescale).SetTag(this) : null;
+            return target ? target.TweenAlpha(m_From, m_To, duration) : null;
         }
 
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TweenCanvasAlpha))]
         private class MyEditor : TweenValueEditor
         {
-            public override string TweenName { get { return "UGUI: Canvas Alpha"; } }
+            
         }
 #endif
     }

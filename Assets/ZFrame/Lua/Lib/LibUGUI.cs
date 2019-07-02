@@ -103,7 +103,7 @@ namespace ZFrame.Lua
             lua.SetDict("World2ScreenPoint", World2ScreenPoint);
 
             // Tween
-            lua.SetDict("DOFade", DOFade);
+            // lua.SetDict("DOFade", DOFade);
             lua.SetDict("DOTween", DOTween);
             lua.SetDict("MakeSequence", MakeSequence);
             lua.SetDict("DOShake", DOShake);
@@ -1241,33 +1241,32 @@ namespace ZFrame.Lua
             return 1;
         }
 
-        #region 缓动接口
+        #region 缓动接口        
+        //[MonoPInvokeCallback(typeof(LuaCSFunction))]
+        //private static int DOFade(ILuaState lua)
+        //{
+        //    GameObject go = lua.ToGameObject(1);
+        //    var group = lua.ToEnumValue(2, typeof(FadeGroup));
+        //    var func = lua.ToLuaFunction(3);
+        //    bool reset = lua.OptBoolean(4, false);
+        //    bool foward = lua.OptBoolean(5, true);
+        //    if (go && go.activeInHierarchy) {
+        //        ZTween.Stop(go);
+        //        var tw = group != null ? FadeTool.DOFade(go, (FadeGroup)group, reset, foward) : FadeTool.DOFade(go, reset, foward);
+        //        if (func != null) {
+        //            if (tw != null) {
+        //                tw.CompleteWith(_ => {
+        //                    func.Action(go);
+        //                    func.Dispose();
+        //                });
+        //            } else {
+        //                UIManager.Instance.StartCoroutine(LibUnity.LuaInvoke(UIManager.Instance, func, 0, go));
+        //            }
+        //        }
+        //    }
 
-        [MonoPInvokeCallback(typeof(LuaCSFunction))]
-        private static int DOFade(ILuaState lua)
-        {
-            GameObject go = lua.ToGameObject(1);
-            var group = lua.ToEnumValue(2, typeof(FadeGroup));
-            var func = lua.ToLuaFunction(3);
-            bool reset = lua.OptBoolean(4, false);
-            bool foward = lua.OptBoolean(5, true);
-            if (go && go.activeInHierarchy) {
-                ZTween.Stop(go);
-                var tw = group != null ? FadeTool.DOFade(go, (FadeGroup)group, reset, foward) : FadeTool.DOFade(go, reset, foward);
-                if (func != null) {
-                    if (tw != null) {
-                        tw.CompleteWith(_ => {
-                            func.Action(go);
-                            func.Dispose();
-                        });
-                    } else {
-                        UIManager.Instance.StartCoroutine(LibUnity.LuaInvoke(UIManager.Instance, func, 0, go));
-                    }
-                }
-            }
-
-            return 0;
-        }
+        //    return 0;
+        //}
 
         private static ITweenable ToTweenable(object tweenObject, object tweenType)
         {
@@ -1348,6 +1347,41 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int DOTween(ILuaState lua)
         {
+            if (lua.IsNumber(2)) {
+                // TweenGroup
+                var go = lua.ToGameObject(1);
+                if (go && go.activeInHierarchy) {
+                    ZTween.Stop(go);
+
+                    var groupId = lua.ToInteger(2);                    
+                    TweenGroup twGrp = null;
+                    var list = ListPool<Component>.Get();
+                    go.GetComponents(typeof(TweenGroup), list);
+                    for (var i = 0; i < list.Count; ++i) {
+                        var grp = (TweenGroup)list[i];
+                        if (grp.groupId == groupId) {
+                            twGrp = grp;
+                            break;
+                        }
+                    }
+                    ListPool<Component>.Release(list);
+
+                    var func = lua.ToLuaFunction(3);
+                    if (twGrp != null) {                        
+                        var forward = lua.OptBoolean(4, true);
+                        twGrp.DoTween(forward);
+                        if (func != null) {
+                            twGrp.onComplete += (grp) => { func.Action(grp.gameObject); func.Dispose(); };
+                        }
+                    } else {
+                        UIManager.Instance.StartCoroutine(LibUnity.LuaInvoke(UIManager.Instance, func, 0, go));
+                    }
+                }
+
+                return 0;
+            }
+
+            // Single Tween
             var tweenType = lua.ToAnyObject(1);
             var tweenObj = lua.ToUnityObject(2);
 
@@ -1432,7 +1466,7 @@ namespace ZFrame.Lua
                 return 1;
             }
 
-            LogMgr.W("{0} Free tween fail: {1} of {2}", lua.DebugCurrentLine(2), tweenType, tweenObj);
+            LogMgr.W("{0} DO tween fail: {1} of {2}", lua.DebugCurrentLine(2), tweenType, tweenObj);
             return 0;
         }
 

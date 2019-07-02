@@ -57,7 +57,7 @@ function OBJDEF:init(canvas)
         local Ref = ui.ref(go)
         local lbTips = Ref.lbTips
         if lbTips then lbTips.text = self.args end
-        libugui.DOFade(Ref.go, "In", on_fade_end, true)
+        libugui.DOTween(Ref.go, 1, on_fade_end, true)
         return Ref
     end
 end
@@ -93,7 +93,7 @@ end
 --     end
 --     lb.text = text
 --     lb.color = color
---     libugui.DOFade(go, "In")
+--     libugui.DOTween(go, 1)
 -- end
 
 setmetatable(OBJDEF, { __call = function (_, style, args)

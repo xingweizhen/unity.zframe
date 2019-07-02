@@ -37,8 +37,15 @@ namespace ZFrame.Tween
         /// <returns></returns>
         public sealed override bool DoTween(bool reset, bool forward)
         {
-            m_Tweener = StartTween(reset, forward);
-            return m_Tweener != null;
+            if (enabled) {
+                m_Tweener = StartTween(reset, forward);
+                if (m_Tweener != null) {
+                    m_Tweener.DelayFor(delay).EaseBy(ease).LoopFor(loops, loopType)
+                        .SetUpdate(updateType, ignoreTimescale).SetTag(gameObject);
+                    return true;
+                }
+            }
+            return false;
         }
 
 #if UNITY_EDITOR
