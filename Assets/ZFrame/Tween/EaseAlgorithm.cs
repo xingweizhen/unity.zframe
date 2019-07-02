@@ -242,6 +242,7 @@ namespace ZFrame.Tween
             float s = 1.70158f * overshoot;
             return end * (val) * val * ((s + 1) * val - s) + start;
         }
+        public static float easeInBackDef(float start, float end, float val) { return easeInBack(start, end, val); }
 
         public static float easeOutBack(float start, float end, float val, float overshoot = 1.0f)
         {
@@ -250,6 +251,7 @@ namespace ZFrame.Tween
             val = (val / 1) - 1;
             return end * ((val) * val * ((s + 1) * val + s) + 1) + start;
         }
+        public static float easeOutBackDef(float start, float end, float val) { return easeOutBack(start, end, val); }
 
         public static float easeInOutBack(float start, float end, float val, float overshoot = 1.0f)
         {
@@ -264,6 +266,7 @@ namespace ZFrame.Tween
             s *= (1.525f) * overshoot;
             return end / 2 * ((val) * val * (((s) + 1) * val + s) + 2) + start;
         }
+        public static float easeInOutBackDef(float start, float end, float val) { return easeInOutBack(start, end, val); }
 
         public static float easeInElastic(float start, float end, float val, float overshoot = 1.0f, float period = 0.3f)
         {
@@ -291,6 +294,7 @@ namespace ZFrame.Tween
             val = val - 1f;
             return start - (a * Mathf.Pow(2f, 10f * val) * Mathf.Sin((val - s) * (2f * Mathf.PI) / p)) * overshoot;
         }
+        public static float easeInElasticDef(float start, float end, float val) { return easeInElastic(start, end, val); }
 
         public static float easeOutElastic(float start, float end, float val, float overshoot = 1.0f, float period = 0.3f)
         {
@@ -317,6 +321,7 @@ namespace ZFrame.Tween
 
             return start + end + a * Mathf.Pow(2f, -10f * val) * Mathf.Sin((val - s) * (2f * Mathf.PI) / p) * overshoot;
         }
+        public static float easeOutElasticDef(float start, float end, float val) { return easeOutElastic(start, end, val); }
 
         public static float easeInOutElastic(float start, float end, float val, float overshoot = 1.0f, float period = 0.3f)
         {
@@ -353,6 +358,8 @@ namespace ZFrame.Tween
             val = val - 1f;
             return end + start + a * Mathf.Pow(2f, -10f * val) * Mathf.Sin((val - s) * (2f * Mathf.PI) / p) * 0.5f * overshoot;
         }
+        public static float easeInOutElasticDef(float start, float end, float val) { return easeInOutElastic(start, end, val); }
+
         #endregion
     }
 }

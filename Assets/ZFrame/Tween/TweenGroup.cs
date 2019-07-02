@@ -45,7 +45,7 @@ namespace ZFrame.Tween
                 }
 
                 if (m_Lifetime > 0) {
-                    ZTween.Tween(this, Get, Set, 0, m_Lifetime)
+                    ZTween.Tween(this, Get, Set, 0f, m_Lifetime)
                         .SetUpdate(m_UpdateType, m_IgnoreTimescale)
                         .SetTag(gameObject)
                         .CompleteWith(StopTween);
@@ -70,6 +70,23 @@ namespace ZFrame.Tween
         private void OnDisable()
         {
             StopTween();
+        }
+
+        private void OnDestroy()
+        {
+            if (m_Tweens != null) {
+                foreach (var tw in m_Tweens) {
+#if UNITY_EDITOR
+                    if (!Application.isPlaying) {
+                        // ... 无法命中。
+                        DestroyImmediate(tw);
+                    } else
+#endif
+                    {
+                        Destroy(tw);
+                    }
+                }
+            }
         }
 
         private static void StopTween(ZTweener tw)
@@ -122,6 +139,7 @@ namespace ZFrame.Tween
                         var tw = Undo.AddComponent(self.gameObject, type) as TweenObject;
                         Undo.RecordObject(tw, "AddComponent");
                         tw.tweenAutomatically = false;
+                        tw.duration = self.m_Lifetime;
                         tw.ResetStatus();
 
                         Undo.RecordObject(target, "AddComponent");

@@ -26,40 +26,34 @@ namespace ZFrame.Tween
 	{
 		Unset,
 		Linear,
-		InSine,
-		OutSine,
-		InOutSine,
-		InQuad,
-		OutQuad,
-		InOutQuad,
-		InCubic,
-		OutCubic,
-		InOutCubic,
-		InQuart,
-		OutQuart,
-		InOutQuart,
-		InQuint,
-		OutQuint,
-		InOutQuint,
-		InExpo,
-		OutExpo,
-		InOutExpo,
-		InCirc,
-		OutCirc,
-		InOutCirc,
-		InElastic,
-		OutElastic,
-		InOutElastic,
-		InBack,
-		OutBack,
-		InOutBack,
-		InBounce,
-		OutBounce,
-		InOutBounce,
+		InSine, OutSine, InOutSine,
+		InQuad, OutQuad, InOutQuad,
+		InCubic, OutCubic, InOutCubic,
+		InQuart, OutQuart, InOutQuart,
+		InQuint, OutQuint, InOutQuint,
+		InExpo, OutExpo, InOutExpo,
+		InCirc, OutCirc, InOutCirc,
+		InElastic, OutElastic, InOutElastic,
+		InBack, OutBack, InOutBack,
+		InBounce, OutBounce, InOutBounce,
 	}
 
     public partial class ZTweener
     {
+        public static readonly System.Func<float, float, float, float>[] EaseAlgorithm = new System.Func<float, float, float, float>[] {
+            null,
+            ZTween.linear,
+            ZTween.easeInSine, ZTween.easeOutSine, ZTween.easeInOutSine,
+            ZTween.easeInQuad, ZTween.easeOutQuad, ZTween.easeInOutQuad,
+            ZTween.easeInCubic, ZTween.easeOutCubic, ZTween.easeInOutCubic,
+            ZTween.easeInQuart, ZTween.easeOutQuart, ZTween.easeInOutQuart,
+            ZTween.easeInQuint, ZTween.easeOutQuint, ZTween.easeInOutQuint,
+            ZTween.easeInExpo, ZTween.easeOutExpo, ZTween.easeInOutExpo,
+            ZTween.easeInCirc, ZTween.easeOutCirc, ZTween.easeInOutCirc,
+            ZTween.easeInElasticDef, ZTween.easeOutElasticDef, ZTween.easeInOutElasticDef,
+            ZTween.easeInBackDef, ZTween.easeOutBackDef, ZTween.easeInOutBackDef,
+            ZTween.easeInBounce, ZTween.easeOutBounce, ZTween.easeInOutBounce,
+        };
     }
 }
 
@@ -132,7 +126,7 @@ namespace ZFrame.Tween
             if (seq != null) {
                 seq.AppendInterval(time);
             } else {
-                LogMgr.W("Sequence expected for \"AppendInterval\", got {0}", this.GetType().Name);
+                Debug.LogWarningFormat("Sequence expected for \"AppendInterval\", got {0}", this.GetType().Name);
             }
             return this;
         }
@@ -146,7 +140,7 @@ namespace ZFrame.Tween
             if (seq != null) {
                 seq.PrependInterval(time);
             } else {
-                LogMgr.W("Sequence expected for \"PrependDelay\", got {0}", this.GetType().Name);
+                Debug.LogWarningFormat("Sequence expected for \"PrependDelay\", got {0}", this.GetType().Name);
             }
             return this;
         }
@@ -160,7 +154,7 @@ namespace ZFrame.Tween
             if (seq != null) {
                 seq.Insert(pos, tw.tween);
             } else {
-                LogMgr.W("Sequence expected for \"Insert\", got {0}", this.GetType().Name);
+                Debug.LogWarningFormat("Sequence expected for \"Insert\", got {0}", this.GetType().Name);
             }
             return this;
         }
@@ -174,7 +168,7 @@ namespace ZFrame.Tween
             if (seq != null) {
                 seq.Join(tw.tween);
             } else {
-                LogMgr.W("Sequence expected for \"Join\", got {0}", this.GetType().Name);
+                Debug.LogWarningFormat("Sequence expected for \"Join\", got {0}", this.GetType().Name);
             }
             return this;
         }

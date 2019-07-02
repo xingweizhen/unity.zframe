@@ -51,7 +51,7 @@ namespace ZFrame.Tween
                 v3.z = EditorGUI.FloatField(rect, content, v3.z);
 
                 if (EditorGUI.EndChangeCheck()) {
-                    property.vector2Value = v3;
+                    property.vector3Value = v3;
                 }
                 EditorGUIUtility.labelWidth = labelWidth;
             }

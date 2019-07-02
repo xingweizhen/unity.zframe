@@ -123,6 +123,87 @@ namespace ZFrame.Tween
                 }
             }
         }
+        
+        [CustomPropertyDrawer(typeof(Ease))]
+        internal class EaseDrawer : PropertyDrawer
+        {
+            private List<Vector3> m_SimplePoints = new List<Vector3>(64);
+            private readonly Vector3[] _SegmentPoints = new Vector3[2];
+
+            private void DrawEaseCurve(Rect rect, int easeValue, int segments)
+            {
+                if (m_SimplePoints.Count == 0) {
+                    var simple = ZTweener.EaseAlgorithm[easeValue];
+                    var min = float.MaxValue;
+                    var max = float.MinValue;
+                    for (var i = 0; i < segments; ++i) {
+                        var value = simple.Invoke(0, 1, i / (float)segments);
+                        if (value < min) min = value;
+                        if (value > max) max = value;
+                        m_SimplePoints.Add(new Vector3(i, value));
+                    }
+                    var range = max - min;
+                    for (var i = 0; i < m_SimplePoints.Count; ++i) {
+                        var pos = m_SimplePoints[i];
+                        pos.y = (pos.y - min) / range;
+                        m_SimplePoints[i] = pos;
+                    }
+                }
+
+                if (m_SimplePoints.Count > 0) {
+                    EditorGUI.DrawRect(rect, new Color(0.3f, 0.3f, 0.3f));
+                    rect.x += 1;
+                    rect.y += 1;
+                    rect.width -= 2;
+                    rect.height -= 2;
+
+                    var origin = new Vector3(rect.x, rect.yMax, 0f);
+                    var scale = new Vector3(1, -rect.height);
+                    var defColor = Handles.color;
+                    Handles.color = Color.white;
+                    var lastPos = origin + Vector3.Scale(m_SimplePoints[0], scale);
+
+                    var lastIdx = 0;
+                    for (var i = 1; i < rect.width; ++i) {
+                        var index = (int)(i * m_SimplePoints.Count / rect.width);
+                        Vector3 curr;
+                        if (index != lastIdx) {
+                            curr = origin + Vector3.Scale(m_SimplePoints[index], scale);
+                            lastIdx = index;
+                        } else {
+                            curr = lastPos;
+                        }
+                        curr.x = origin.x + i;
+                        _SegmentPoints[0] = lastPos;
+                        _SegmentPoints[1] = curr;
+                        Handles.DrawAAPolyLine(_SegmentPoints);
+
+                        lastPos = curr;
+                    }
+                    Handles.color = defColor;
+                }
+            }
+
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                return EditorGUIUtility.singleLineHeight * 3 + 2;
+            }
+
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                position = EditorGUI.PrefixLabel(position, label);
+                DrawEaseCurve(position, property.intValue, Mathf.Min((int)position.width, 256));
+
+                var rect = position;
+                rect.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.BeginChangeCheck();
+                var ease = (Ease)EditorGUI.EnumPopup(rect, (Ease)property.intValue, EditorStyles.whiteMiniLabel);
+                if (EditorGUI.EndChangeCheck()) {
+                    m_SimplePoints.Clear();
+                    property.intValue = (int)ease;
+                }
+            }
+        }
 #endif
     }
 }
