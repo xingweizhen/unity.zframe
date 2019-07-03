@@ -13,11 +13,9 @@ namespace ZFrame
         private string m_LaunchPrefab;
 
 #if UNITY_EDITOR
-        private bool m_PrintLoadedLuaStack;
-        public bool printLoadedLuaStack { get { return m_PrintLoadedLuaStack; } }
+        public bool printLoadedLuaStack { get; private set; }
 
-        private bool m_UseLuaAssetBundle;
-        public bool useLuaAssetBundle { get { return m_UseLuaAssetBundle; } }
+        public bool useLuaAssetBundle { get; private set; }
 
         private bool m_UseAssetBundleLoader;
         public bool useAssetBundleLoader { get { return useLuaAssetBundle || m_UseAssetBundleLoader; } }
@@ -145,6 +143,9 @@ namespace ZFrame
             DontDestroyOnLoad(gameObject);
             VersionMgr.Reset();
 
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            Application.runInBackground = true;
+
 #if !UNITY_EDITOR
             // 自定义lua代码位置
             if (File.Exists("lua.txt")) {
@@ -157,8 +158,8 @@ namespace ZFrame
                 useLuaAssetBundle = true;
             }
 #else
-            m_PrintLoadedLuaStack = UnityEditor.EditorPrefs.GetBool(Prefs.kPrintLuaLoading);
-            m_UseLuaAssetBundle = UnityEditor.EditorPrefs.GetBool(Prefs.kUseLuaAssetBundle);
+            printLoadedLuaStack = UnityEditor.EditorPrefs.GetBool(Prefs.kPrintLuaLoading);
+            useLuaAssetBundle = UnityEditor.EditorPrefs.GetBool(Prefs.kUseLuaAssetBundle);
             m_UseAssetBundleLoader = UnityEditor.EditorPrefs.GetBool(Prefs.kUseAssetBundleLoader);
 #endif
 

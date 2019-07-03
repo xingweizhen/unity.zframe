@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/Canvas Alpha", "UGUI: Canvas Alpha")]
+    [TweenMenu("UI and 2D/Alpha(CanvasGroup)", "UGUI: Canvas Alpha")]
     public sealed class TweenCanvasAlpha : TweenFloat<CanvasGroup>
     {
         public override void ResetStatus()
         {
             m_From = target ? target.alpha : 1;
-            m_To = m_From;
+            m_To = 1 - m_From;
         }
 
         protected override ZTweener StartTween(bool reset, bool forward)

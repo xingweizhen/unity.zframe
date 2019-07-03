@@ -4,26 +4,16 @@ using UnityEngine;
 
 public class MaterialPropertyTool : Singleton<MaterialPropertyTool>
 {
-    private MaterialPropertyBlock m_Props = new MaterialPropertyBlock();
-    private readonly MaterialPropertyBlock m_Temp = new MaterialPropertyBlock();
+    public readonly MaterialPropertyBlock shared = new MaterialPropertyBlock();
 
     private Renderer m_Rdr;
     private MaterialPropertyBlock _Begin(Renderer renderer)
     {
         m_Rdr = renderer;
 
-        m_Props.Clear();
-        m_Rdr.GetPropertyBlock(m_Props);
-        return m_Props;
-    }
-
-    private void _Finish()
-    {
-        if (m_Rdr != null) {
-            m_Rdr.SetPropertyBlock(m_Props);
-        }
-        m_Props.Clear();
-        m_Rdr = null;
+        shared.Clear();
+        m_Rdr.GetPropertyBlock(shared);
+        return shared;
     }
 
     public static MaterialPropertyBlock Begin(Renderer renderer)
@@ -32,26 +22,40 @@ public class MaterialPropertyTool : Singleton<MaterialPropertyTool>
             return Instance._Begin(renderer);
         }
 
-        return Instance.m_Props;
-    }
-
-    public static MaterialPropertyBlock Temp(Renderer renderer)
-    {
-        var temp = Instance.m_Temp;
-        temp.Clear();
-        renderer.GetPropertyBlock(temp);
-        return temp;
+        return Instance.shared;
     }
 
     public static void Finish()
     {
-        Instance._Finish();
-        Instance.m_Temp.Clear();
+        if (Instance.m_Rdr != null) {
+            Instance.m_Rdr.SetPropertyBlock(Instance.shared);
+        }
+        Instance.shared.Clear();
+        Instance.m_Rdr = null;
     }
 
     public static void Clear()
     {
-        Instance.m_Props.Clear();
+        Instance.shared.Clear();
         Instance.m_Rdr = null;
+    }
+}
+
+public struct MaterialPropertyScope : System.IDisposable
+{
+    public bool apply;
+    public MaterialPropertyScope(Renderer renderer)
+    {
+        apply = true;
+        MaterialPropertyTool.Begin(renderer);
+    }
+
+    void System.IDisposable.Dispose()
+    {
+        if (apply) {
+            MaterialPropertyTool.Finish();
+        } else {
+            MaterialPropertyTool.Clear();
+        }
     }
 }

@@ -16,6 +16,8 @@ namespace ZFrame.Tween
         [SerializeField] protected UpdateType m_UpdateType = UpdateType.Normal;
         [SerializeField] protected bool m_IgnoreTimescale = false;
 
+        public float lifetime { get { return m_Lifetime; } }
+
         public event System.Action<TweenGroup> onComplete;
 
         public int groupId { get { return m_GroupId; } }
@@ -62,6 +64,11 @@ namespace ZFrame.Tween
             }
         }
 
+        public bool Contains(TweenObject tween)
+        {
+            return m_Tweens.Contains(tween);
+        }
+
         private void OnEnable()
         {
             if (tweenAutomatically) DoTween(true);
@@ -105,6 +112,23 @@ namespace ZFrame.Tween
         [CustomEditor(typeof(TweenGroup))]
         internal class Editor : UnityEditor.Editor
         {
+            internal static Color progressBgInvalid {
+                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0, 0, 0, 0.6f); }
+            }
+
+            internal static Color progressBgValid {
+                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0, 1, 0.2f, 0.5f); }
+            }
+
+            internal static Color progressFgInvalid {
+                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0.8f, 0.8f, 1, 0.6f); }
+            }
+
+            internal static Color progressFgValid {
+                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0.2f, 1f, 0, 1); }
+            }
+
+
             public static readonly Dictionary<System.Type, TweenMenuAttribute> allTypes = new Dictionary<System.Type, TweenMenuAttribute>();
             private static GenericMenu _Menu;
 

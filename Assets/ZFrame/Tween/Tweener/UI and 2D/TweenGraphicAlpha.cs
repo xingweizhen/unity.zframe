@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/Graphic Alpha", "UGUI: Graphic Alpha")]
+    [TweenMenu("UI and 2D/Alpha(Graphic)", "UGUI: Graphic Alpha")]
     public sealed class TweenGraphicAlpha : TweenFloat<Graphic>
     {
         public override void ResetStatus()
         {
             m_From = target ? target.color.a : 1;
-            m_To = m_From;
+            m_To = 1 - m_From;
         }
 
         protected override ZTweener StartTween(bool reset, bool forward)

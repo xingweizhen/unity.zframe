@@ -477,6 +477,11 @@ namespace ZFrame.Tween
             return new ZTweener(DOTween.To(getter, setter, to, duration), self);
         }
 
+        public static ZTweener Tween(this object self, DOGetter<Vector4> getter, DOSetter<Vector4> setter, Vector4 to, float duration)
+        {
+            return new ZTweener(DOTween.To(getter, setter, to, duration), self);
+        }
+
         public static ZTweener Tween(this object self, DOGetter<Color> getter, DOSetter<Color> setter, Color to, float duration)
         {
             return new ZTweener(DOTween.To(getter, setter, to, duration), self);
@@ -498,23 +503,14 @@ namespace ZFrame.Tween
 #else
     public partial class ZTweener
     {
-//        public Tween tween;
-//        public ZTweener(Tween tw) { tween = tw; }
-//        public ZTweener(Tween tw, object target)
-//        {
-//            tween = tw;
-//            tween.target = target;
-//        }
-
-        public object target { get { throw new System.NotImplementedException(); } }
-        public object tag { get { throw new System.NotImplementedException(); } }
+        public object target { get; private set; }
+        public object tag { get; private set; }
         public float elapsed { get { throw new System.NotImplementedException(); } }
         public float lifetime { get { throw new System.NotImplementedException(); } }
+        public float timeScale { get; set; }
 
-        public float timeScale {
-            get { throw new System.NotImplementedException(); }
-            set { throw new System.NotImplementedException(); }
-        }
+        private UpdateType m_UpdateType;
+        private bool m_IgnoreTimeScale;
 
         public bool IsTweening()
         {
@@ -523,11 +519,14 @@ namespace ZFrame.Tween
 
         public ZTweener SetTag(object tag)
         {
+            this.tag = tag;
             return this;
         }
 
         public ZTweener SetUpdate(UpdateType updateType, bool ignoreTimeScale)
         {
+            m_UpdateType = updateType;
+            m_IgnoreTimeScale = ignoreTimeScale;
             return this;
         }
 

@@ -94,11 +94,11 @@ namespace ZFrame.Tween
 
             protected sealed override void OnContentGUI()
             {
-                EditorGUILayout.PropertyField(m_Target);                
-                OnPairValueGUI(m_From, "F", m_To, "T");
+                EditorGUILayout.PropertyField(m_Target);
                 EditorGUI.indentLevel++;
                 OnPropertiesGUI();
                 EditorGUI.indentLevel--;
+                OnPairValueGUI(m_From, "F", m_To, "T");                
                 EditorGUILayout.Separator();
                 base.OnContentGUI();                
             }

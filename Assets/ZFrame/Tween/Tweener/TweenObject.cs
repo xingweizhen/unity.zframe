@@ -22,6 +22,8 @@ namespace ZFrame.Tween
 
     public abstract class TweenObject : MonoBehaviour
     {
+        private static List<TweenGroup> _Groups = new List<TweenGroup>();
+
         public float delay = 0;
         public float duration = 1;
         public Ease ease = Ease.Linear;
@@ -35,7 +37,7 @@ namespace ZFrame.Tween
 
         public float lifetime {
             get {
-                if (loops < 0) return -1f;
+                if (loops < 0) return float.MaxValue;
                 return duration * (loops == 0 ? 1 : loops) + delay;
             }
         }
@@ -48,6 +50,21 @@ namespace ZFrame.Tween
         /// 重置数值为当前值
         /// </summary>
         public abstract void ResetStatus();
+
+        public TweenGroup FindGroup()
+        {
+            TweenGroup group = null;
+            _Groups.Clear();
+            GetComponents(_Groups);
+            foreach (var grp in _Groups) {
+                if (grp.Contains(this)) {
+                    group = grp;
+                    break;
+                }
+            }
+            _Groups.Clear();
+            return group;
+        }
 
 #if UNITY_EDITOR
         protected bool _foldout = true;
@@ -114,7 +131,36 @@ namespace ZFrame.Tween
                         return;
                     }
 
+                    rect = EditorGUILayout.GetControlRect(false, 3);                    
+                    rect.xMin += EditorGUIUtility.singleLineHeight * 2;
+                    rect.xMax -= EditorGUIUtility.singleLineHeight * 2;
+                    var rtBar = rect;
+                    EditorGUI.DrawRect(rtBar, TweenGroup.Editor.progressBgInvalid);
+
+                    float delay = self.delay, duration = self.lifetime - self.delay, maxDura = self.duration;
+                    var group = self.FindGroup();
+                    if (group) {
+                        maxDura = group.lifetime;
+                        if (delay > maxDura) {
+                            delay = maxDura;
+                            duration = 0;
+                        } else {
+                            duration = Mathf.Min(duration, maxDura - self.delay);
+                        }
+                    }
+                    if (maxDura > 0) {
+                        //rtBar.width = rect.width * (self.delay / maxDura);
+                        //EditorGUI.DrawRect(rtBar, TweenGroup.Editor.progressFgInvalid);
+
+                        rtBar.xMin += rect.width * (delay / maxDura);
+                        rtBar.width = rect.width * (duration / maxDura);
+                        EditorGUI.DrawRect(rtBar, TweenGroup.Editor.progressBgValid);
+                    }
+
+                    GUILayout.Space(2);
+
                     if (self._foldout) {
+                        GUILayout.Space(2);
                         OnContentGUI();
                         serializedObject.ApplyModifiedProperties();
                     }
