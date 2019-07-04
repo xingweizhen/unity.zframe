@@ -64,6 +64,16 @@ namespace ZFrame.Tween
                 m_To = serializedObject.FindProperty("m_To");
             }
 
+            protected override void OnTweenNameGUI(Rect rt)
+            {
+                var self = target as TweenComponent<T, V>;
+                if (self.foldout) {
+                    base.OnTweenNameGUI(rt);
+                } else {
+                    EditorGUI.ObjectField(rt, GetTweenName(), self.m_Target, typeof(T), true);
+                }
+            }
+
             protected virtual void OnValueNameGUI(Rect rect)
             {
                 EditorGUI.LabelField(rect, typeof(V).Name);

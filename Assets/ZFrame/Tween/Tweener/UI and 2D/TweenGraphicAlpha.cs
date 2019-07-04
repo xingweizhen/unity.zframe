@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/Alpha(Graphic)", "UGUI: Graphic Alpha")]
+    [TweenMenu("UI and 2D/Alpha(Graphic)", "Graphic Alpha")]
     public sealed class TweenGraphicAlpha : TweenFloat<Graphic>
     {
         public override void ResetStatus()

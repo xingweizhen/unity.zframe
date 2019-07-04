@@ -25,7 +25,7 @@ namespace ZFrame.Editors
             m_EventsList.drawHeaderCallback = (rect) => EditorGUI.LabelField(rect, "事件列表");
             m_EventsList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) => {
                 var element = m_EventsList.serializedProperty.GetArrayElementAtIndex(index);
-                EditorGUI.PropertyField(rect, element);
+                EditorGUI.PropertyField(rect, element, GUIContent.none);
             };
         }
 

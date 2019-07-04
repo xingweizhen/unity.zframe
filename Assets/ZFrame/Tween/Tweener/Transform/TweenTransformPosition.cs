@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("Transform/Position", "Transform: Position")]
+    [TweenMenu("Transform/Position", "Transform Position")]
     public class TweenTransformPosition : TweenTransformProperty
     {
         public override void ResetStatus()

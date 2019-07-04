@@ -20,7 +20,7 @@ namespace ZFrame.Lua
 #if UNITY_EDITOR
         private const string SHOW_VIEW = "show_view";
         private const string FUNC_RECYCLE = "on_recycle";
-        [HideInInspector] public List<string> LocalMethods = new List<string> {SHOW_VIEW, FUNC_RECYCLE};
+        [HideInInspector] public List<string> LocalMethods = new List<string> { SHOW_VIEW, FUNC_RECYCLE };
 #endif
 
         public static ILuaState lua {
@@ -54,20 +54,20 @@ namespace ZFrame.Lua
             gameObject.SetEnable(typeof(GraphicRaycaster), true);
 
             lua.GetGlobal(PKG, PACK_WINDOW, "on_open");
-            var b = lua.BeginPCall();
-            lua.PushLightUserData(gameObject);
-            lua.PushString(GetPackName());
-            lua.ExecPCall(2, 0, b);
+            using (new LuaCallScope(lua, 2, 0)) {
+                lua.PushLightUserData(gameObject);
+                lua.PushString(GetPackName());
+            }
         }
 
         public override void OnRecycle()
         {
             if (LuaScriptMgr.Instance) {
                 lua.GetGlobal(PKG, PACK_WINDOW, "on_close");
-                var b = lua.BeginPCall();
-                lua.PushLightUserData(gameObject);
-                lua.PushString(GetPackName());
-                lua.ExecPCall(2, 0, b);
+                using (new LuaCallScope(lua, 2, 0)) {
+                    lua.PushLightUserData(gameObject);
+                    lua.PushString(GetPackName());
+                }
             }
 
             gameObject.SetEnable(typeof(GraphicRaycaster), false);
@@ -99,16 +99,15 @@ namespace ZFrame.Lua
 
             switch (eventName) {
                 case UIEvent.Auto:
-                case UIEvent.Send: {
+                case UIEvent.Send:
                     lua.GetGlobal(PKG, PACK_WINDOW, "on_event");
-                    var b = lua.BeginPCall();
-                    lua.PushString(wndName);
-                    lua.PushString(eventParam);
-                    lua.PushLightUserData(sender);
-                    lua.PushAnyObject(data);
-                    lua.ExecPCall(4, 0, b);
+                    using (new LuaCallScope(lua, 4, 0)) {
+                        lua.PushString(wndName);
+                        lua.PushString(eventParam);
+                        lua.PushLightUserData(sender);
+                        lua.PushAnyObject(data);
+                    }
                     break;
-                }
                 case UIEvent.Open:
                     OpenWindow(eventParam);
                     break;
@@ -118,13 +117,10 @@ namespace ZFrame.Lua
                 case UIEvent.Show:
                     ShowWindow(eventParam);
                     break;
-                case UIEvent.Close: {
+                case UIEvent.Close:
                     lua.GetGlobal(UI, "close");
-                    var b = lua.BeginPCall();
-                    lua.PushString(wndName);
-                    lua.ExecPCall(1, 0, b);
+                    using (new LuaCallScope(lua, 1, 0)) lua.PushString(wndName);
                     break;
-                }
                 default: break;
             }
         }
@@ -132,19 +128,19 @@ namespace ZFrame.Lua
         public static void OpenWindow(string path, int depth = 0)
         {
             lua.GetGlobal(UI, "open");
-            var b = lua.BeginPCall();
-            lua.PushString(path);
-            lua.PushInteger(depth);
-            lua.ExecPCall(2, 0, b);
+            using (new LuaCallScope(lua, 2, 0)) {
+                lua.PushString(path);
+                lua.PushInteger(depth);
+            }
         }
 
         public static void ShowWindow(string path, int depth = 0)
         {
             lua.GetGlobal(UI, "show");
-            var b = lua.BeginPCall();
-            lua.PushString(path);
-            lua.PushInteger(depth);
-            lua.ExecPCall(2, 0, b);
+            using (new LuaCallScope(lua, 2, 0)) {
+                lua.PushString(path);
+                lua.PushInteger(depth);
+            }
         }
     }
 }

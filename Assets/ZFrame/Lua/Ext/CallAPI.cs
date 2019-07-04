@@ -130,5 +130,29 @@ public static class CallAPI
         translator.PushByType(self, arg4);
         return self.ExecPCall(5, nResult, b);
     }
+}
 
+namespace ZFrame.Lua
+{
+    public struct LuaCallScope : System.IDisposable
+    {
+        private readonly ILuaState lua;
+        private readonly int nArgs, nRet, errFunc;
+
+        /// <summary>
+        /// 调用Lua函数：把函数压栈后使用通过using块来使用。
+        /// </summary>
+        public LuaCallScope(ILuaState lua, int nArgs, int nRet)
+        {
+            this.lua = lua;
+            this.nArgs = nArgs;
+            this.nRet = nRet;
+            errFunc = lua.BeginPCall();
+        }
+
+        void System.IDisposable.Dispose()
+        {
+            lua.ExecPCall(nArgs, nRet, errFunc);
+        }
+    }
 }

@@ -41,11 +41,10 @@ namespace ZFrame.Lua
             if (pass > 0) {
                 m_Time -= pass * interval;
 
-                // call without gc
-                var lua = m_Func.GetState();
-                var b = m_Func.BeginPCall();
-                lua.PushInteger(pass);
-                lua.ExecPCall(1, 0, b);
+                var lua = m_Func.PushSelf();
+                using (new LuaCallScope(lua, 1, 0)) {
+                    lua.PushInteger(pass);
+                }
             }
         }
     }

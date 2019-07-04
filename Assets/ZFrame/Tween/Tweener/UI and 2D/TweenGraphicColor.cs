@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/Color(Graphic)", "UGUI: Graphic Color")]
+    [TweenMenu("UI and 2D/Color(Graphic)", "Graphic Color")]
     public sealed class TweenGraphicColor : TweenColor<Graphic>
     {
         public override void ResetStatus()

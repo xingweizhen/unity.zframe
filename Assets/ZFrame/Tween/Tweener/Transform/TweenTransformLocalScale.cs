@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("Transform/LocalScale", "Transform: Local Scale")]
+    [TweenMenu("Transform/LocalScale", "Transform LocalScale")]
     public class TweenTransformLocalScale : TweenVector3<Transform>
     {
         public override void ResetStatus()

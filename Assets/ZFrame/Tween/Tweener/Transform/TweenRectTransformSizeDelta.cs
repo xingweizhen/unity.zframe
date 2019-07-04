@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("Transform/SizeDelta", "RectTransform: SizeDelta")]
+    [TweenMenu("Transform/SizeDelta", "RectTransform SizeDelta")]
     public sealed class TweenRectTransformSizeDelta : TweenVector2<RectTransform>
     {
         public override void ResetStatus()

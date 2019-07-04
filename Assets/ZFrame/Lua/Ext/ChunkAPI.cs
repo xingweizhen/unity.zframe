@@ -76,9 +76,9 @@ public static class ChunkAPI
         } else {
             if (!file.OrdinalEndsWith(".lua")) file = file + ".lua";
             var luaPath = GetFilePath(file);
-            if (!System.IO.File.Exists(luaPath)) return null;
+            if (!File.Exists(luaPath)) return null;
 
-            nbytes = System.IO.File.ReadAllBytes(luaPath);
+            nbytes = File.ReadAllBytes(luaPath);
         }
 
         if (nbytes[0] == 0xEF && nbytes[1] == 0xBB && nbytes[2] == 0xBF) {

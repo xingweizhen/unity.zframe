@@ -12,6 +12,12 @@ namespace XLua
     public partial class LuaFunction : LuaBase
     {
         public System.IntPtr GetState() { return luaEnv.L; }
+
+        public System.IntPtr PushSelf()
+        {
+            luaEnv.L.GetRef(luaReference);
+            return luaEnv.L;
+        }
             
         public int BeginPCall()
         {

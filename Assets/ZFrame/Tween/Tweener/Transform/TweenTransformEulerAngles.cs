@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("Transform/EulerAngles", "Transform: Euler Angles")]
+    [TweenMenu("Transform/EulerAngles", "Transform EulerAngles")]
     public class TweenTransformEulerAngles : TweenTransformProperty
     {
         public override void ResetStatus()

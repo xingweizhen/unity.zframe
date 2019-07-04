@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/Alpha(CanvasGroup)", "UGUI: Canvas Alpha")]
+    [TweenMenu("UI and 2D/Alpha(CanvasGroup)", "CanvasGroup Alpha")]
     public sealed class TweenCanvasAlpha : TweenFloat<CanvasGroup>
     {
         public override void ResetStatus()

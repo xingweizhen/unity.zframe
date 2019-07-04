@@ -67,7 +67,8 @@ namespace ZFrame.Tween
         }
 
 #if UNITY_EDITOR
-        protected bool _foldout = true;
+        protected bool m_Foldout = true;
+        public bool foldout { get { return m_Foldout; } }
 
         internal abstract class Editor : UnityEditor.Editor
         {
@@ -84,6 +85,19 @@ namespace ZFrame.Tween
                 m_UpdateType = serializedObject.FindProperty("updateType");
                 m_IgnoreTimescale = serializedObject.FindProperty("ignoreTimescale");
                 tweenAutomatically = serializedObject.FindProperty("tweenAutomatically");
+            }
+
+            protected virtual string GetTweenName()
+            {
+                TweenMenuAttribute attr = null;
+                System.Type selfType = target.GetType();
+                TweenGroup.Editor.allTypes.TryGetValue(selfType, out attr);
+                return attr != null ? attr.name : selfType.Name;
+            }
+
+            protected virtual void OnTweenNameGUI(Rect rt)
+            {                
+                EditorGUI.LabelField(rt, GetTweenName(), EditorStyles.boldLabel);
             }
 
             protected virtual void OnContentGUI()
@@ -110,18 +124,14 @@ namespace ZFrame.Tween
                     var rt = rect;
 
                     rt.width = rect.height;
-                    self._foldout = GUI.Toggle(rt, self._foldout, GUIContent.none, EditorStyles.foldout);
+                    self.m_Foldout = GUI.Toggle(rt, self.m_Foldout, GUIContent.none, EditorStyles.foldout);
 
                     rt.x = rt.xMax;
                     self.enabled = EditorGUI.ToggleLeft(rt, GUIContent.none, self.enabled);
 
                     rt.x = rt.xMax;
                     rt.xMax = rect.xMax - 20;
-
-                    TweenMenuAttribute attr = null;
-                    System.Type selfType = self.GetType();
-                    TweenGroup.Editor.allTypes.TryGetValue(selfType, out attr);
-                    EditorGUI.LabelField(rt, attr != null ? attr.name : selfType.Name, EditorStyles.boldLabel);
+                    OnTweenNameGUI(rt);
 
                     rt.x = rt.xMax;
                     rt.width = 20;
@@ -159,7 +169,7 @@ namespace ZFrame.Tween
 
                     GUILayout.Space(2);
 
-                    if (self._foldout) {
+                    if (self.m_Foldout) {
                         GUILayout.Space(2);
                         OnContentGUI();
                         serializedObject.ApplyModifiedProperties();

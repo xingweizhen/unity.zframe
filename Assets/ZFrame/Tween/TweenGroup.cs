@@ -110,27 +110,16 @@ namespace ZFrame.Tween
 
 #if UNITY_EDITOR
         [CustomEditor(typeof(TweenGroup))]
+        [CanEditMultipleObjects]
         internal class Editor : UnityEditor.Editor
         {
-            internal static Color progressBgInvalid {
-                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0, 0, 0, 0.6f); }
-            }
-
-            internal static Color progressBgValid {
-                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0, 1, 0.2f, 0.5f); }
-            }
-
-            internal static Color progressFgInvalid {
-                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0.8f, 0.8f, 1, 0.6f); }
-            }
-
-            internal static Color progressFgValid {
-                get { return EditorGUIUtility.isProSkin ? new Color() : new Color(0.2f, 1f, 0, 1); }
-            }
-
+            internal static Color progressBgInvalid  = new Color(0, 0, 0, 0.6f); 
+            internal static Color progressBgValid = new Color(0, 1, 0.2f, 0.5f); 
+            internal static Color progressFgInvalid = new Color(0.8f, 0.8f, 1, 0.6f);
+            internal static Color progressFgValid = new Color(0.2f, 1f, 0, 1);
 
             public static readonly Dictionary<System.Type, TweenMenuAttribute> allTypes = new Dictionary<System.Type, TweenMenuAttribute>();
-            private static GenericMenu _Menu;
+            private GenericMenu _Menu;
 
             [InitializeOnLoadMethod]
             private static void Init()
@@ -152,29 +141,43 @@ namespace ZFrame.Tween
 
             private List<UnityEditor.Editor> editors = new List<UnityEditor.Editor>();
 
-            private void OnEnable()
+            private void AddTweenMenu(object udata)
             {
                 var self = target as TweenGroup;
-                _Menu = new GenericMenu();
-                foreach (var kv in allTypes) {
-                    var type = kv.Key;
-                    var menu = kv.Value != null ? kv.Value.menu : type.Name;
-                    _Menu.AddItem(new GUIContent(menu), false, () => {
-                        var tw = Undo.AddComponent(self.gameObject, type) as TweenObject;
-                        Undo.RecordObject(tw, "AddComponent");
-                        tw.tweenAutomatically = false;
-                        tw.duration = self.m_Lifetime;
-                        tw.ResetStatus();
+                var type = udata as System.Type;
 
-                        Undo.RecordObject(target, "AddComponent");
-                        self.AddTweener(tw);
+                var tw = Undo.AddComponent(self.gameObject, type) as TweenObject;
+                Undo.RecordObject(tw, "AddComponent");
+                tw.tweenAutomatically = false;
+                tw.duration = self.m_Lifetime;
+                tw.ResetStatus();
 
-                        tw.hideFlags |= HideFlags.HideInHierarchy | HideFlags.HideInInspector;
-                    });
+                Undo.RecordObject(target, "AddComponent");
+                self.AddTweener(tw);
+
+                tw.hideFlags |= HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+            }
+
+            private void ShowAddMenu(Rect rect)
+            {
+                if (_Menu == null) {
+                    _Menu = new GenericMenu();
+                    foreach (var kv in allTypes) {
+                        var type = kv.Key;
+                        var menu = kv.Value != null ? kv.Value.menu : type.Name;
+                        _Menu.AddItem(new GUIContent(menu), false, AddTweenMenu, type);
+                    }
                 }
+                _Menu.DropDown(rect);
+            }
 
+            private void OnEnable()
+            {
+                _Menu = null;
+
+                var self = target as TweenGroup;
                 foreach (var tw in self.m_Tweens) {
-                    tw.hideFlags |= HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+                    if (tw) tw.hideFlags |= HideFlags.HideInHierarchy | HideFlags.HideInInspector;
                 }
             }
 
@@ -210,7 +213,7 @@ namespace ZFrame.Tween
                 GUILayout.Space(4);
                 var buttonRect = EditorGUILayout.GetControlRect();
                 if (GUI.Button(buttonRect, "Add Tween...", EditorStyles.miniButton)) {
-                    _Menu.DropDown(buttonRect);
+                    ShowAddMenu(buttonRect);
                 }
                 GUILayout.Space(4);
 

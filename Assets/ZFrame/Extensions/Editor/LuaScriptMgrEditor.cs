@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace ZFrame.Lua
 {
-    [CustomEditor(typeof(LuaScriptMgr))]
+    [CustomEditor(typeof(LuaScriptMgr), true)]
     public class LuaScriptMgrEditor : Editor
     {
         public override void OnInspectorGUI()

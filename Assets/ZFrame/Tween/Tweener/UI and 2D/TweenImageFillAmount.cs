@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("UI and 2D/FillAmount(Image)", "UGUI: Image FillAmount")]
+    [TweenMenu("UI and 2D/FillAmount(Image)", "Image FillAmount")]
     public class TweenImageFillAmount : TweenFloat<Image>
     {
         public override void ResetStatus()

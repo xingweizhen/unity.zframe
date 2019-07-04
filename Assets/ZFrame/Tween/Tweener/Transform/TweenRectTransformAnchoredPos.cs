@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Tween
 {
-    [TweenMenu("Transform/AnchoredPosition", "RectTransform: AnchoredPosition")]
+    [TweenMenu("Transform/AnchoredPosition", "RectTransform AnchoredPosition")]
     public class TweenRectTransformAnchoredPos : TweenVector3<RectTransform>
     {
         public override void ResetStatus()

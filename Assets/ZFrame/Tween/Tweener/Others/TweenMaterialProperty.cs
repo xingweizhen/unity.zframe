@@ -126,7 +126,7 @@ namespace ZFrame.Tween
             _PropertyId = -1;
             var twGrp = FindGroup();
             if (twGrp) {
-                
+
             }
         }
 
@@ -156,6 +156,12 @@ namespace ZFrame.Tween
                         }
                     }
                 }
+            }
+
+            protected override string GetTweenName()
+            {
+                var self = target as TweenMaterialProperty;
+                return self.foldout ? base.GetTweenName() : base.GetTweenName() + "." + self.m_PropertyName;
             }
 
             protected override void OnPropertiesGUI()
@@ -334,5 +340,5 @@ namespace ZFrame.Tween
             }
         }
 #endif
-                    }
+    }
 }
