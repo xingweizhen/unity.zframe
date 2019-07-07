@@ -480,7 +480,12 @@ namespace ZFrame.Editors
                     }
 
                     if (dirty) {
+#if UNITY_2018_3_OR_NEWER
+                        PrefabUtility.SaveAsPrefabAssetAndConnect(go, path, InteractionMode.AutomatedAction);
+#else
                         PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ReplaceNameBased);
+#endif
+
                         LogMgr.D("替换：{0}", prefab);
                     }
 
@@ -708,7 +713,11 @@ namespace ZFrame.Editors
 
                 if (dirty) {
                     LogMgr.D("ReplacePrefab :{0}", prefab);
+#if UNITY_2018_3_OR_NEWER
+                    PrefabUtility.SaveAsPrefabAssetAndConnect(go, path, InteractionMode.AutomatedAction);
+#else
                     PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ReplaceNameBased);
+#endif
                 }
 
                 Object.DestroyImmediate(go);

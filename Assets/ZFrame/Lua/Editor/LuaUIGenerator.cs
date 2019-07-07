@@ -549,6 +549,41 @@ namespace ZFrame.Editors
             }
         }
 
+        private bool IsNewCreateAsset(GameObject go)
+        {
+#if UNITY_2018_4_OR_NEWER
+            var assetType = PrefabUtility.GetPrefabAssetType(go);
+            return assetType == PrefabAssetType.NotAPrefab;
+#else
+            return PrefabUtility.GetPrefabType(go) == PrefabType.None;
+#endif
+        }
+
+        private void CreatePrefabAsset(GameObject go, string path)
+        {
+#if UNITY_2018_3_OR_NEWER
+            PrefabUtility.SaveAsPrefabAssetAndConnect(go, path, InteractionMode.AutomatedAction);
+#else
+            PrefabUtility.CreatePrefab(path, go, ReplacePrefabOptions.ConnectToPrefab);
+#endif
+        }
+
+        private void UpdatePrefabAsset(GameObject go)
+        {
+#if UNITY_2018_3_OR_NEWER
+            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
+            var path = AssetDatabase.GetAssetPath(prefab);
+            PrefabUtility.SaveAsPrefabAssetAndConnect(go, path, InteractionMode.AutomatedAction);
+#else
+#if UNITY_2018_2_OR_NEWER
+            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
+#else
+            var prefab = PrefabUtility.GetPrefabParent(go);
+#endif
+            PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ConnectToPrefab);
+#endif
+        }
+
         void saveLogic()
         {
             if (!string.IsNullOrEmpty(scriptLogic)) {
@@ -557,10 +592,8 @@ namespace ZFrame.Editors
                 ShowMessage(string.Format("写入{0}成功！", path));
 
                 var selectedObj = selected.gameObject;
-                var type = PrefabUtility.GetPrefabType(selectedObj);
-                string prefabPath = null;
-                Object prefab = null;
-                if (type == PrefabType.None) {
+               
+                if (IsNewCreateAsset(selectedObj)) {
                     var ues = Settings.UGUIEditorSettings.Get();
                     if (ues == null) {
                         Debug.LogError("未找到UGUI编辑设置文件：ZFrame->设置选项...->UGUI编辑设置");
@@ -570,24 +603,10 @@ namespace ZFrame.Editors
                         Debug.LogErrorFormat("UI预设根目录{0}不存在：ZFrame->设置选项...->UGUI编辑设置", ues.uiFolder);
                         return;
                     }
-                    prefabPath = string.Format("{0}/{1}.prefab", ues.uiFolder, selectedObj.name);
-                    prefab = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
+                    var prefabPath = string.Format("{0}/{1}.prefab", ues.uiFolder, selectedObj.name);
+                    CreatePrefabAsset(selectedObj, prefabPath);
                 } else {
-#if UNITY_2018
-                prefab = PrefabUtility.GetCorrespondingObjectFromSource(selectedObj);
-#else
-                    prefab = PrefabUtility.GetPrefabParent(selectedObj);
-#endif
-                    prefabPath = AssetDatabase.GetAssetPath(prefab);
-                }
-
-                if (!prefab) {
-                    PrefabUtility.CreatePrefab(prefabPath, selectedObj, ReplacePrefabOptions.ConnectToPrefab);
-                    AssetDatabase.Refresh();
-                    var ai = AssetImporter.GetAtPath(prefabPath);
-                    ai.assetBundleName = "ui";
-                } else {
-                    PrefabUtility.ReplacePrefab(selectedObj, prefab, ReplacePrefabOptions.ConnectToPrefab);
+                    UpdatePrefabAsset(selectedObj);
                 }
             } else {
                 ShowMessage(logicFile + "脚本为空!");
@@ -618,7 +637,7 @@ namespace ZFrame.Editors
             }
         }
 
-        #region 以下为Lua代码组装
+#region 以下为Lua代码组装
 
         int step = 0;
         int nt = 0;
@@ -746,6 +765,6 @@ namespace ZFrame.Editors
             }
         }
 
-        #endregion
+#endregion
     }
 }

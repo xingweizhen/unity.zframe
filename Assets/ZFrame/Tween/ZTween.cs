@@ -509,8 +509,7 @@ namespace ZFrame.Tween
         public float lifetime { get { throw new System.NotImplementedException(); } }
         public float timeScale { get; set; }
 
-        private UpdateType m_UpdateType;
-        private bool m_IgnoreTimeScale;
+        public TweenParameter param;
 
         public bool IsTweening()
         {
@@ -525,8 +524,28 @@ namespace ZFrame.Tween
 
         public ZTweener SetUpdate(UpdateType updateType, bool ignoreTimeScale)
         {
-            m_UpdateType = updateType;
-            m_IgnoreTimeScale = ignoreTimeScale;
+            param.updateType = updateType;
+            param.ignoreTimescale = ignoreTimeScale;
+            return this;
+        }
+
+        public ZTweener DelayFor(float time)
+        {
+            param.delay = time;
+            return this;
+        }
+
+
+        public ZTweener LoopFor(int loops, LoopType loopType)
+        {
+            param.loops = loops;
+            param.loopType = loopType;
+            return this;
+        }
+
+        public ZTweener EaseBy(Ease ease)
+        {
+            param.ease = ease;
             return this;
         }
 
@@ -536,14 +555,6 @@ namespace ZFrame.Tween
         }
 
         public ZTweener EndAt(object at)
-        {
-            return this;
-        }
-
-        /// <summary>
-        /// Idle Tweener Only
-        /// </summary>
-        public ZTweener DelayFor(float time)
         {
             return this;
         }
@@ -576,16 +587,6 @@ namespace ZFrame.Tween
         /// Sequence Only
         /// </summary>
         public ZTweener Join(ZTweener tw)
-        {
-            return this;
-        }
-
-        public ZTweener LoopFor(int loops, LoopType loopType)
-        {
-            return this;
-        }
-
-        public ZTweener EaseBy(Ease ease)
         {
             return this;
         }
