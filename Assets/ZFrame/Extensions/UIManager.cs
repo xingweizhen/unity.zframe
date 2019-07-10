@@ -165,7 +165,7 @@ namespace ZFrame
             //gameObject.AddComponent<GETools.GETBoot>();
 #endif
 #if UNITY_EDITOR || SHOW_FPS
-            gameObject.AddComponent(typeof(FrameRateCounter));
+            gameObject.AddComponent(typeof(ShowFPS));
 #endif
         }
 

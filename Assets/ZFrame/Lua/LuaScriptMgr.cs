@@ -45,7 +45,7 @@ namespace ZFrame.Lua
             }
         }
         public ILuaState L { get { return Env.L; } }
-        public bool IsLua { get { return Env != null; } }
+        public bool IsLua { get { return m_Env != null; } }
         
 #if UNITY_EDITOR
         private System.IO.FileSystemWatcher m_FileSysWatcher;

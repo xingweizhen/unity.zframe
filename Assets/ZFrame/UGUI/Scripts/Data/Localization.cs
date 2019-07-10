@@ -10,7 +10,7 @@ namespace ZFrame.UGUI
     public class Localization : ScriptableObject
     {
         public const char SEP = ',';
-        
+
         [SerializeField]
         [UnityEngine.Serialization.FormerlySerializedAs("localizeText")]
         [NamedProperty("导出文件")]
@@ -29,21 +29,21 @@ namespace ZFrame.UGUI
         [SerializeField]
         private CustomLoc[] m_CustomTexts;
         public CustomLoc[] customTexts { get { return m_CustomTexts; } set { m_CustomTexts = value; } }
-        
+
         public IEnumerator<CustomLoc> GetIterator(string lang)
         {
             var langIdx = FindLangIndex(lang);
             foreach (var kv in m_Dict) {
-                yield return new CustomLoc {key = kv.Key, value = kv.Value[langIdx]};
+                yield return new CustomLoc { key = kv.Key, value = kv.Value[langIdx] };
             }
         }
 #endif
 
         private string[] m_Langs;
         public string[] langs { get { return m_Langs; } }
-        
+
         private Dictionary<string, string[]> m_Dict;
-        
+
         public string[] GetKeys()
         {
             return m_Dict.Keys.ToArray();
@@ -94,7 +94,7 @@ namespace ZFrame.UGUI
                 if (m_LocalizeText) {
                     LoadLocalization(m_LocalizeText.text, out m_Langs, m_Dict);
                 } else {
-                    LogMgr.W("本地化设置失败：本地化文本不存在");                    
+                    LogMgr.W("本地化设置失败：本地化文本不存在");
                 }
             }
 
@@ -117,27 +117,20 @@ namespace ZFrame.UGUI
             return -1;
         }
 
-        /// <summary>
-        /// 获取本地化文本，如果不存在则返回null值
-        /// </summary>
-        public string Get(string key)
+        private string Internal_Get(string key, int lang)
         {
-            if (m_Dict == null) {
-                LogMgr.W("本地化配置未初始化。");
-                return key;
-            }
-
             string ret = null;
             string[] values;
-            if (m_Dict.TryGetValue(key, out values)) {
-                if (values.Length > m_CurrentLang) {
-                    ret = values[m_CurrentLang];
-                    if(string.IsNullOrEmpty(ret) && m_DefLang >= 0) {
-                        ret = values[m_DefLang];
-                    }
+            if (m_Dict.TryGetValue(key, out values)) {                
+                if (values.Length > lang) {
+                    ret = values[lang];
+                }
+
+                if (string.IsNullOrEmpty(ret) && m_DefLang >= 0) {
+                    ret = values[m_DefLang];
                 }
             }
-            
+
             return ret;
         }
 
@@ -148,14 +141,7 @@ namespace ZFrame.UGUI
                 return key;
             }
 
-            string[] values;
-            if (m_Dict.TryGetValue(key, out values)) {
-                if (values.Length > lang) {
-                    return values[lang];
-                }
-            }
-
-            return null;
+            return Internal_Get(key, lang);
         }
 
         public string Get(string key, string lang)
@@ -174,13 +160,21 @@ namespace ZFrame.UGUI
             }
 
             if (langIdx < 0) return null;
-            
-            string[] values;
-            if (m_Dict.TryGetValue(key, out values)) {
-                return values[langIdx];
+
+            return Internal_Get(key, langIdx);
+        }
+
+        /// <summary>
+        /// 获取本地化文本，如果不存在则返回null值
+        /// </summary>
+        public string Get(string key)
+        {
+            if (m_Dict == null) {
+                LogMgr.W("本地化配置未初始化。");
+                return key;
             }
 
-            return null;
+            return Internal_Get(key, m_CurrentLang);
         }
 
         public IEnumerator<string> Find(string value, string lang)
@@ -262,11 +256,11 @@ namespace ZFrame.UGUI
         public static string[] SplitCsvLine(string line)
         {
             return (from System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(line,
-                    @"(((?<x>(?=[,\r\n]+))|""(?<x>([^""]|"""")+)""|(?<x>[^,\r\n]+)),?)", 
+                    @"(((?<x>(?=[,\r\n]+))|""(?<x>([^""]|"""")+)""|(?<x>[^,\r\n]+)),?)",
                     System.Text.RegularExpressions.RegexOptions.ExplicitCapture)
-                select m.Groups[1].Value).ToArray();
+                    select m.Groups[1].Value).ToArray();
         }
-        
+
         /// <summary>
         /// 加载本地化数据
         /// </summary>
@@ -276,13 +270,13 @@ namespace ZFrame.UGUI
             using (System.IO.StringReader reader = new System.IO.StringReader(text)) {
                 // 表头
                 var header = reader.ReadLine();
-                if(string.IsNullOrEmpty(header)) {
+                if (string.IsNullOrEmpty(header)) {
                     header = string.Format("KEY{0}cn{0}en", SEP);
                 }
 
                 langs = SplitCsvLine(header);
 
-                for (;;) {
+                for (; ; ) {
                     var line = reader.ReadLine();
                     if (line == null) break;
 
@@ -297,7 +291,7 @@ namespace ZFrame.UGUI
                             } else {
                                 values[i] = string.Empty;
                             }
-                        }                        
+                        }
 
                         try {
                             dict.Add(values[0], values);

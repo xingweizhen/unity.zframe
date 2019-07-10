@@ -6,6 +6,7 @@ namespace ZFrame.Tween
 {
     public delegate void CallbackOnUpdate(ZTweener tw);
     public delegate void CallbackOnComplete(ZTweener tw);
+    public delegate float TweenEaseSampler(float start, float end, float value);
 
 	public enum UpdateType 
 	{
@@ -40,7 +41,7 @@ namespace ZFrame.Tween
 
     public partial class ZTweener
     {
-        public static readonly System.Func<float, float, float, float>[] EaseAlgorithm = new System.Func<float, float, float, float>[] {
+        public static readonly TweenEaseSampler[] EaseAlgorithm = new TweenEaseSampler[] {
             null,
             ZTween.linear,
             ZTween.easeInSine, ZTween.easeOutSine, ZTween.easeInOutSine,

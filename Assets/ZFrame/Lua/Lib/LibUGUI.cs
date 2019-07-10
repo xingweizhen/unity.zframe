@@ -306,9 +306,13 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int GetLoc(ILuaState lua)
         {
-            var key = lua.ToString(1);
-            var lang = lua.OptString(2, UILabel.LOC.currentLang);
-            lua.PushString(UILabel.LOC.Get(key, lang));
+            if (UILabel.LOC) {
+                var key = lua.ToString(1);
+                var lang = lua.OptString(2, UILabel.LOC.currentLang);
+                lua.PushString(UILabel.LOC.Get(key, lang));                
+            } else {
+                lua.PushValue(1);
+            }
             return 1;
         }
 

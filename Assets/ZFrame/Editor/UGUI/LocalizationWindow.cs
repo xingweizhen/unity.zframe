@@ -32,28 +32,26 @@ namespace ZFrame.Editors
         private void OnGUI()
         {
             EditorGUILayout.BeginHorizontal();
-            m_KeyPos = EditorGUILayout.BeginScrollView(m_KeyPos, GUILayout.Width(200));
-            var defColor = GUI.color;
+            m_KeyPos = EditorGUILayout.BeginScrollView(m_KeyPos, EditorStyles.helpBox, GUILayout.Width(200));            
             for (var i = 0; i < m_Keys.Count; ++i) {
-                GUI.color = m_SelIdx == i ? Color.yellow : defColor;
                 var txt = m_Keys[i];
-                if (m_CustomKeys.Contains(m_Keys[i])) txt = "* " + txt;
-
-                if (GUILayout.Button(txt, CustomEditorStyles.LeftToolbar)) {
+                var fontStyle = m_CustomKeys.Contains(m_Keys[i]) ? FontStyle.Bold : FontStyle.Normal;
+                var buttonStyle = 
+                    m_SelIdx == i ?
+                    CustomEditorStyles.FocusedButton(TextAnchor.MiddleLeft, fontStyle) :
+                    CustomEditorStyles.NormalButton(TextAnchor.MiddleLeft, fontStyle);
+                if (GUILayout.Button(txt, buttonStyle)) {
                     m_SelIdx = i;
-                    GUI.FocusControl(null); 
+                    GUI.FocusControl(null);
                 }
             }
-            GUI.color = defColor;
             EditorGUILayout.EndScrollView();
 
             if (m_SelIdx >= 0) {
                 var key = m_Keys[m_SelIdx];
-                EditorGUILayout.BeginVertical();
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("KEY: ");
-                EditorGUILayout.TextField(key);
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField(key);
+                EditorGUI.DrawRect(EditorGUILayout.GetControlRect(false, 1), EditorStyles.label.normal.textColor);
                 m_ShowLangsContent = EditorGUILayout.ToggleLeft("显示文本内容", m_ShowLangsContent);
                 if (m_ShowLangsContent) {
                     EditorGUILayout.Separator();
@@ -65,17 +63,7 @@ namespace ZFrame.Editors
                 }
 
                 EditorGUILayout.Separator();
-                
-                // 出现位置
-                EditorGUILayout.LabelField("应用于：");
-                if (!m_CustomKeys.Contains(key)) {
-                    using (var itor = FindTextUsedInUI(key)) {
-                        while (itor.MoveNext()) {
-                            EditorGUILayout.LabelField(itor.Current);
-                        }
-                    }
-                }
-                
+
                 // 转换为大写
                 if (GUILayout.Button("字符转为大写")) {
                     var dirty = false;
@@ -85,8 +73,29 @@ namespace ZFrame.Editors
                     }
                     if (dirty) UILabel.LOC.SaveLocalization();
                 }
+                if (m_CustomKeys.Contains(key)) {
+                    EditorGUILayout.Separator();
+                    EditorGUILayout.LabelField("预定义文本，代码中会动态引用。");
+                }
+                EditorGUILayout.Separator();
+
+                // 出现位置
+                EditorGUILayout.LabelField("引用了此文本的界面：");
+                if (!m_CustomKeys.Contains(key)) {
+                    using (var itor = FindTextUsedInUI(key)) {
+                        while (itor.MoveNext()) {
+                            EditorGUILayout.LabelField(itor.Current);
+                        }
+                    }
+                }
 
                 EditorGUILayout.EndVertical();
+            } else {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.LabelField("选择一个文本来查看详细信息");
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
             }
 
             EditorGUILayout.EndHorizontal();

@@ -90,7 +90,7 @@ do
 
     local platform = Application.platform.name
     -- 环境
-    _G.ENV = {
+    _G.ENV = setmetatable({
         -- 平台名
         unity_platform = platform,
         app_data_path = Application.dataPath,
@@ -103,11 +103,13 @@ do
                 or platform == "OSXPlayer"
                 or platform == "WindowsEditor"
                 or platform == "WindowsPlayer",
-    }
+    }, _G.MT.ReadOnly)
 
     -- 常量数值表
     _G.CVar = {}
-    setmetatable(_G.ENV, _G.MT.ReadOnly)
+
+    -- 应用本地化文本
+    _G.TEXT = setmetatable({}, { __index = function (t, k) return libugui.GetLoc(k) end, })
 
     local mtGO = {
         __name = "UnityObject",

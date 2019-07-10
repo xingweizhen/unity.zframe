@@ -857,8 +857,8 @@ function ui.setenv(key, value)
 end
 
 function ui.setloc(preLang, lang)
+	libugui.SetLocalize(lang, ui.defLang or "en")
 	rawset(_G, "lang", lang)
-	ui.setenv("TEXT", dofile("localize/_text"))
 end
 
 return {

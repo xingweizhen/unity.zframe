@@ -71,6 +71,17 @@ namespace ZFrame
             return value;
         }
 
+        private static GUIContent m_TempContent;
+        public static GUIContent TempContent(string text, Texture image = null)
+        {
+            if (m_TempContent == null) {
+                m_TempContent = new GUIContent();
+            }
+            m_TempContent.text = text;
+            m_TempContent.image = image;
+            return m_TempContent;
+        }
+
         public static Object LayoutObject(string label, ref string assetPath, System.Type objType, params GUILayoutOption[] options)
         {
             EditorGUILayout.BeginHorizontal();

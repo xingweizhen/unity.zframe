@@ -125,6 +125,29 @@ namespace ZFrame.Editors
             }
         }
 
+        private static GUIStyle __NormalButton;
+        public static GUIStyle NormalButton(TextAnchor alignment, FontStyle fontStyle)
+        {
+            if (__NormalButton == null) {
+                __NormalButton = new GUIStyle("button");
+            }
+            __NormalButton.alignment = alignment;
+            __NormalButton.fontStyle = fontStyle;
+            return __NormalButton;
+        }
+
+        private static GUIStyle __ActiveButton;
+        public static GUIStyle FocusedButton(TextAnchor alignment, FontStyle fontStyle)
+        {
+            if (__ActiveButton == null) {
+                __ActiveButton = new GUIStyle("button");
+                __ActiveButton.normal = __ActiveButton.onActive;
+            }
+            __ActiveButton.alignment = alignment;
+            __ActiveButton.fontStyle = fontStyle;
+            return __ActiveButton;
+        }
+
 
         public static GUIContent
             addContent = new GUIContent("+", "添加一个元素"),

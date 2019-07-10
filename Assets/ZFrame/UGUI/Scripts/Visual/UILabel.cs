@@ -167,6 +167,7 @@ namespace ZFrame.UGUI
                             LogMgr.W("本地化获取失败：{0}[{1}]@({2})",
                                 LOC.currentLang, getText, rectTransform.GetHierarchy(null));
                         }
+                        if (string.IsNullOrEmpty(getText)) return;
                     }
                 }
             }

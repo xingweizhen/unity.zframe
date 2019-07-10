@@ -179,6 +179,7 @@ namespace ZFrame.Editors
         Vector2 scroll = Vector2.zero;
         string logicFile = "";
         string scriptLogic = "";
+        private List<string> scriptLabels = new List<string>();
         LuaComponent selected;
 
         bool flagGenCode;
@@ -194,36 +195,40 @@ namespace ZFrame.Editors
 
         public void OnGUI()
         {
-            if (GUI.Button(new Rect(0, 0, 100, 20), "生成脚本")) {
+            GUILayout.BeginArea(new Rect(2, 2, position.width - 4, position.height - 4));
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("生成脚本")) {
                 generateWithSelected();
             }
 
-            if (GUI.Button(new Rect(100, 0, 100, 20), "写入脚本")) {
+            if (GUILayout.Button("写入脚本")) {
                 saveLogic();
             }
 
-            if (GUI.Button(new Rect(200, 0, 100, 20), "生成并写入脚本")) {
+            if (GUILayout.Button("生成并写入脚本")) {
                 generateWithSelected();
                 saveLogic();
             }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
             GUI.color = Color.red;
-            GUI.Label(new Rect(0, 25, 800, 20), opTips);
+            GUILayout.Label(opTips);
             GUI.color = Color.white;
 
-            GUI.BeginGroup(new Rect(0, 50, 800, 650));
+            GUILayout.Label(logicFile, EditorStyles.boldLabel);
+            EditorGUI.DrawRect(EditorGUILayout.GetControlRect(false, 1), Color.black);
 
-            scroll = GUILayout.BeginScrollView(scroll, GUILayout.Width(800), GUILayout.Height(600));
-
-            GUILayout.Label(logicFile);
-            if (GUILayout.Button("写入脚本" + logicFile)) {
-                saveLogic();
+            scroll = GUILayout.BeginScrollView(scroll);
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            for (var i = 0; i < scriptLabels.Count; ++i) {
+                GUILayout.Label(scriptLabels[i]);
             }
-
-            GUILayout.TextField(scriptLogic);
-
+            GUILayout.EndVertical();
             GUILayout.EndScrollView();
-            GUI.EndGroup();
+
+            GUILayout.EndArea();
         }
 
         void ShowMessage(string str)
@@ -422,6 +427,29 @@ namespace ZFrame.Editors
             normal(strbld, "\nreturn self\n");
 
             scriptLogic = strbld.ToString();
+
+            scriptLabels.Clear();
+            StringBuilder builder = new StringBuilder();
+            const int maxLine = 100;
+            int nLine = 0;
+            using (var reader = new StringReader(scriptLogic)) {
+                for (; ; ) {
+                    var line = reader.ReadLine();
+                    if (line == null)
+                        break;
+
+                    builder.AppendFormat("{0:D4}| {1}", nLine, line);
+                    nLine++;
+
+                    if (nLine % maxLine == 0) {
+                        scriptLabels.Add(builder.ToString());
+                        builder.Remove(0, builder.Length);
+                    } else {
+                        builder.AppendLine();
+                    }
+                }
+            }
+            if (builder.Length > 0) scriptLabels.Add(builder.ToString());
         }
 
         /// <summary>
@@ -551,7 +579,7 @@ namespace ZFrame.Editors
 
         private bool IsNewCreateAsset(GameObject go)
         {
-#if UNITY_2018_4_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
             var assetType = PrefabUtility.GetPrefabAssetType(go);
             return assetType == PrefabAssetType.NotAPrefab;
 #else
@@ -637,7 +665,7 @@ namespace ZFrame.Editors
             }
         }
 
-#region 以下为Lua代码组装
+        #region 以下为Lua代码组装
 
         int step = 0;
         int nt = 0;
@@ -765,6 +793,6 @@ namespace ZFrame.Editors
             }
         }
 
-#endregion
+        #endregion
     }
 }

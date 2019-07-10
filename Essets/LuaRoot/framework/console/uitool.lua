@@ -39,9 +39,7 @@ function P:close(name)
 end
 
 function P:loc(lang)
-    libugui.SetLocalize(lang, "en")
     ui.setloc(nil, lang)
-    config("textlib").reset()
 
     for _,Wnd in ui.foreach_lcwnds() do
         if Wnd.Ref then

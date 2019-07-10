@@ -59,8 +59,13 @@ namespace ZFrame.Editors
                         if (list.index >= 0 && list.index < m_ViewList.Count) {
                             newIndex = m_ViewList[list.index];
                         } else {
-                            newIndex = m_ViewList[m_ViewList.Count - 1];
-                            list.index = m_ViewList.Count - 1;
+                            if (m_ViewList.Count > 0) {
+                                newIndex = m_ViewList[m_ViewList.Count - 1];
+                                list.index = m_ViewList.Count - 1;
+                            } else {
+                                newIndex = 0;
+                                list.index = 0;
+                            }
                         }
                         m_CustomTexts.InsertArrayElementAtIndex(newIndex);
                         var elm = m_CustomTexts.GetArrayElementAtIndex(newIndex);
@@ -102,18 +107,30 @@ namespace ZFrame.Editors
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(m_LocalizeText);
-            if (GUILayout.Button("更新", EditorStyles.miniButtonLeft)) {
-                UGUICreateMenu.UpdateLocConfig();
-                UILabel.LOC = null;
+            if (m_LocalizeText.objectReferenceValue == null) {
+                if (GUILayout.Button("新建", EditorStyles.miniButton)) {
+                    var path = EditorUtility.SaveFilePanel("创建本地化文件", "Assets", "localization", "txt");
+                    if (!string.IsNullOrEmpty(path)) {
+                        var assetPath = "Assets" + path.Substring(Application.dataPath.Length);
+                        System.IO.File.CreateText(assetPath).Dispose();
+                        AssetDatabase.Refresh();
+                        m_LocalizeText.objectReferenceValue = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+                    }   
+                }
+            } else {
+                if (GUILayout.Button("更新", EditorStyles.miniButtonLeft)) {
+                    UGUICreateMenu.UpdateLocConfig();
+                    UILabel.LOC = null;
 
-                m_ListDirty = true;
-                var list = new List<Localization.CustomLoc>(UILabel.LOC.customTexts);
-                list.Sort((a, b) => string.CompareOrdinal(a.key, b.key));
-                UILabel.LOC.customTexts = list.ToArray();
-            }
-            if (GUILayout.Button("查看", EditorStyles.miniButtonRight)) {
-                UILabel.LOC = null;
-                EditorWindow.GetWindow(typeof(LocalizationWindow));
+                    m_ListDirty = true;
+                    var list = new List<Localization.CustomLoc>(UILabel.LOC.customTexts);
+                    list.Sort((a, b) => string.CompareOrdinal(a.key, b.key));
+                    UILabel.LOC.customTexts = list.ToArray();
+                }
+                if (GUILayout.Button("查看", EditorStyles.miniButtonRight)) {
+                    UILabel.LOC = null;
+                    EditorWindow.GetWindow(typeof(LocalizationWindow));
+                }
             }
             EditorGUILayout.EndHorizontal();
 
