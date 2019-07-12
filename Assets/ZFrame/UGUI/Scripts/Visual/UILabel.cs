@@ -82,11 +82,14 @@ namespace ZFrame.UGUI
         [SerializeField]
         [Tooltip("截掉溢出部分文本，并用...代替")]
         private bool m_Ellipsis;
-        private string m_OmitText;
-        public bool omited { get { return !string.IsNullOrEmpty(m_OmitText); } }
+        private string m_EllipsisText;
+        public bool omited { get { return !string.IsNullOrEmpty(m_EllipsisText); } }
 
-        [SerializeField, HideInInspector]
+        [SerializeField]
         private string m_FontPath;
+
+        [NamedProperty("Link Text")]
+        public bool supportLinkText;
         
         [SerializeField]
         private bool m_Localized;
@@ -105,9 +108,9 @@ namespace ZFrame.UGUI
         [Tooltip("是否用Non-Breaking Space代替普通空格")]
         private bool m_NonBreakingSpace = false;
         
-        private void UpdateOmit()
+        private void UpdateEllipsis()
         {
-            m_OmitText = null;
+            m_EllipsisText = null;
             if (m_Ellipsis) {
                 var settings = GetGenerationSettings(Vector2.zero);
                 var generator = cachedTextGeneratorForLayout;
@@ -122,11 +125,11 @@ namespace ZFrame.UGUI
                         var omitText = m_Text.Substring(0, i);
                         var testWidth = generator.GetPreferredWidth(omitText, settings) / pixelsPerUnit;
                         if (testWidth <= clampWidth) {
-                            m_OmitText = omitText + OMIT_STR;
+                            m_EllipsisText = omitText + OMIT_STR;
                             return;
                         }
                     }
-                    m_OmitText = OMIT_STR;
+                    m_EllipsisText = OMIT_STR;
                     return;
                 }
 
@@ -144,7 +147,7 @@ namespace ZFrame.UGUI
                             break;
                         }
                     }
-                    m_OmitText = omitText;
+                    m_EllipsisText = omitText;
                 }
             }
         }
@@ -176,11 +179,11 @@ namespace ZFrame.UGUI
         }
 
         public override string text {
-            get { return !string.IsNullOrEmpty(m_OmitText) ? m_OmitText : m_Text; }
+            get { return !string.IsNullOrEmpty(m_EllipsisText) ? m_EllipsisText : m_Text; }
             set {
                 if (m_Text != value) {
                     base.text = value;
-                    UpdateOmit();
+                    UpdateEllipsis();
                     if (onTextChanged != null) {
                         onTextChanged.Invoke(m_RawText);
                     }
@@ -199,7 +202,7 @@ namespace ZFrame.UGUI
         public LinkInfo FindLink(Vector3 screenPos, Camera cam)
         {
             Vector2 point;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
+            if (supportLinkText && RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
                 for (int i = 0; i < m_Links.Count; ++i) {
                     var link = m_Links[i];
                     var boxes = link.boxes;
@@ -231,7 +234,7 @@ namespace ZFrame.UGUI
             if (localized && LOC && m_Lang != LOC.currentLang) {
                 m_Lang = LOC.currentLang;
                 UpdateLoc();
-                UpdateOmit();
+                UpdateEllipsis();
             }
         }
 
@@ -254,7 +257,7 @@ namespace ZFrame.UGUI
         {
             base.OnRectTransformDimensionsChange();
 
-            UpdateOmit();
+            UpdateEllipsis();
         }
 
         protected string m_GenText;
@@ -262,7 +265,7 @@ namespace ZFrame.UGUI
         {
             m_Links.Clear();
             m_GenText = text;
-            if (supportRichText) {
+            if (supportRichText && supportLinkText) {
                 LinkBuilder.Length = 0;
                 var startIdx = 0;
                 var matches = LinkRegex.Matches(text);

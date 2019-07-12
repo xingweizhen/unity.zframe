@@ -6,8 +6,6 @@ Shader "UI/Stroke"
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
-        _StrokeColor ("Stroke Color", Color) = (1, 1, 1, 1)
-        _StrokeWidth ("Stroke Width", Range(0.1, 6)) = 1
 
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
@@ -64,9 +62,13 @@ Shader "UI/Stroke"
             struct appdata_t
             {
                 float4 vertex   : POSITION;
-                float4 tangent  : TANGENT;
-                float4 color    : COLOR;
-                float2 texcoord : TEXCOORD0;
+                //float4 tangent  : TANGENT;    // 切线在缩放的情况下，xy值会错误。所以放弃使用
+                fixed3 normal   : NORMAL;
+                fixed4 color    : COLOR;
+                fixed2 texcoord : TEXCOORD0;
+                fixed2 uv1      : TEXCOORD1;
+                fixed2 uv2      : TEXCOORD2;
+                float2 uv3      : TEXCOORD3;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -75,8 +77,10 @@ Shader "UI/Stroke"
                 float4 vertex   : SV_POSITION;
                 float4 tangent  : TANGENT;
                 fixed4 color    : COLOR;
-                float2 texcoord  : TEXCOORD0;
+                fixed2 texcoord  : TEXCOORD0;
                 float4 worldPosition : TEXCOORD1;
+                fixed4 strokeColor   : TEXCOORD2;
+                half   strokeWidth   : TEXCOORD3;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -93,18 +97,17 @@ Shader "UI/Stroke"
                 OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
 
                 OUT.texcoord = v.texcoord;
-                OUT.tangent = v.tangent;
+                OUT.tangent = float4(v.uv1.x, v.uv1.y, v.uv2.x, v.uv2.y);
 
                 OUT.color = v.color * _Color;
+                OUT.strokeColor = fixed4(v.normal.x, v.normal.y, v.normal.z, v.uv3.x);
+                OUT.strokeWidth = v.uv3.y;
                 return OUT;
             }
 
             sampler2D _MainTex;
             float4 _MainTex_TexelSize;
-            
-            fixed4 _StrokeColor;
-            half _StrokeWidth;
-             
+
             fixed IsInRect(float2 pPos, float4 pClipRect)
             {
                 pPos = step(pClipRect.xy, pPos) * step(pPos, pClipRect.zw);
@@ -115,16 +118,19 @@ Shader "UI/Stroke"
             {
                 const fixed sinArray[12] = { 0, 0.5, 0.866, 1, 0.866, 0.5, 0, -0.5, -0.866, -1, -0.866, -0.5 };
                 const fixed cosArray[12] = { 1, 0.866, 0.5, 0, -0.5, -0.866, -1, -0.866, -0.5, 0, 0.5, 0.866 };
-                float2 pos = IN.texcoord + _MainTex_TexelSize.xy * float2(cosArray[pIndex], sinArray[pIndex]) * _StrokeWidth;
-                return IsInRect(pos, IN.tangent) * (tex2D(_MainTex, pos) + _TextureSampleAdd).a * _StrokeColor.a;
+                half strokeWidth = IN.strokeWidth;
+                fixed4 strokeColor = IN.strokeColor;
+                float2 pos = IN.texcoord + _MainTex_TexelSize.xy * float2(cosArray[pIndex], sinArray[pIndex]) * strokeWidth;
+                return IsInRect(pos, IN.tangent) * (tex2D(_MainTex, pos) + _TextureSampleAdd).a * strokeColor.a;
             }
             
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+                fixed4 strokeColor = IN.strokeColor;
 
                 color.a *= IsInRect(IN.texcoord, IN.tangent);
-                half4 val = half4(_StrokeColor.r, _StrokeColor.g, _StrokeColor.b, 0);
+                half4 val = half4(strokeColor.r, strokeColor.g, strokeColor.b, 0);
 
                 val.w += SampleAlpha(0, IN);
                 val.w += SampleAlpha(1, IN);

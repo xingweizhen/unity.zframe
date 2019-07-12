@@ -16,7 +16,7 @@ namespace ZFrame.Editors
         //private static List<string> m_Results = new List<string>();
         private List<string> m_AutoKeys = new List<string>();
 
-        private SerializedProperty m_Localized, m_Ellipsis, m_RawText, m_Text, m_NonBreakingSpace;
+        private SerializedProperty m_Localized, m_Ellipsis, m_RawText, m_Text, m_NonBreakingSpace, supportLinkText;
         private SerializedProperty m_FontPath;
 
         protected override void OnEnable()
@@ -34,6 +34,7 @@ namespace ZFrame.Editors
             m_Text = serializedObject.FindProperty("m_Text");
             m_FontPath = serializedObject.FindProperty("m_FontPath");
             m_NonBreakingSpace = serializedObject.FindProperty("m_NonBreakingSpace");
+            supportLinkText = serializedObject.FindProperty("supportLinkText");
         }
 
         public override void OnInspectorGUI()
@@ -53,17 +54,19 @@ namespace ZFrame.Editors
                 }
             }
             
-            EditorGUILayout.Separator();
             EditorGUILayout.LabelField("Extern Properties", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             EditorGUILayout.LabelField("Font Path", 
                 string.IsNullOrEmpty(m_FontPath.stringValue) ? "<NOT AssetBundle>" : m_FontPath.stringValue);
             EditorGUILayout.PropertyField(m_NonBreakingSpace);
             EditorGUILayout.PropertyField(m_Ellipsis);
+            EditorGUILayout.PropertyField(supportLinkText);
             EditorGUI.indentLevel--;
-            
+
+            EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
             if (UILabel.LOC) {
-                EditorGUILayout.PropertyField(m_Localized);
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(m_Localized, EditorUtil.TempContent("Enable"));
 
                 if (m_Localized.boolValue) {
                     if (locText != m_Text.stringValue) m_AutoKeys.Clear();
@@ -75,21 +78,23 @@ namespace ZFrame.Editors
 
                     EditorGUILayout.PropertyField(m_RawText);
                     if (m_AutoKeys.Count > 0 && !m_AutoKeys.Contains(m_RawText.stringValue)) {
-                        EditorGUI.indentLevel++;
-                        EditorGUILayout.LabelField("已存在的键");
+                        var indentLevel = EditorGUI.indentLevel;
+                        EditorGUI.indentLevel = 0;
+
+                        var rect = EditorGUILayout.GetControlRect(false, 1);
+                        rect.xMin += EditorGUIUtility.labelWidth;
+                        EditorGUI.DrawRect(rect, EditorStyles.label.normal.textColor);
                         foreach (var key in m_AutoKeys) {
-                            EditorGUILayout.BeginHorizontal();
-                            EditorGUILayout.LabelField(key);
-                            if (GUILayout.Button("*", EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
+                            rect = EditorGUILayout.GetControlRect();
+                            rect.xMin += EditorGUIUtility.labelWidth;
+                            if (EditorGUI.ToggleLeft(rect, EditorUtil.TempContent(key), false)) {
                                 m_RawText.stringValue = key;
                             }
-
-                            EditorGUILayout.EndHorizontal();
                         }
-
-                        EditorGUI.indentLevel--;
+                        EditorGUI.indentLevel = indentLevel;
                     }
                 }
+                EditorGUI.indentLevel--;
             } else {
                 EditorGUILayout.LabelField("本地化文件不存在，无法配置本地化", EditorStyles.helpBox);
             }
