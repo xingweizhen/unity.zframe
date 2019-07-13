@@ -5,6 +5,7 @@ using UnityEngine;
 namespace ZFrame.Asset
 {
 	[CreateAssetMenu(menuName = "资源库/版本信息")]
+    [SettingsMenu("Resources", "应用版本号")]
 	public class VersionInfo : ScriptableObject
 	{
 		[SerializeField, HideInInspector]

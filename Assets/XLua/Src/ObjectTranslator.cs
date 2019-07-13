@@ -154,7 +154,7 @@ namespace XLua
 
 #if !AUTO_REFLECTION
 #if UNITY_EDITOR
-                if (UnityEngine.Application.isPlaying)
+                if (UnityEngine.Application.isPlaying && delayWrap.Count > 0)
 #endif
                     goto CONNECT_BASE_TYPE;
 #endif
@@ -174,6 +174,9 @@ namespace XLua
                 Utils.ReflectionWrap(L, type, privateAccessibleFlags.Contains(type));
 #endif
 #if NOT_GEN_WARNING
+#if UNITY_EDITOR
+                if (delayWrap.Count > 0)
+#endif
                 if (!typeof(Delegate).IsAssignableFrom(type))
                 {
 #if !XLUA_GENERAL
@@ -1293,7 +1296,7 @@ CONNECT_BASE_TYPE:
             bool is_valuetype = type.GetTypeInfo().IsValueType;
 #endif
 #if UNITY_EDITOR
-            if (UnityEngine.Application.isPlaying) {
+            if (UnityEngine.Application.isPlaying && delayWrap.Count > 0) {
                 Assert.IsFalse(is_enum, "枚举值不应该从此处Push。");
                 Assert.IsFalse(is_valuetype, "值类型不应该从此处Push。");
             }

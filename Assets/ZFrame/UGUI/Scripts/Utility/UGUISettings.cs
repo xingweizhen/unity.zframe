@@ -5,6 +5,7 @@ using UnityEngine;
 namespace ZFrame.UGUI
 {
     using Asset;
+    [SettingsMenu("Resources", "UGUI界面设置")]
     public class UGUISettings : ScriptableObject
     {        
         [SerializeField, NamedProperty("图集包所在路径")] private string m_AtlasRoot = "atlas/";
@@ -32,7 +33,7 @@ namespace ZFrame.UGUI
         [SerializeField, NamedProperty("常规界面最高层级")] private int m_MaxDepth = 90;
         public int maxDepth { get { return m_MaxDepth; } }
 
-        [SerializeField, NamedProperty("长按时常(秒)")] private float m_LongpressTime = 0.5f;
+        [SerializeField, NamedProperty("长按时间(秒)")] private float m_LongpressTime = 0.5f;
         public float longpressTime { get { return m_LongpressTime; } }
 
         public string fontPath { get { return m_FontPath; } }

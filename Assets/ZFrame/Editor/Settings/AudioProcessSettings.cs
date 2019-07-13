@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "音频导入属性")]
     public class AudioProcessSettings : AssetProcessSettings
     {
         [System.Flags]

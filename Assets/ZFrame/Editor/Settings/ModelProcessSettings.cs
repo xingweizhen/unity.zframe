@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "模型导入属性")]
     public class ModelProcessSettings : AssetProcessSettings
     {
         public enum MaterialImportMode

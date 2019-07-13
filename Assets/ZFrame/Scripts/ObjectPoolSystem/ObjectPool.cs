@@ -16,7 +16,7 @@ public class ObjectPool : MonoBehavior
     public GameObject Prefab { get; set; }
 
     // This stores the cached objects waiting to be reactivated
-    [Description("回收池")]
+    [ZFrame.Description("回收池")]
     Queue<GameObject> pool;
 
     // How many objects are currently sitting in the cache

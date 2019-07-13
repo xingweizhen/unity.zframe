@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "UGUI编辑设置")]
     public class UGUIEditorSettings : ScriptableObject
     {
-        [SerializeField, AssetPath("UI预设根目录", typeof(UnityEditor.DefaultAsset))]
+        [SerializeField, AssetPath("UI预设根目录", typeof(DefaultAsset))]
         private string m_UItFolder;
         public string uiFolder { get { return m_UItFolder; } }
 

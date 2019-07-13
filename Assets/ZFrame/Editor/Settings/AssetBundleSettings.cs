@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "AssetBundle Name")]
     public class AssetBundleSettings : ScriptableObject
     {
         [SerializeField]

@@ -8,7 +8,7 @@ namespace ZFrame.Editors
 {
     using Asset;
     using Settings;
-    
+
     public class FrameworkSettingsWindow : EditorWindow
     {
         [MenuItem("ZFrame/设置选项...")]
@@ -23,25 +23,52 @@ namespace ZFrame.Editors
             public System.Type type { get; private set; }
             public string folder { get; private set; }
             public Editor editor;
-            public SettingsMenu(string showName, System.Type assetType, string location)
+
+            public SettingsMenu(System.Type assetType)
             {
-                name = showName;
                 type = assetType;
-                folder = location;
-                var guids = AssetDatabase.FindAssets("t:" + assetType.Name);
-                if (guids != null && guids.Length > 0) {
-                    editor = Editor.CreateEditor(AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0])));
+                var asset = GetSettings("t:" + assetType.Name);
+                if (asset) editor = Editor.CreateEditor(asset);
+
+                var attr = GetAttribute(assetType);
+                if (attr != null) {
+                    name = attr.name;
+                    folder = attr.location;
+                } else {
+                    name = type.Name;
+                    folder = string.Empty;
                 }
             }
 
-            public SettingsMenu(string showName, ScriptableObject asset)
+            public void OnGUI()
             {
-                name = showName;
-                if (asset != null) {
-                    type = asset.GetType();
-                    editor = Editor.CreateEditor(asset);
+                if (editor && editor.target) {
+                    editor.OnInspectorGUI();
+                } else {
+                    DestroyImmediate(editor);
+
+                    GUILayout.Label(string.Format("未找到配置文件<{0}>", type));
+                    if (!string.IsNullOrEmpty(folder)) {
+                        var assetPath = string.Format("Assets/{0}/{1}.asset", folder, type.Name);
+                        if (GUILayout.Button("创建->" + assetPath)) {
+                            SystemTools.NeedDirectory("Assets/" + folder);
+                            AssetDatabase.CreateAsset(CreateInstance(type), assetPath);
+                            editor = Editor.CreateEditor(AssetDatabase.LoadMainAssetAtPath(assetPath));
+                        }
+                    }
                 }
             }
+        }
+
+        private static System.Type[] GetSettingsTypes()
+        {
+            return new[] {
+                    typeof(UGUI.UGUISettings), typeof(UGUIEditorSettings),
+                    typeof(AssetBundleSettings),
+                    typeof(TextureProcessSettings), typeof(ModelProcessSettings), typeof(AudioProcessSettings),
+                    typeof(ArtStandardChecker),
+                    typeof(VersionInfo),  typeof(BuildPlayerSettings),
+                };
         }
 
         private GUIStyle __SectionItem;
@@ -66,7 +93,7 @@ namespace ZFrame.Editors
                 return __SettingTitle;
             }
         }
-        
+
         private string[] m_Menu;
         private SettingsMenu[] m_Settings;
         private int m_MenuIdx;
@@ -74,17 +101,11 @@ namespace ZFrame.Editors
 
         private void OnEnable()
         {
-            m_Settings = new [] {
-                new SettingsMenu("UGUI界面设置", typeof(UGUI.UGUISettings), "Resources"),
-                new SettingsMenu("UGUI编辑设置", typeof(UGUIEditorSettings), "Editor"),
-                new SettingsMenu("AssetBundle Name", typeof(AssetBundleSettings), "Editor"),
-                new SettingsMenu("贴图导入属性", typeof(TextureProcessSettings), "Editor"),
-                new SettingsMenu("模型导入属性", typeof(ModelProcessSettings), "Editor"),
-                new SettingsMenu("音频导入属性", typeof(AudioProcessSettings), "Editor"),
-                new SettingsMenu("美术资源标准", typeof(ArtStandardChecker), "Editor"),
-                new SettingsMenu("应用版本号", typeof(VersionInfo), "Resources"),
-                new SettingsMenu("打包配置项", typeof(BuildPlayerSettings), "Editor"),
-            };
+            var types = GetSettingsTypes();
+            m_Settings = new SettingsMenu[types.Length];
+            for (var i = 0; i < types.Length; ++i) {
+                m_Settings[i] = new SettingsMenu(types[i]);
+            }
             m_Menu = new string[m_Settings.Length];
             for (var i = 0; i < m_Menu.Length; ++i) m_Menu[i] = m_Settings[i].name;
         }
@@ -97,7 +118,7 @@ namespace ZFrame.Editors
                 m_SectionScroll = EditorGUILayout.BeginScrollView(m_SectionScroll);
                 m_MenuIdx = GUILayout.SelectionGrid(m_MenuIdx, m_Menu, 1, m_SectionItem);
                 EditorGUILayout.EndScrollView();
-                GUILayout.FlexibleSpace();                
+                GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
 
                 EditorGUILayout.BeginVertical("GroupBox");
@@ -108,19 +129,7 @@ namespace ZFrame.Editors
                     GUILayout.Space(30);
 
                     m_ContentScroll = EditorGUILayout.BeginScrollView(m_ContentScroll);
-                    if (settings.editor && settings.editor.target) {
-                        settings.editor.OnInspectorGUI();
-                    } else {
-                        DestroyImmediate(settings.editor);
-                        
-                        GUILayout.Label(string.Format("未找到配置文件<{0}>", settings.type));
-                        if (GUILayout.Button("创建")) {
-                            SystemTools.NeedDirectory("Assets/" + settings.folder);
-                            var path = string.Format("Assets/{0}/{1}.asset", settings.folder, settings.type.Name);
-                            AssetDatabase.CreateAsset(CreateInstance(settings.type), path);
-                            settings.editor = Editor.CreateEditor(AssetDatabase.LoadMainAssetAtPath(path));
-                        }
-                    }
+                    settings.OnGUI();
                     EditorGUILayout.EndScrollView();
                 }
                 GUILayout.FlexibleSpace();
@@ -136,7 +145,7 @@ namespace ZFrame.Editors
             if (!exist) path += " (Missing)";
             EditorGUI.LabelField(rect, path, exist ? EditorStyles.label : "ErrorLabel");
         }
-        
+
         public static ScriptableObject GetSettings(string filter)
         {
             var guids = AssetDatabase.FindAssets(filter);
@@ -149,5 +158,42 @@ namespace ZFrame.Editors
             }
             return null;
         }
+
+        private static SettingsMenuAttribute GetAttribute(System.Type assetType)
+        {
+            var attrs = assetType.GetCustomAttributes(typeof(SettingsMenuAttribute), false);
+            return attrs != null && attrs.Length > 0 ? attrs[0] as SettingsMenuAttribute : null;
+        }
+
+#if UNITY_2018_3_OR_NEWER
+        private class ZFrameSettingsProvider : SettingsProvider
+        {
+            private SettingsMenu m_Menu;
+
+            public ZFrameSettingsProvider(string path, System.Type type) 
+                : base(path, SettingsScope.Project, null)
+            {
+                m_Menu = new SettingsMenu(type);
+            }
+
+            public override void OnGUI(string searchContext)
+            {
+                m_Menu.OnGUI();
+            }
+        }
+
+        [SettingsProviderGroup]
+        private static SettingsProvider[] GetSettingsProviderGroup()
+        {
+            var types = GetSettingsTypes();
+            var providers = new SettingsProvider[types.Length];
+            for (var i = 0; i < types.Length; ++i) {
+                var attr = GetAttribute(types[i]);
+                var menuName = attr != null ? attr.name : types[i].Name;
+                providers[i] = new ZFrameSettingsProvider("ZFrame/" + menuName, types[i]);
+            }
+            return providers;
+        }
+#endif
     }
 }

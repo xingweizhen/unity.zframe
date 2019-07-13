@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "贴图导入属性")]
     public class TextureProcessSettings : AssetProcessSettings
     {
         [System.Flags]

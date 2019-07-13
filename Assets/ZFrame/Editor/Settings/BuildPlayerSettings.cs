@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "打包配置项")]
 	public class BuildPlayerSettings : ScriptableObject
 	{
 		[SerializeField] private string m_AndroidKeystoreName;

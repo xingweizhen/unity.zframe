@@ -6,6 +6,7 @@ using ZFrame.UGUI;
 
 namespace ZFrame.Settings
 {
+    [SettingsMenu("Editor", "美术资源标准")]
     public class ArtStandardChecker : ZFrameSettings4Folder
     {
         [System.Serializable]
