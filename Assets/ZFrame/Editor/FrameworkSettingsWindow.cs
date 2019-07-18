@@ -112,17 +112,15 @@ namespace ZFrame.Editors
 
         private void OnGUI()
         {
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.BeginVertical("GroupBox", GUILayout.Width(200));
-                m_SectionScroll = EditorGUILayout.BeginScrollView(m_SectionScroll);
-                m_MenuIdx = GUILayout.SelectionGrid(m_MenuIdx, m_Menu, 1, m_SectionItem);
-                EditorGUILayout.EndScrollView();
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+            using (new EditorGUILayout.HorizontalScope()) {
+                using (new EditorGUILayout.VerticalScope("GroupBox", GUILayout.Width(200))) {
+                    m_SectionScroll = EditorGUILayout.BeginScrollView(m_SectionScroll);
+                    m_MenuIdx = GUILayout.SelectionGrid(m_MenuIdx, m_Menu, 1, m_SectionItem);
+                    EditorGUILayout.EndScrollView();
+                    GUILayout.FlexibleSpace();
+                }
 
-                EditorGUILayout.BeginVertical("GroupBox");
-                {
+                using (new EditorGUILayout.VerticalScope("GroupBox")) {
                     var settings = m_Settings[m_MenuIdx];
 
                     GUILayout.Label(settings.name, m_SettingTitle);
@@ -131,11 +129,10 @@ namespace ZFrame.Editors
                     m_ContentScroll = EditorGUILayout.BeginScrollView(m_ContentScroll);
                     settings.OnGUI();
                     EditorGUILayout.EndScrollView();
+
+                    GUILayout.FlexibleSpace();
                 }
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
             }
-            EditorGUILayout.EndHorizontal();
         }
 
         public static void DrawFolderPath(SerializedProperty property, int index, Rect rect)
