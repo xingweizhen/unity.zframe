@@ -143,6 +143,13 @@ namespace ZFrame
 
             // UpdateCanvasScale(Screen.width, Screen.height);
             // AssetsMgr.A.onResolutionChanged += UpdateCanvasScale;
+
+            if (UGUITools.settings) {
+                foreach (var cv in m_Canvases) {
+                    var scale = cv.GetComponent(typeof(CanvasScaler)) as CanvasScaler;
+                    if (scale) scale.referenceResolution = UGUITools.settings.defRes;
+                }
+            }
         }
 
         // Use this for initialization

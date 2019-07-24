@@ -36,7 +36,7 @@ namespace ZFrame.Lua
                 if (m_Env == null) {
                     m_Env = new LuaEnv();
                     InitLuaEnv();
-                    
+
                     L.GetGlobal("_G");
                     SetGlobalVars();
                     L.Pop(1);
@@ -46,10 +46,6 @@ namespace ZFrame.Lua
         }
         public ILuaState L { get { return Env.L; } }
         public bool IsLua { get { return m_Env != null; } }
-        
-#if UNITY_EDITOR
-        private System.IO.FileSystemWatcher m_FileSysWatcher;
-#endif
 
         protected virtual void InitLuaEnv()
         {
@@ -61,7 +57,7 @@ namespace ZFrame.Lua
             m_Env.AddBuildin(LibNetwork.LIB_NAME, LibNetwork.OpenLib);
             m_Env.AddBuildin(LibTool.LIB_NAME, LibTool.OpenLib);
             m_Env.AddBuildin(LibCSharpIO.LIB_NAME, LibCSharpIO.OpenLib);
-            
+
             UnityEngine_Vector2.Wrap(L);
             UnityEngine_Vector3.Wrap(L);
             UnityEngine_Vector4.Wrap(L);
@@ -194,7 +190,7 @@ namespace ZFrame.Lua
             // 执行预加载
             AssetLoader.Instance.ExecutePreload(OnAssetBundleLoaded);
 
-            ChunkAPI.InitFileWatcher(ref m_FileSysWatcher,
+            ChunkAPI.InitFileWatcher(
                 (sender, args) => {
                     L.GetGlobal("PKG", "framework/hotupdate", "onchanged");
                     if (L.IsFunction(-1)) {
@@ -203,7 +199,7 @@ namespace ZFrame.Lua
                         L.PushX(args.ChangeType);
                         L.ExecPCall(2, 0, b);
                     } else L.Pop(1);
-                }, 
+                },
                 (sender, args) => {
                     L.GetGlobal("PKG", "framework/hotupdate", "onrenamed");
                     if (L.IsFunction(-1)) {
@@ -217,7 +213,7 @@ namespace ZFrame.Lua
 
         private void OnDestroy()
         {
-            ChunkAPI.UninitFileWatcher(m_FileSysWatcher);
+            ChunkAPI.UninitFileWatcher();
         }
 
         private static void OnAssetBundleLoaded(string a, object o, object p)

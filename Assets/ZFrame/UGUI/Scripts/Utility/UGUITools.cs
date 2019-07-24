@@ -15,7 +15,7 @@ namespace ZFrame.UGUI
         public static UGUISettings settings {
             get {
                 if (_Settings == null) {
-                    _Settings =Resources.Load("UGUISettings", typeof(UGUISettings)) as UGUISettings; 
+                    _Settings = Resources.Load("UGUISettings", typeof(UGUISettings)) as UGUISettings;
                 }
 
                 return _Settings;
@@ -145,7 +145,7 @@ namespace ZFrame.UGUI
 
             return grayscale ? grayscaleMat : null;
         }
-        
+
         public static bool IsGrayscale(Material material)
         {
             if (material && material.HasProperty(P_GRAYSCALE)) {
@@ -167,7 +167,7 @@ namespace ZFrame.UGUI
                 return s_BlurMat;
             }
         }
-        
+
         public static void SetGrayscale(GameObject go, bool grayscale)
         {
             if (go) {
@@ -229,7 +229,7 @@ namespace ZFrame.UGUI
             var v2Center = new Vector2(0.5f, 0.5f);
             from.anchorMax = v2Center;
             from.anchorMin = v2Center;
-            
+
             Vector2 v2To = from.anchoredPosition;
             var rect = from.parent as RectTransform;
             var v2Screen = RectTransformUtility.WorldToScreenPoint(camera, to.position);

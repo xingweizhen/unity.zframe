@@ -89,9 +89,12 @@ namespace ZFrame.Editors
         const string AUTO_DEFINE_BEGIN = "--!*[开始]自动生成函数*--";
         const string AUTO_DEFINE_END = "--!*[结束]自动生成函数*--";
         const string AUTO_REGIST = "--!*[结束]自动生成代码*--";
+        const string IGNORE_LINE = "--#";
 
         const string INIT_VIEW = "init_view";
         const string INIT_LOGIC = "init_logic";
+
+        private static char[] _TRIM_ENDS = new char[] { '\r', '\n' };
 
         private static bool IsDefine(string line, string define)
         {
@@ -319,6 +322,8 @@ namespace ZFrame.Editors
                     var line = reader.ReadLine();
                     if (line == null) break;
 
+                    if (line.TrimStart().StartsWith(IGNORE_LINE)) continue;
+
                     if (IsDefine(line, AUTO_DEFINE_END)) continue;
 
                     if (IsDefine(line, AUTO_REGIST)) {
@@ -330,7 +335,7 @@ namespace ZFrame.Editors
                         continue;
                     } else if (line.Contains("return self")) {
                         if (funcName != null) {
-                            dictFunc.Add(funcName, funcDefine.Substring(0, funcDefine.Length - 1));
+                            dictFunc.Add(funcName, funcDefine.TrimEnd(_TRIM_ENDS) + "\n\n");
                         }
 
                         break;
@@ -342,7 +347,7 @@ namespace ZFrame.Editors
                         if (funcName != null) {
                             if (funcName != INIT_VIEW) {
                                 try {
-                                    dictFunc.Add(funcName, funcDefine.Substring(0, funcDefine.Length - 1));
+                                    dictFunc.Add(funcName, funcDefine.TrimEnd(_TRIM_ENDS) + "\n\n");
                                 } catch (System.Exception e) {
                                     Debug.LogError(e.Message + ":" + funcName);
                                 }
@@ -354,7 +359,7 @@ namespace ZFrame.Editors
 
                         // 取函数名, 记录函数
                         funcName = segs[1].Substring(0, segs[1].IndexOf('(')).Trim();
-                        funcDefine = '\n' + line + '\n';
+                        funcDefine = line + '\n';
                     } else {
                         if (funcName != null) {
                             if (funcName == INIT_VIEW && codeInited != null) {
@@ -424,7 +429,7 @@ namespace ZFrame.Editors
             }
 
             // return表
-            normal(strbld, "\nreturn self\n");
+            normal(strbld, "return self\n");
 
             scriptLogic = strbld.ToString();
 
@@ -530,9 +535,11 @@ namespace ZFrame.Editors
                     foreach (var Event in Events) {
                         var funcName = genFuncName(Event, path);
                         if (!string.IsNullOrEmpty(funcName)) {
-                            if (listFuncs.Contains(funcName)) continue;
-                            listFuncs.Add(funcName);
                             Event.param = funcName;
+                            if (listFuncs.Contains(funcName)) continue;
+
+                            normal(strbld, string.Format(IGNORE_LINE + " @{0}:{1}", path, Event.type));
+                            listFuncs.Add(funcName);                            
                             var args = GetArgs(Events, Event.type);
                             if (string.IsNullOrEmpty(args)) {
                                 generateFunc(strbld, funcName);
@@ -544,7 +551,7 @@ namespace ZFrame.Editors
                 }
             }
 
-            normal(strbld, AUTO_DEFINE_END);
+            normal(strbld, AUTO_DEFINE_END + "\n");
         }
 
         /// <summary>
@@ -620,7 +627,13 @@ namespace ZFrame.Editors
                 ShowMessage(string.Format("写入{0}成功！", path));
 
                 var selectedObj = selected.gameObject;
-               
+
+                var canvas = selectedObj.GetComponentInParent<Canvas>();
+                if (canvas == null || canvas.name.EndsWith("(Environment)")) {
+                    // 2018.3: 在Prefab编辑模式不需要报错，暂时不知道如何判定在编辑模式...先这样处理
+                    return;
+                }
+
                 if (IsNewCreateAsset(selectedObj)) {
                     var ues = Settings.UGUIEditorSettings.Get();
                     if (ues == null) {
@@ -650,10 +663,10 @@ namespace ZFrame.Editors
 
             for (int i = 0; i < curr.childCount; ++i) {
                 Transform trans = curr.GetChild(i);
-                if (!trans.gameObject.activeSelf) continue;
+                //if (!trans.gameObject.activeSelf) continue;
 
                 string sName = trans.name;
-                if (sName.EndsWith('_')) continue;
+                //if (sName.EndsWith('_')) continue;
 
                 if (sName.StartsWith("Sub")) {
                     StoreGrpEnts(root, trans);
@@ -685,7 +698,6 @@ namespace ZFrame.Editors
         {
             if (!flagGenCode) return;
 
-            strbld.Append('\n');
             appendTabs(strbld);
             strbld.AppendFormat("{0}function {1}", blocal ? "local " : "", funcName);
             if (Params != null && Params.Length > 0) {
@@ -711,7 +723,7 @@ namespace ZFrame.Editors
 
             step -= 1;
             appendTabs(strbld);
-            strbld.Append("end\n");
+            strbld.Append("end\n\n");
         }
 
         void ifBegin(StringBuilder strbld, string logic)

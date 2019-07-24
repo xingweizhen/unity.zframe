@@ -29,6 +29,7 @@ namespace ZFrame.Editors
 		public InsertItemDelegate onInsertItem;
 		public DeleteItemDelegate onDeleteItem;
 		public ItemMatchDelegate onMatchItem;
+        public System.Action<TreeViewItem> onCreateItem;
 		
 		private int totalRow;
         public bool allowAdd, allowDelete;
@@ -75,7 +76,9 @@ namespace ZFrame.Editors
 			var root = new TreeViewItem {id = -1, depth = -1, displayName = "root"};
 			var rows = new List<TreeViewItem>();
 			for (int i = 0; i < totalRow; i++) {
-				rows.Add(new TreeViewItem {id = i, depth = 0, displayName = "#" + i});
+                var item = new TreeViewItem { id = i, depth = 0, displayName = "#" + i };
+                if (onCreateItem != null) onCreateItem.Invoke(item);
+                rows.Add(item);
 			}
 			SetupParentsAndChildrenFromDepths(root, rows);
 			

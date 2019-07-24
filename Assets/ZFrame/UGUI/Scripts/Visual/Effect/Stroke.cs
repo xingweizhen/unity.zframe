@@ -40,6 +40,17 @@ namespace ZFrame.UGUI
             graphic.material = m_StrokeMat;
         }
 
+        protected override void OnCanvasHierarchyChanged()
+        {
+            base.OnCanvasHierarchyChanged();
+            if (graphic && graphic.canvas) {
+                graphic.canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.Normal |
+                    AdditionalCanvasShaderChannels.TexCoord1 |
+                    AdditionalCanvasShaderChannels.TexCoord2 |
+                    AdditionalCanvasShaderChannels.TexCoord3;
+            }
+        }
+
         protected override void OnDisable()
         {
             base.OnDisable();

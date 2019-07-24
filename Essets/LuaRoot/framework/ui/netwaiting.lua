@@ -31,7 +31,7 @@ function P.show(text, delay, timeout, msg)
 
 	local go = NetWaiting and NetWaiting.go
 	local activated = libunity.IsEnable(go, "Canvas")
-	if #text == 0 and activated then
+	if text and #text == 0 and activated then
 		libunity.CancelInvoke(go)
 		libunity.Invoke(go, delay, coro_net_mask)
 		libunity.Invoke(go, timeout, coro_timeout)

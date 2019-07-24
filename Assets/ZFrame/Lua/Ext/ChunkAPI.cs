@@ -18,28 +18,31 @@ public static class ChunkAPI
         return string.IsNullOrEmpty(file) ? LuaROOT : string.Format("{0}/{1}", LuaROOT, file);
     }
 
+    private static FileSystemWatcher _FSWatcher;
+
     [Conditional(LogMgr.UNITY_EDITOR)]
-    public static void InitFileWatcher(ref FileSystemWatcher watcher, 
-        FileSystemEventHandler onChanged, RenamedEventHandler onRenamed)
+    public static void InitFileWatcher(FileSystemEventHandler onChanged, RenamedEventHandler onRenamed)
     {
+        UninitFileWatcher();
+
         try {
 #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
             System.Environment.SetEnvironmentVariable("MONO_MANAGED_WATCHER", "enabled");
 #endif
-            watcher = new FileSystemWatcher(LuaROOT, "*.lua") {
+            _FSWatcher = new FileSystemWatcher(LuaROOT, "*.lua") {
                 //NotifyFilter = NotifyFilters.LastWrite ,
                 IncludeSubdirectories = true,
                 EnableRaisingEvents = true,
             };
-            
+
             if (onChanged != null) {
-                watcher.Changed += onChanged;
-                watcher.Created += onChanged;
-                watcher.Deleted += onChanged;
+                _FSWatcher.Changed += onChanged;
+                _FSWatcher.Created += onChanged;
+                _FSWatcher.Deleted += onChanged;
             }
 
             if (onRenamed != null) {
-                watcher.Renamed += onRenamed;
+                _FSWatcher.Renamed += onRenamed;
             }
         } catch (System.Exception e) {
             LogMgr.W("InitFileWatcher Failure: {0}", e);
@@ -47,9 +50,12 @@ public static class ChunkAPI
     }
 
     [Conditional(LogMgr.UNITY_EDITOR)]
-    public static void UninitFileWatcher(FileSystemWatcher watcher)
+    public static void UninitFileWatcher()
     {
-        if (watcher != null) watcher.Dispose();
+        if (_FSWatcher != null) {
+            _FSWatcher.Dispose();
+            _FSWatcher = null;
+        }
     }
     
     public static byte[] __Loader(ref string file)
