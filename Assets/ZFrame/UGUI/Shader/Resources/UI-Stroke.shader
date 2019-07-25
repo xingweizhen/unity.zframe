@@ -145,7 +145,7 @@ Shader "UI/Stroke"
                 val.w += SampleAlpha(10, IN);
                 val.w += SampleAlpha(11, IN);
 
-                color = (val * (1.0 - color.a)) + (color * color.a);
+                color = (val * (IN.color.a - color.a)) + (color * color.a);
                 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);

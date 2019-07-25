@@ -174,8 +174,10 @@ local function on_open(go, pkgName)
 		end
 
 		local stackIdx, _ = table.ifind(WNDStack, Wnd)
+		local Context = Wnd.Context
 		Wnd.__index = Wnd
 		Wnd = setmetatable(chunk(), Wnd)
+		Wnd.Context = Context
 		LCWnds[lcName] = Wnd
 
 		Wnd.Ref = ui.ref(go)

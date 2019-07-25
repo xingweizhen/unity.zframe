@@ -62,7 +62,7 @@ namespace ZFrame.UGUI
         private void _ProcessVertices()
         {
             var c3 = transform.rotation * new Vector3(m_Color.r, m_Color.g, m_Color.b);
-            var strokeColor = new Color(c3.x, c3.y, c3.z, m_Color.a * graphic.color.a);
+            var strokeColor = new Color(c3.x, c3.y, c3.z, m_Color.a) * graphic.color.a;
 
             for (int i = 0, count = m_VetexList.Count - 3; i <= count; i += 3) {
                 var v1 = m_VetexList[i];
