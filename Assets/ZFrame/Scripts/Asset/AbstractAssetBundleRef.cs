@@ -40,11 +40,12 @@ namespace ZFrame.Asset
         /// </summary>
         public float lastLoaded { get; set; }
 
-        protected abstract void UnloadAssets(bool markAsLoaded = false);
-        public abstract bool IsEmpty();
         public virtual bool hasAsset { get { return true; } }
+        protected abstract void UnloadAssets(bool markAsLoaded = false);
+        public abstract bool IsEmpty();        
         protected abstract Object LoadFromBundle(string assetName, System.Type type);
         public abstract Object LoadFromCache(string assetName, System.Type type);
+        public abstract bool Contains(object asset);
 
         public Object Load(string assetName, System.Type type)
         {
@@ -76,8 +77,8 @@ namespace ZFrame.Asset
 
         public override string ToString()
         {
-            return string.Format("[<{0}>{1}|{2} @{3:0.0000}]",
-                group, Path.GetFileNameWithoutExtension(name), method, lastLoaded);
+            return string.Format("[<{0}>{1}|[{2}] @{3:0.0000}]",
+                group, Path.GetFileNameWithoutExtension(name), (AssetOp)method, lastLoaded);
         }
 
         public virtual int CompareTo(AbstractAssetBundleRef other)

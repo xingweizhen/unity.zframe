@@ -23,6 +23,27 @@ public static class SystemTools
 
         return path.Substring(0, index);
     }
+
+    /// <summary>
+    /// 获取文件的真实文件名，大小写真实
+    /// </summary>
+    /// <param name="pathName"></param>
+    /// <returns></returns>
+    public static string GetExactPathName(string pathName)
+    {
+        if (!(File.Exists(pathName) || Directory.Exists(pathName)))
+            return pathName;
+
+        var di = new DirectoryInfo(pathName);
+
+        if (di.Parent != null) {
+            return Path.Combine(
+                GetExactPathName(di.Parent.FullName),
+                di.Parent.GetFileSystemInfos(di.Name)[0].Name);
+        } else {
+            return di.Name.ToUpper();
+        }
+    }
     
     /// <summary>
     /// 移除一个文件路径的扩展名。输入: aaa/bbb/ccc.xx；返回：aaa/bbb/ccc

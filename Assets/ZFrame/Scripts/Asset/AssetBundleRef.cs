@@ -12,7 +12,7 @@ namespace ZFrame.Asset
 
         public void Init(string assetbundleName, AssetBundle ab, Object[] assets, LoadMethod method)
         {
-            if (method == LoadMethod.Forever) {
+            if (method.HasOp(AssetOp.Unload)) {
                 // 对常驻的资源，卸载文件镜像以节省内存占用。
                 ab.Unload(false);
             }
@@ -106,13 +106,29 @@ namespace ZFrame.Asset
             return null;
         }
 
+        public override bool Contains(object asset)
+        {
+            var uObj = asset as Object;
+            if (uObj == null) return false;
+
+            for (int i = 0; i < m_Assets.Length; ++i) {
+                if (m_Assets[i] == uObj) return true;
+            }
+
+
+            for (int i = 0; i < m_CachedAssets.Count; ++i) {
+                if (m_CachedAssets[i] == uObj) return true;
+            }
+            return false;
+        }
+
         public override IEnumerator LoadAsync(AsyncLoadingTask task)
         {
             // 先尝试从缓存加载
             task.asset = LoadFromCache(task.assetName, task.assetType);
             if (task.asset == null && m_Assetbundle && !m_Assetbundle.isStreamedSceneAssetBundle) {
                 if (string.IsNullOrEmpty(task.assetName)) {
-                    task.asset = m_Assetbundle.mainAsset;
+                    task.asset = null;
                 } else {
                     var req = task.assetType != null
                         ? m_Assetbundle.LoadAssetAsync(task.assetName, task.assetType)
@@ -133,8 +149,8 @@ namespace ZFrame.Asset
         {
             if (m_Assetbundle) {
                 // 场景依赖也属于场景，不能完全卸载。
-                var isScene = name.OrdinalStartsWith("scenes");
-                m_Assetbundle.Unload(!isScene);
+                // var isScene = name.StartsWith("scenes");                
+                m_Assetbundle.Unload(!m_Assetbundle.isStreamedSceneAssetBundle);
             }
 
             m_CachedAssets.Clear();

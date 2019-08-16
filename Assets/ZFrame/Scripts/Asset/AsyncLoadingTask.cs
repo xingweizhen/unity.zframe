@@ -9,16 +9,7 @@ namespace ZFrame.Asset
     /// 资源包/资源加载任务
     /// </summary>
     public class AsyncLoadingTask : Poolable<AsyncLoadingTask>
-    {
-        [System.Flags]
-        public enum LoadType
-        {
-            IDLE = 0,
-            Load = 1,
-            Download = 2,
-            DownloadAndLoad = 3,
-        }
-        
+    {        
         public static void Cancel(AsyncLoadingTask task)
         {   
             if (task.loadingCanceled != null) {
@@ -29,12 +20,15 @@ namespace ZFrame.Asset
         
         public AsyncOperation async;
 
-        public AsyncLoadingTask SetBundleAsset(string bundleName, string assetName)
+        public AsyncLoadingTask SetInfo(BundleType bundleType, string bundleName, string assetName)
         {
             assetPath = string.Concat(bundleName, "/", assetName);
+            if (bundleType == BundleType.AssetBundle && !string.IsNullOrEmpty(bundleName)) {
+                bundleName = bundleName.ToLower();
+            }
 
-            bundleType = BundleType.AssetBundle;
-            this.bundleName = bundleName;
+            this.bundleType = bundleType;
+            this.bundleName = bundleName;           
             this.assetName = assetName;
 
             return this;
@@ -108,8 +102,8 @@ namespace ZFrame.Asset
         /// </summary>
         public bool forcedStreaming;
 
-        public bool allowCache { get { return ((int)method & (int)AssetOp.Cache) != 0; } }
-        public bool allowUnload { get { return ((int)method & (int)AssetOp.Keep) == 0; } }
+        public bool allowCache { get { return method.HasOp(AssetOp.Cache); } }
+        public bool allowUnload { get { return method.HasOp(AssetOp.Keep); } }
 
         public event System.Action<AsyncLoadingTask> loadingCanceled;
 
@@ -161,10 +155,22 @@ namespace ZFrame.Asset
         #endregion
     }
 
-    public class LoadedBundle
+    public class LoadedBundle : Poolable<LoadedBundle>
     {
         public AbstractAssetBundleRef bundle;
         public object asset;
+
+        protected override void OnGet()
+        {
+            UnityEngine.Assertions.Assert.IsNull(bundle);
+            UnityEngine.Assertions.Assert.IsNull(asset);
+        }
+
+        protected override void OnRelease()
+        {
+            bundle = null;
+            asset = null;
+        }
     }
 
     public interface ILoadedCallback

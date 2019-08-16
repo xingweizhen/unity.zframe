@@ -69,8 +69,7 @@ namespace ZFrame
         /*************************************************
          * 启动后加载Lua脚本
          *************************************************/
-        public const string LUA_SCRIPT = "lua/script/";
-        public const string LUA_CONFIG = "lua/config/";
+        public const string LUA_SCRIPT = "lua/script";
         public const string KEY_MD5_STREAMING_LUA = "Streaming-Lua";
         public const string KEY_DATE_STREAMING_LUA = "Streaming-Lua-Date";
         public const string KEY_MD5_USING_LUA = "Using-Lua";
@@ -123,15 +122,14 @@ namespace ZFrame
                     }
 
                     yield return AssetBundleLoader.I.LoadFileList(newInstallApp);
-                    yield return AssetLoader.Instance.LoadingAsset(null, LUA_SCRIPT, null, LoadMethod.Forever);
-                    //yield return Loader.LoadingAsset(null, LUA_CONFIG, null, LoadMethod.Forever);
+                    yield return AssetLoader.Instance.LoadingAsset(null, LUA_SCRIPT, null, null, LoadMethod.Forever);                    
                 } else {
                     yield return AssetBundleLoader.I.LoadFileList();
                 }
             }
 
             if (ZFrame.UIManager.Instance == null) {
-                yield return AssetLoader.Instance.LoadingAsset(null, "Shaders/", null, LoadMethod.Always);
+                yield return AssetLoader.Instance.LoadingAsset(null, AssetLoader.SHADER_ABNAME, null, null, LoadMethod.Always);
                 var loaded = new LoadedBundle();
                 yield return AssetLoader.Instance.LoadingAsset(typeof(GameObject), m_LaunchPrefab, loaded, LoadMethod.Forever);
                 GoTools.AddForever(loaded.asset as GameObject);

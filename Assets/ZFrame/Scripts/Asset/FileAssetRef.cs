@@ -36,7 +36,12 @@ namespace ZFrame.Asset
 			return m_Asset as Object;
 		}
 
-		public override IEnumerator LoadAsync(AsyncLoadingTask task)
+        public override bool Contains(object asset)
+        {
+            return m_Asset == asset;
+        }
+
+        public override IEnumerator LoadAsync(AsyncLoadingTask task)
 		{
 			yield return null;
 			task.asset = m_Asset;

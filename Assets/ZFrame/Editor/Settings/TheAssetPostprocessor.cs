@@ -60,6 +60,11 @@ namespace ZFrame.Editors
             if (settings != null) settings.OnPostprocess(clip);
         }
 
+        public void OnPostprocessAssetbundleNameChanged(string assetPath, string previousAssetBundleName, string newAssetBundleName)
+        {
+            Debug.LogFormat("AB Name: [{0}] `{1}` -> `{2}`", assetPath, previousAssetBundleName, newAssetBundleName);
+        }
+
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
             foreach (string str in importedAssets) {

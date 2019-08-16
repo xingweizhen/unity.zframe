@@ -162,7 +162,7 @@ namespace ZFrame.Lua
         {
             string bundleName, assetName;
             AssetLoader.GetAssetpath(lua.ToString(1), out bundleName, out assetName);
-            lua.PushBoolean(AssetLoader.Instance.GetBundleStat(bundleName) == AssetLoader.BundleStat.Local);
+            lua.PushBoolean(AssetLoader.Instance.GetBundleStat(bundleName) == BundleStat.Local);
             return 1;
         }
 
@@ -407,7 +407,7 @@ namespace ZFrame.Lua
 
         private static IEnumerator CoroUnpacking(string url, string dest, int block, LuaFunction func)
         {
-            var unpacker = new ZFrame.Bundle.Unpacker(block);
+            var unpacker = new Bundle.Unpacker(block);
             unpacker.Start(url, dest);
             string name, md5;
             int siz;
@@ -511,7 +511,7 @@ namespace ZFrame.Lua
                     while (lua.Next(1)) {
                         var bundleName = lua.ToString(-1);
                         var stat = AssetLoader.Instance.GetBundleStat(bundleName);
-                        var progress = stat == AssetLoader.BundleStat.Local ? 1 : AssetDownload.Instance.GetProgress(bundleName);
+                        var progress = stat == BundleStat.Local ? 1 : AssetDownload.Instance.GetProgress(bundleName);
                         lua.PushInteger(++n);
                         lua.CreateTable(0, 2);
                         lua.SetDict("stat", (int)stat);
@@ -522,7 +522,7 @@ namespace ZFrame.Lua
                 } else {
                     var bundleName = lua.ToString(1);
                     var stat = AssetLoader.Instance.GetBundleStat(bundleName);
-                    var progress = stat == AssetLoader.BundleStat.Local ? 1 : AssetDownload.Instance.GetProgress(bundleName);
+                    var progress = stat == BundleStat.Local ? 1 : AssetDownload.Instance.GetProgress(bundleName);
                     lua.CreateTable(0, 2);
                     lua.SetDict("stat", (int)stat);
                     lua.SetDict("progress", progress);

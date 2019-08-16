@@ -18,6 +18,23 @@ namespace ZFrame.Asset
                 public string name { get; private set; }
                 public string path { get; private set; }
                 private Dictionary<System.Type, Object> m_ObjRefs;
+                private Object m_MainAsset;
+                public Object mainAsset {
+                    get {
+                        if (m_MainAsset == null) {
+                            m_MainAsset = AssetDatabase.LoadMainAssetAtPath(path);
+                            if (m_MainAsset) {
+                                var type = m_MainAsset.GetType();
+                                if (m_ObjRefs.ContainsKey(type)) {
+                                    m_ObjRefs[type] = m_MainAsset;
+                                } else {
+                                    m_ObjRefs.Add(type, m_MainAsset);
+                                }
+                            }
+                        }
+                        return m_MainAsset;
+                    }
+                }
                 public SimAsset(string path)
                 {
                     this.path = path;
@@ -30,15 +47,7 @@ namespace ZFrame.Asset
                     }
                     Object objRef;
                     if (type == null) {
-                        objRef = AssetDatabase.LoadMainAssetAtPath(path);
-                        if (objRef) {
-                            type = objRef.GetType();
-                            if (m_ObjRefs.ContainsKey(type)) {
-                                m_ObjRefs[type] = objRef;
-                            } else {
-                                m_ObjRefs.Add(type, objRef);
-                            }
-                        }
+                        objRef = mainAsset;
                     } else {
                         if (!m_ObjRefs.TryGetValue(type, out objRef)) {
                             objRef = AssetDatabase.LoadAssetAtPath(path, type);
@@ -69,19 +78,27 @@ namespace ZFrame.Asset
                     if (value) lastLoaded = Time.realtimeSinceStartup;
                 }
             }
-            private List<SimAsset> m_AllAssets;
 
-            public SimAssetBundle(string assetbundleName, string[] assetPaths)
+            private List<SimAsset> __AllAssets;
+            private List<SimAsset> m_AllAssets {
+                get {
+                    if (__AllAssets == null) {
+                        __AllAssets = new List<SimAsset>();
+                        var assetPaths = AssetDatabase.GetAssetPathsFromAssetBundle(name);
+                        if (assetPaths != null) {
+                            for (int i = 0; i < assetPaths.Length; ++i) {
+                                var asset = new SimAsset(assetPaths[i]);
+                                __AllAssets.Add(asset);
+                            }
+                        }
+                    }
+                    return __AllAssets;
+                }
+            }
+
+            public SimAssetBundle(string assetbundleName)
             {
                 this.name = assetbundleName;
-
-                m_AllAssets = new List<SimAsset>();
-                if (assetPaths != null) {
-                    for (int i = 0; i < assetPaths.Length; ++i) {
-                        var asset = new SimAsset(assetPaths[i]);
-                        m_AllAssets.Add(asset);
-                    }
-                }
             }
 
             public override bool IsEmpty()
@@ -120,6 +137,21 @@ namespace ZFrame.Asset
                 return LoadFromBundle(assetName, type);
             }
 
+            public override bool Contains(object asset)
+            {
+                var uObj = asset as Object;
+                if (__AllAssets != null && uObj) {
+                    for (int i = 0; i < __AllAssets.Count; ++i) {
+                        if (m_AllAssets[i].mainAsset == uObj) {
+                            asset = m_AllAssets[i];
+                            break;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
             public override IEnumerator LoadAsync(AsyncLoadingTask task)
             {
                 task.asset = LoadFromCache(task.assetName, task.assetType);
@@ -131,8 +163,10 @@ namespace ZFrame.Asset
 
             protected override void UnloadAssets(bool markAsLoaded = false)
             {
-                foreach (var asset in m_AllAssets) {
-                    asset.Unload();
+                if (__AllAssets != null) {
+                    foreach (var asset in __AllAssets) {
+                        asset.Unload();
+                    }
                 }
                 loaded = markAsLoaded;
             }
@@ -174,8 +208,7 @@ namespace ZFrame.Asset
             // 分析资源结构，做虚拟加载使用
             var assetNames = AssetDatabase.GetAllAssetBundleNames();
             foreach (var ab in assetNames) {
-                var assets = AssetDatabase.GetAssetPathsFromAssetBundle(ab);
-                m_AllAssetBundles.Add(ab, new SimAssetBundle(ab, assets));
+                m_AllAssetBundles.Add(ab, new SimAssetBundle(ab));
             }
         }
 
@@ -190,7 +223,23 @@ namespace ZFrame.Asset
             if (string.IsNullOrEmpty(bundleName)) return BundleStat.Local;
             return m_AllAssetBundles.ContainsKey(bundleName) ? BundleStat.Local : BundleStat.NotExist;
         }
-        
+
+        protected override AbstractAssetBundleRef PerformTask(System.Type type, string bundleName, string assetName, LoadMethod method)
+        {
+            SimAssetBundle bundle = null;
+            if (m_AllAssetBundles.TryGetValue(bundleName, out bundle)) {
+                if (!bundle.loaded) {
+                    LogMgr.W("[Asset] [SYNC] 加载资源：{0}|{1}", bundleName, (AssetOp)method);
+                    bundle.loaded = true;
+                }
+
+                bundle.SetMethod(method);
+            } else {
+                LogMgr.E("资源不存在：{0}", bundleName);
+            }
+            return bundle;
+        }
+
         protected override IEnumerator PerformTask(AsyncLoadingTask task)
         {
             OnLoading(task.bundleName, 0);
@@ -267,6 +316,9 @@ namespace ZFrame.Asset
             if (m_AllAssetBundles.TryGetValue(assetbundleName, out assetbundle)) {
                 var assetPath = assetbundle.GetAssetPath(assetName);
                 if (assetPath != null) {
+#if UNITY_2018_4_OR_NEWER
+                    return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(assetPath, new LoadSceneParameters(mode));
+#else
                     if (mode == LoadSceneMode.Single) {
                         return EditorApplication.LoadLevelAsyncInPlayMode(assetPath);
                     } else if (mode == LoadSceneMode.Additive) {
@@ -274,7 +326,9 @@ namespace ZFrame.Asset
                     } else {
                         LogMgr.E("错误的场景加载模式：{0}", mode);
                     }
+#endif
                 }
+
             }
             LogMgr.E(string.Format("场景未标志为<AssetBundle>：{0}({1}, {2})", path, assetbundleName, assetName));
             return null;

@@ -55,7 +55,7 @@ namespace ZFrame.Asset
 		private IAssetProgress m_Progress;
 		private int m_Count;
 		
-		public AsyncLoadingTask.LoadType loadType { get; private set; }
+		public LoadType loadType { get; private set; }
 
 		protected override void OnRelease()
 		{
@@ -66,7 +66,7 @@ namespace ZFrame.Asset
 			m_Tasks.Clear();
 			m_Loaded = null;
 			m_Param = null;
-			loadType = AsyncLoadingTask.LoadType.IDLE;
+			loadType = LoadType.IDLE;
 		}
 
 		public void AddTask(AsyncLoadingTask task)
@@ -101,7 +101,7 @@ namespace ZFrame.Asset
 
 		public bool HasDownload()
 		{
-			return (loadType & AsyncLoadingTask.LoadType.Download) != 0;
+			return (loadType & LoadType.Download) != 0;
 		}
 	}
 }

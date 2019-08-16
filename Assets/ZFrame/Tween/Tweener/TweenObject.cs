@@ -7,7 +7,8 @@ using UnityEditor;
 
 namespace ZFrame.Tween
 {
-    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = false)]
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = false)]    
     public sealed class TweenMenuAttribute : System.Attribute
     {
         public readonly string menu;

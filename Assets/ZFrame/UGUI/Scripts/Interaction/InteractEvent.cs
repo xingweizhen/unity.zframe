@@ -86,7 +86,7 @@ namespace ZFrame.UGUI
 
         public void Send(Component sender, IEventTransfer transfer, object data = null)
         {
-            if (IsActive()) transfer.SendEvent(sender, name, param, data);
+            if (IsActive() && transfer != null) transfer.SendEvent(sender, name, param, data);
         }
     }
 

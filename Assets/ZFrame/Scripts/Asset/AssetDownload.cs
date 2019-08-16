@@ -128,10 +128,10 @@ namespace ZFrame.Asset
 
         private void OnTaskDownloaded(AsyncLoadingTask task)
         {
-            if (task.loadType == AsyncLoadingTask.LoadType.DownloadAndLoad) {
+            if (task.loadType == LoadType.DownloadAndLoad) {
                 AssetLoader.Instance.ScheduleTask(task);
-            } else if (task.loadType == AsyncLoadingTask.LoadType.Download) {
-                task.loadType = AsyncLoadingTask.LoadType.Load;
+            } else if (task.loadType == LoadType.Download) {
+                task.loadType = LoadType.Load;
             } else {
                 AsyncLoadingTask.Release(task);
             }
@@ -215,7 +215,7 @@ namespace ZFrame.Asset
 
         public bool Download(AsyncLoadingTask task)
         {
-            if (task.loadType == AsyncLoadingTask.LoadType.Load) {
+            if (task.loadType == LoadType.Load) {
                 if (FindDownloader(task.bundleName) != null || FindTasking(task.bundleName) != null) {
                     AsyncLoadingTask.Release(task);
                     return false;

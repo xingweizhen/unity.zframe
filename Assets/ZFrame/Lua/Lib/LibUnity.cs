@@ -1020,7 +1020,11 @@ namespace ZFrame.Lua
 
         public static IEnumerator LuaInvoke(MonoBehaviour mono, LuaFunction func, float delay, object param)
         {
-            yield return delay > 0 ? Yields.Seconds(delay) : null;
+            if (delay > 0) {
+                yield return Yields.Seconds(delay);
+            } else if (delay == 0) {
+                yield return null;
+            }
 
             using (func) {
                 if (mono && mono.isActiveAndEnabled) {
@@ -1031,11 +1035,18 @@ namespace ZFrame.Lua
                     func.EndPCall(top);
                 }
             }
+
+            var disposable = param as System.IDisposable;
+            if (disposable != null) disposable.Dispose();
         }
 
         private static IEnumerator LuaInvokeRepeating(MonoBehaviour mono, LuaFunction func, float delay, float wait, object param)
         {
-            yield return delay > 0 ? Yields.Seconds(delay) : null;
+            if (delay > 0) {
+                yield return Yields.Seconds(delay);
+            } else if (delay == 0) {
+                yield return null;
+            }
 
             using (func) {
                 var lua = func.GetState();
@@ -1047,11 +1058,15 @@ namespace ZFrame.Lua
                     lua.PushAnyObject(param);
                     lua.ExecPCall(2, 1, b);
                     var finished = lua.OptBoolean(-1, false);
+                    lua.Pop(1);
                     if (finished) break;
 
                     yield return waiting;
                 }
             }
+
+            var disposable = param as System.IDisposable;
+            if (disposable != null) disposable.Dispose();
         }
 
         private static MonoBehaviour ToAsyncMono(this ILuaState self, int index, bool allowNull = true)

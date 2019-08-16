@@ -11,6 +11,8 @@ namespace ZFrame.Asset
 
     public sealed class AssetBundleLoader : AssetLoader
     {
+        public const float ASYNC_LOAD_TIME = 1f;
+
         public static AssetBundleLoader I { get { return Instance as AssetBundleLoader; } }
 
         static string m_persistentDataPath;
@@ -169,19 +171,36 @@ namespace ZFrame.Asset
             return CombinePath(streamingRootPath, assetbundleName);
         }
 
-        public override AsyncLoadingTask ScheduleTask(AsyncLoadingTask task)
+        private IEnumerable<string> GetDependencies(string bundleName)
         {
-#if false
-            // 在目前的资源结构规划下，自动判断依赖性价比不高，先不用。
-            var ds = m_Manifest.GetAllDependencies(task.bundleName);
-            foreach (var abName in ds) {
-                var dTask = m_TaskPool.Get();
-                dTask.SetBundleAsset(abName, null);
-                base.ScheduleTask(dTask);
+            var deps = m_Manifest.GetAllDependencies(bundleName);
+
+#if UNITY_EDITOR
+            if (deps.Length > 0) {
+                var strbld = new System.Text.StringBuilder();
+                foreach (var d in deps) {
+                    AbstractAssetBundleRef abRef;
+                    if (!TryGetAssetBundle(d, out abRef)) {
+                        strbld.Append(d).Append("; ");
+                    }
+                }
+                if (strbld.Length > 0) LogMgr.D("[Asset] [DEP] [{0}]需要加载的依赖项：{1}", bundleName, strbld.ToString());
             }
 #endif
-            return base.ScheduleTask(task);
+            return deps;
         }
+
+//        public override AsyncLoadingTask ScheduleTask(AsyncLoadingTask task)
+//        {
+//#if true
+//            foreach (var abName in GetDependencies(task.bundleName)) {
+//                var dTask = AsyncLoadingTask.Get();
+//                dTask.SetBundleAsset(abName, null);
+//                base.ScheduleTask(dTask);
+//            }
+//#endif
+//            return base.ScheduleTask(task);
+//        }
 
         private bool InitBundleList(Variant joList)
         {
@@ -280,16 +299,79 @@ namespace ZFrame.Asset
             return stat;
         }
 
-        protected override IEnumerator PerformTask(AsyncLoadingTask task)
+        protected override void AddBundleToPreload(string bundleName, string assetPath, LoadMethod method)
+        {
+            var deps = GetDependencies(bundleName);
+            if (deps != null) {
+                foreach (var abName in deps) {
+                    base.AddBundleToPreload(abName, abName + "/", LoadMethod.Default);
+                }
+            }
+            base.AddBundleToPreload(bundleName, assetPath, method);
+        }
+
+        private AbstractAssetBundleRef LoadBundleFromFile(string abName, LoadMethod method)
+        {
+            // 打断正在进行的同名资源的异步加载
+            if (m_Tasking != null && m_Tasking.bundleName == abName) {
+                var createReq = m_Tasking.async as AssetBundleCreateRequest;
+                if (createReq != null && !createReq.isDone) {
+                    LogMgr.W("[Asset] [SYNC] 打断进行中的异步加载。[{0}]", abName);
+                    createReq.assetBundle.Unload(true);
+                }
+            }
+
+            var suitPath = GetAssetBundlePath(abName, false);
+            AbstractAssetBundleRef abRef;
+            if (!TryGetAssetBundle(abName, out abRef)) {
+                var startTime = Time.realtimeSinceStartup;                
+                var ab = AssetBundle.LoadFromFile(suitPath);                
+                if (ab != null) {
+                    LogMgr.W("[Asset] [SYNC] Load [{0}]|{1} in {2}ms", 
+                        abName, (AssetOp)method, (Time.realtimeSinceStartup - startTime) * 1000);
+                    var bundle = m_ABPool.Get();
+                    var allAssets = method.HasOp(AssetOp.Cache) ? ab.LoadAllAssets() : empty;
+                    bundle.Init(abName, ab, allAssets, method);
+                    FinishLoadindBundle(abName, bundle);
+                    abRef = bundle;
+                } else {
+                    LogMgr.W("[Asset] [SYNC] Load [{0}] FAILURE!", abName);
+                }
+            }
+            return abRef;
+        }
+
+        protected override AbstractAssetBundleRef PerformTask(System.Type type, string bundleName, string assetName, LoadMethod method)
+        {
+            // 先加载依赖
+            var deps = GetDependencies(bundleName);
+            if (deps != null) {
+                foreach (var abName in deps) {
+                    LoadBundleFromFile(abName, LoadMethod.Default);
+                }
+            }
+
+            return LoadBundleFromFile(bundleName, method);
+        }
+
+        private IEnumerator LoadBundleFromFileAsync(AsyncLoadingTask task)
         {
             string abName = task.bundleName;
-            string suitPath = GetAssetBundlePath(task.bundleName, task.forcedStreaming);
+            string suitPath = GetAssetBundlePath(abName, task.forcedStreaming);
 
+            var startTime = Time.realtimeSinceStartup;
             var req = AssetBundle.LoadFromFileAsync(suitPath);
+            task.async = req;
             while (!req.isDone) {
                 yield return null;
                 task.loadingProgress = req.progress * 0.5f;
                 OnLoading(abName, task.loadingProgress);
+            }
+            var costTime = Time.realtimeSinceStartup - startTime;
+            if (costTime > ASYNC_LOAD_TIME) {
+                LogMgr.W("[Asset] LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+            } else {
+                Log("LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
             }
 
             AssetBundle ab = req.assetBundle;
@@ -297,6 +379,7 @@ namespace ZFrame.Asset
                 Object[] allAssets = empty;
                 if (!ab.isStreamedSceneAssetBundle) {
                     if (task.allowCache) {
+                        startTime = Time.realtimeSinceStartup;
                         // 这是一个普通的资源包，获取里面的所有Assets以缓存。
                         AssetBundleRequest abReq = ab.LoadAllAssetsAsync();
                         while (!abReq.isDone) {
@@ -304,6 +387,13 @@ namespace ZFrame.Asset
                             task.loadingProgress = Mathf.Min(0.999f, 0.5f + abReq.progress * 0.5f);
                             OnLoading(abName, task.loadingProgress);
                         }
+                        costTime = Time.realtimeSinceStartup - startTime;
+                        if (costTime > ASYNC_LOAD_TIME) {
+                            LogMgr.W("[Asset] LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                        } else {
+                            Log("LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                        }
+
                         if (abReq.allAssets != null) allAssets = abReq.allAssets;
                     }
                 } else {
@@ -320,6 +410,28 @@ namespace ZFrame.Asset
             } else {
                 LogMgr.W("{0}加载失败。", task);
             }
+        }
+
+        protected override IEnumerator PerformTask(AsyncLoadingTask task)
+        {
+            // 先加载依赖
+            var deps = GetDependencies(task.bundleName);
+            if (deps != null) {
+                foreach (var abName in deps) {
+                    AbstractAssetBundleRef abRef;
+                    if (!TryGetAssetBundle(abName, out abRef)) {
+                        var subTask = AsyncLoadingTask.Get();
+                        subTask.SetInfo(BundleType.AssetBundle, abName, null);
+                        m_Tasking = subTask;
+                        yield return LoadBundleFromFileAsync(subTask);
+                        FinishLoadindBundle(abName, subTask.bundle);
+                        AsyncLoadingTask.Release(subTask);
+                    }
+                }
+                m_Tasking = task;
+            }
+
+            yield return LoadBundleFromFileAsync(task);
         }
 
 #if false
@@ -444,9 +556,10 @@ namespace ZFrame.Asset
         public string md5 { get; private set; }
         public IEnumerator LoadMD5()
         {
-            var loaded = new LoadedBundle();
+            var loaded = LoadedBundle.Get();
             yield return LoadingAsset(typeof(TextAsset), GetFilePath(MD5), loaded);
             md5 = loaded.asset as string;
+            LoadedBundle.Release(loaded);
         }
 
         public IEnumerator LoadFileList(bool reset = false)
@@ -455,7 +568,7 @@ namespace ZFrame.Asset
             var joCached = File.Exists(filePath) ? JSON.Load(File.ReadAllText(filePath)) : null;
 
             if (reset || joCached == null) {
-                var loaded = new LoadedBundle();
+                var loaded = LoadedBundle.Get();
 #if UNITY_EDITOR
                 var editorFileList = string.Format("file://{0}/{1}/{2}", Application.streamingAssetsPath, ASSETBUNDLE_FOLDER, FILE_LIST);
                 yield return LoadingAsset(typeof(TextAsset), editorFileList, loaded);
@@ -479,6 +592,7 @@ namespace ZFrame.Asset
                     }
                 }
 
+                LoadedBundle.Release(loaded);
                 SystemTools.NeedDirectory(bundleRootPath);
                 File.WriteAllText(filePath, dirty ? joList.ToJSONString() : asset);
                 LogMgr.D("Save '{0}' at '{1}'", FILE_LIST, filePath);
@@ -488,47 +602,5 @@ namespace ZFrame.Asset
                 }
             }
         }
-
-        private void OnApplicationQuit()
-        {
-            AssetsTransfer.StopTransfer();
-        }
-        public IEnumerator TransferAll()
-        {
-            yield return null;
-#if false
-	        if (!AssetsTransfer.IsLock && !AssetsTransfer.IsTransfering && File.Exists(bundleListPath)) {
-	            string[] lines = File.ReadAllLines(bundleListPath);
-	            List<System.Object> liTransfer = new List<System.Object>();
-	            for (int i = 1; i < lines.Length; ++i) {
-	                string assetName = lines[i];
-	                string bundlePath = Path.Combine(bundleRootPath, assetName);
-	                if (!File.Exists(bundlePath)) {
-	                    liTransfer.Add(assetName);
-	                }
-	            }
-
-	            if (liTransfer.Count > 0) {
-	                Log(string.Format("Start Transfer {0}", liTransfer.Count));
-	                AssetsTransfer.Total = liTransfer.Count;
-	                AssetsTransfer.Count = 0;
-	                foreach (string asset in liTransfer) {
-	                    string url = Path.Combine(streamingRootPath, asset);
-	                    if (!url.Contains("://")) {
-	                        url = "file://" + url;
-	                    }
-	                    WWW www = new WWW(url);
-	                    yield return www;
-	        
-	                    if (www.error == null) {
-	                        new AssetsTransfer(www.bytes, Path.Combine(bundleRootPath, asset));
-	                    }
-	                    AssetsTransfer.Count++;
-	                }
-	            }
-	        }
-#endif
-        }
-
     }
 }

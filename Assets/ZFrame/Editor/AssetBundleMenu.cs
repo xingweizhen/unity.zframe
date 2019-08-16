@@ -100,11 +100,6 @@ namespace ZFrame.Editors
             var ai = AssetImporter.GetAtPath(assetPath);
             abName = abName.ToLower();
             if (ai && ai.assetBundleName != abName) {
-                if (string.IsNullOrEmpty(abName)) {
-                    AssetPacker.Log("-移除了资源名称: {0} -> {1}", ai.assetPath, abName);
-                } else {
-                    AssetPacker.Log("+设置了资源名称: {0} -> {1}", ai.assetPath, abName);
-                }
                 ai.assetBundleName = abName;
             }
         }
@@ -112,7 +107,7 @@ namespace ZFrame.Editors
         public static void AutoSetAssetBundleName(string assetPath)
         {
             var ext = Path.GetExtension(assetPath).ToLower();
-            if (string.IsNullOrEmpty(ext) || ext == "cs" || ext == "shader") return;
+            if (string.IsNullOrEmpty(ext) || ext == ".cs" || ext == ".shader") return;
 
             var oboDirs = new HashSet<string>();
             var categoryDirs = new HashSet<string>();
@@ -343,23 +338,91 @@ namespace ZFrame.Editors
             AssetPacker.Log("共删除{0}个废弃的资源包", listDel.Count);
         }
 
+        public static bool IsShaderPath(string path)
+        {
+            return path.EndsWith(".shader", System.StringComparison.OrdinalIgnoreCase)
+                || path.EndsWith(".cginc", System.StringComparison.OrdinalIgnoreCase);
+        }
+
         [MenuItem("Assets/资源/刷新shader集")]
         public static void CollectShaders()
         {
-            foreach (var path in AssetDatabase.GetAssetPathsFromAssetBundle("shaders")) {
-                AssetImporter.GetAtPath(path).assetBundleName = string.Empty;
-            }
+            var shaderBundle = AssetLoader.SHADER_ABNAME;
+            var dict = new Dictionary<string, string>();
+            var assetPaths = new HashSet<string>();
 
-            var assetPaths = new List<string>();
-            foreach (var abName in AssetDatabase.GetAllAssetBundleNames())
-                assetPaths.AddRange(AssetDatabase.GetAssetPathsFromAssetBundle(abName));
-
-            foreach (var path in AssetDatabase.GetDependencies(assetPaths.ToArray())) {
-                if (path.ToLower().EndsWith(".shader")) {
-                    AssetImporter.GetAtPath(path).assetBundleName = "shaders";
+            var shaderAssets = AssetDatabase.GetAssetPathsFromAssetBundle(shaderBundle);
+            foreach (var path in shaderAssets) {
+                if (IsShaderPath(path)) {
+                    dict.Add(path, string.Empty);
+                } else {
+                    assetPaths.Add(path);
                 }
             }
+
+            var allAbNames = AssetDatabase.GetAllAssetBundleNames();
+
+            int curr = 0, total = allAbNames.Length;
+            foreach (var abName in allAbNames) {
+                if (abName == shaderBundle) continue;
+
+                EditorUtility.DisplayProgressBar("收集所有使用到的资源", abName, ++curr / (float)total);
+                var texType = typeof(Texture);
+                var txtType = typeof(TextAsset);
+                foreach (var path in AssetDatabase.GetAssetPathsFromAssetBundle(abName)) {
+                    var objType = AssetDatabase.GetMainAssetTypeAtPath(path);
+                    if (texType.IsAssignableFrom(objType)) continue;
+                    if (txtType.IsAssignableFrom(objType)) continue;
+                    assetPaths.Add(path);
+                }
+            }
+
+            var arrayPaths = new string[assetPaths.Count];
+            assetPaths.CopyTo(arrayPaths);
+
+            EditorUtility.DisplayProgressBar("获取所有依赖资源...", string.Empty, 1);
+            var alldeps = AssetDatabase.GetDependencies(arrayPaths);
+            curr = 0; total = alldeps.Length;
+            foreach (var path in alldeps) {
+                EditorUtility.DisplayProgressBar("收集被使用到的着色器", path, ++curr / (float)total);
+                if (path.Replace('\\', '/').Contains("/Resources/")) continue;
+
+                if (IsShaderPath(path)) {
+                    if (dict.ContainsKey(path)) {
+                        dict[path] = shaderBundle;
+                    } else {
+                        dict.Add(path, shaderBundle);
+                    }
+                    //var ai = AssetImporter.GetAtPath(path);
+                    //if (ai) ai.assetBundleName = shaderBundle;
+                }
+            }
+
+            curr = 0; total = dict.Count;
+            foreach (var kv in dict) {
+                EditorUtility.DisplayProgressBar("更新着色器AssetBundleName", kv.Key, ++curr / (float)total);
+                var ai = AssetImporter.GetAtPath(kv.Key);
+                if (ai) ai.assetBundleName = kv.Value;
+            }
+
+            EditorUtility.ClearProgressBar();
+
             AssetDatabase.Refresh();
+
+            //foreach (var path in AssetDatabase.GetAssetPathsFromAssetBundle("shaders")) {
+            //    AssetImporter.GetAtPath(path).assetBundleName = string.Empty;
+            //}
+
+            //var assetPaths = new List<string>();
+            //foreach (var abName in AssetDatabase.GetAllAssetBundleNames())
+            //    assetPaths.AddRange(AssetDatabase.GetAssetPathsFromAssetBundle(abName));
+
+            //foreach (var path in AssetDatabase.GetDependencies(assetPaths.ToArray())) {
+            //    if (path.ToLower().EndsWith(".shader")) {
+            //        AssetImporter.GetAtPath(path).assetBundleName = "shaders";
+            //    }
+            //}
+            //AssetDatabase.Refresh();
         }
     }
 }
