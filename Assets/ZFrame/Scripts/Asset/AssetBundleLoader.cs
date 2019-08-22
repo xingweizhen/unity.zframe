@@ -82,6 +82,8 @@ namespace ZFrame.Asset
             }
         }
 
+        public System.Func<AssetBundleManifest, string, IEnumerable<string>> DependenciesGetter;
+
         private AssetBundleManifest m_Manifest;
         private readonly HashSet<string> m_ExistBundles = new HashSet<string>();
         private readonly Dictionary<string, string> m_RemoteBundles = new Dictionary<string, string>();
@@ -173,10 +175,12 @@ namespace ZFrame.Asset
 
         private IEnumerable<string> GetDependencies(string bundleName)
         {
-            var deps = m_Manifest.GetAllDependencies(bundleName);
+            var deps = DependenciesGetter != null ?
+                DependenciesGetter.Invoke(m_Manifest, bundleName) :
+                m_Manifest.GetAllDependencies(bundleName);
 
 #if UNITY_EDITOR
-            if (deps.Length > 0) {
+            if (deps != null) {
                 var strbld = new System.Text.StringBuilder();
                 foreach (var d in deps) {
                     AbstractAssetBundleRef abRef;
@@ -330,7 +334,7 @@ namespace ZFrame.Asset
                     LogMgr.W("[Asset] [SYNC] Load [{0}]|{1} in {2}ms", 
                         abName, (AssetOp)method, (Time.realtimeSinceStartup - startTime) * 1000);
                     var bundle = m_ABPool.Get();
-                    var allAssets = method.HasOp(AssetOp.Cache) ? ab.LoadAllAssets() : empty;
+                    var allAssets = method.HasOp(AssetOp.Cache) ? ab.LoadAllAssets() : null;
                     bundle.Init(abName, ab, allAssets, method);
                     FinishLoadindBundle(abName, bundle);
                     abRef = bundle;
@@ -376,7 +380,7 @@ namespace ZFrame.Asset
 
             AssetBundle ab = req.assetBundle;
             if (ab != null) {
-                Object[] allAssets = empty;
+                Object[] allAssets = null;
                 if (!ab.isStreamedSceneAssetBundle) {
                     if (task.allowCache) {
                         startTime = Time.realtimeSinceStartup;

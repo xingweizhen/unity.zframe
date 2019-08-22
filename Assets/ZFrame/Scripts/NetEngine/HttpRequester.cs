@@ -299,7 +299,7 @@ namespace ZFrame.NetEngine
                 lock (m_FileLock) {
                     if (ex == null && file != null && param != null) {
                         file.Seek(0, SeekOrigin.Begin);
-                        md5 = CMD5.MD5Stream(file);
+                        md5 = StreamToMD5(file);
                     }
                 }
 
@@ -323,14 +323,18 @@ namespace ZFrame.NetEngine
                     }
                 }
             }
+        }
 
-#if false
-		异步调用例子
-			IAsyncResult result = request.BeginGetResponse(new AsyncCallback(f_processHttpResponseAsync), request);
-		//处理超时请求
-		ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, 
-		                                       new WaitOrTimerCallback(f_asyncTimeout), request, 1000 * 60 * 10, true);
-#endif
+        private static string StreamToMD5(Stream stream)
+        {
+            using (var alg = System.Security.Cryptography.MD5.Create()) {
+                var hashBytes = alg.ComputeHash(stream);
+                var strbld = new StringBuilder(hashBytes.Length * 2);
+                for (var i = 0; i < hashBytes.Length; ++i) {
+                    strbld.Append(hashBytes[i].ToString("x2"));
+                }
+                return strbld.ToString();
+            }
         }
     }
 }
