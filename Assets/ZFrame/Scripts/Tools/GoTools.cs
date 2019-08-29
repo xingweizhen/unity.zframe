@@ -33,13 +33,13 @@ public static class GoTools
         self.transform.Attach(parent, worldPositionStays);
     }
 
-    public static GameObject NewChild(GameObject parent, GameObject prefab = null)
+    public static GameObject NewChild(GameObject parent, GameObject prefab = null, string name = null)
 	{
 		GameObject go = prefab ? Object.Instantiate(prefab) : new GameObject();
 		if (go) {
             go.SetActive(true);
             go.Attach(parent ? parent.transform : null, false);
-            go.name = prefab ? prefab.name : "GameObject";
+            go.name = string.IsNullOrEmpty(name) ? (prefab ? prefab.name : "GameObject") : name;
             AssetLoader.AssignEditorShaders(go);
 		}
 		return go;
@@ -256,9 +256,9 @@ public static class GoTools
         return null;
     }
 
-    public static GameObject AddForever(GameObject prefab)
+    public static GameObject AddForever(GameObject prefab, string name = null)
     {
-        GameObject go = NewChild(null, prefab);
+        GameObject go = NewChild(null, prefab, name);
         Object.DontDestroyOnLoad(go);
         return go;
     }

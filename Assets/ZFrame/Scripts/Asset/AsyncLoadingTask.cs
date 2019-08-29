@@ -51,6 +51,12 @@ namespace ZFrame.Asset
             return this;
         }
 
+        public event System.Action<AsyncLoadingTask> bundleLoading;
+        public void OnBundleLoading()
+        {
+            if (bundleLoading != null) bundleLoading.Invoke(this);
+        }
+
         #region 资源包参数
         public string bundleName { get; private set; }
         public event DelegateAssetBundleLoaded bundleLoaded;

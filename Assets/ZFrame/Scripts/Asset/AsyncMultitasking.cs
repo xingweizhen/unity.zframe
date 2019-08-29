@@ -17,6 +17,12 @@ namespace ZFrame.Asset
 
 		public AsyncMultitasking()
 		{
+            m_OnBundleLoading = (task) => {
+                if (m_Progress != null) {
+                    m_Progress.SetProgress((m_Count - m_Tasks.Count + task.loadingProgress) / m_Count);
+                }
+            };
+
 			m_OnBundleLoaded = (name, ab) => {
 				if (m_Progress != null) {
 					m_Progress.OnBundleLoaded(name, ab);
@@ -45,9 +51,10 @@ namespace ZFrame.Asset
 			};
 		}
 
-		private readonly DelegateAssetBundleLoaded m_OnBundleLoaded;
-		private readonly DelegateObjectLoaded m_OnAssetLoaded;
-		private readonly System.Action<AsyncLoadingTask> m_OnTaskCancel;
+        private readonly System.Action<AsyncLoadingTask> m_OnBundleLoading;
+        private readonly DelegateAssetBundleLoaded m_OnBundleLoaded;
+		private readonly DelegateObjectLoaded m_OnAssetLoaded;        
+        private readonly System.Action<AsyncLoadingTask> m_OnTaskCancel;
 		
 		private HashSet<string> m_Tasks = new HashSet<string>();
 		private DelegateObjectLoaded m_Loaded;
@@ -80,6 +87,7 @@ namespace ZFrame.Asset
 				return;
 			}
 
+            task.bundleLoading += m_OnBundleLoading;
 			task.bundleLoaded += m_OnBundleLoaded;
 			task.assetLoaded += m_OnAssetLoaded;
 			task.loadingCanceled += m_OnTaskCancel;
