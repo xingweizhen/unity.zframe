@@ -12,6 +12,7 @@ namespace ZFrame.Asset
     public sealed class AssetBundleLoader : AssetLoader
     {
         public const float ASYNC_LOAD_TIME = 1f;
+        private const float LOADING_FILE_TIME_WEIGHTS = 0.75f;
 
         public static AssetBundleLoader I { get { return Instance as AssetBundleLoader; } }
 
@@ -156,7 +157,7 @@ namespace ZFrame.Asset
         private string GetFilePath(string fileName)
         {
             var path = GetStreamingPath(fileName);
-            if (!path.OrdinalStartsWith("file://")) path = "file://" + path;
+            if (!path.StartsWith("file://", System.StringComparison.OrdinalIgnoreCase)) path = "file://" + path;
             return path;
         }
 
@@ -368,7 +369,8 @@ namespace ZFrame.Asset
             task.async = req;
             while (!req.isDone) {
                 yield return null;
-                task.loadingProgress = req.progress * 0.5f;
+                task.loadingProgress = req.progress * LOADING_FILE_TIME_WEIGHTS;
+                task.OnBundleLoading();
                 OnLoading(abName, task.loadingProgress);
             }
             var costTime = Time.realtimeSinceStartup - startTime;
@@ -383,12 +385,14 @@ namespace ZFrame.Asset
                 Object[] allAssets = null;
                 if (!ab.isStreamedSceneAssetBundle) {
                     if (task.allowCache) {
+                        var loadingAssetTimeWeights = 1 - LOADING_FILE_TIME_WEIGHTS;
                         startTime = Time.realtimeSinceStartup;
                         // 这是一个普通的资源包，获取里面的所有Assets以缓存。
                         AssetBundleRequest abReq = ab.LoadAllAssetsAsync();
                         while (!abReq.isDone) {
                             yield return null;
-                            task.loadingProgress = Mathf.Min(0.999f, 0.5f + abReq.progress * 0.5f);
+                            task.loadingProgress = Mathf.Min(0.999f, 0.5f + abReq.progress * loadingAssetTimeWeights);
+                            task.OnBundleLoading();
                             OnLoading(abName, task.loadingProgress);
                         }
                         costTime = Time.realtimeSinceStartup - startTime;

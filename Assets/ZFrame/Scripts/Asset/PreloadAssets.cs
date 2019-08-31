@@ -60,20 +60,29 @@ namespace ZFrame.Asset
 
         public static bool operator ==(PreloadAsset a, PreloadAsset b)
         {
-            return a.path == b.path;
+            var nulla = ReferenceEquals(a, null);
+            var nullb = ReferenceEquals(b, null);
+            if (nulla || nullb) {
+                return nulla == nullb;                
+            }
+            return string.CompareOrdinal(a.path, b.path) == 0;
         }
 
         public static bool operator !=(PreloadAsset a, PreloadAsset b)
         {
-            return a.path != b.path;
+            var nulla = ReferenceEquals(a, null);
+            var nullb = ReferenceEquals(b, null);
+            if (nulla || nullb) {
+                return nulla != nullb;
+            }
+
+            return string.CompareOrdinal(a.path, b.path) != 0;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is PreloadAsset) {
-                return path == ((PreloadAsset)obj).path;
-            }
-            return false;
+            var self = obj as PreloadAsset;
+            return self != null && string.CompareOrdinal(self.path, path) == 0;
         }
 
         public override int GetHashCode()
