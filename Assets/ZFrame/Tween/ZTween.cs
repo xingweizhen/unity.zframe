@@ -510,8 +510,6 @@ namespace ZFrame.Tween
         public float lifetime { get { throw new System.NotImplementedException(); } }
         public float timeScale { get; set; }
 
-        public TweenParameter param;
-
         public bool IsTweening()
         {
             return false;
@@ -525,28 +523,28 @@ namespace ZFrame.Tween
 
         public ZTweener SetUpdate(UpdateType updateType, bool ignoreTimeScale)
         {
-            param.updateType = updateType;
-            param.ignoreTimescale = ignoreTimeScale;
+            m_Parameter.updateType = updateType;
+            m_Parameter.ignoreTimescale = ignoreTimeScale;
             return this;
         }
 
         public ZTweener DelayFor(float time)
         {
-            param.delay = time;
+            m_Parameter.delay = time;
             return this;
         }
 
 
         public ZTweener LoopFor(int loops, LoopType loopType)
         {
-            param.loops = loops;
-            param.loopType = loopType;
+            m_Parameter.loops = loops;
+            m_Parameter.loopType = loopType;
             return this;
         }
 
         public ZTweener EaseBy(Ease ease)
         {
-            param.ease = ease;
+            m_Parameter.ease = ease;
             return this;
         }
 
@@ -594,16 +592,19 @@ namespace ZFrame.Tween
 
         public ZTweener StartWith(CallbackOnUpdate onStart)
         {
+            m_OnStart = onStart;
             return this;
         }
 
         public ZTweener UpdateWith(CallbackOnUpdate onUpdate)
         {
+            m_OnUpdate = onUpdate;
             return this;
         }
 
         public ZTweener CompleteWith(CallbackOnComplete onComplete)
         {
+            m_OnComplete = onComplete;
             return this;
         }
 
@@ -653,7 +654,9 @@ namespace ZFrame.Tween
 
         public static ZTweener TweenAlpha(this CanvasGroup self, float from, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            return ZTweenMgr.Instance.Begin(self, CanvasGroupAlphaGetAndSet.Get(from, to), new TweenParameter() {
+                duration = duration,
+            });
         }
 
         public static ZTweener TweenAlpha(this Graphic self, float to, float duration)
@@ -770,12 +773,16 @@ namespace ZFrame.Tween
         #region Tween Position
         public static ZTweener TweenPosition(this Transform self, Vector3 to, float durtion)
         {
-            throw new System.NotImplementedException();
+            return ZTweenMgr.Instance.Begin(self, TransformPositionGetAndSet.Get(self.position, to), new TweenParameter() {
+                duration = durtion,
+            });
         }
 
         public static ZTweener TweenPosition(this Transform self, Vector3 from, Vector3 to, float durtion)
         {
-            throw new System.NotImplementedException();
+            return ZTweenMgr.Instance.Begin(self, TransformPositionGetAndSet.Get(self.position, to), new TweenParameter() {
+                duration = durtion,
+            });
         }
         #endregion
 
