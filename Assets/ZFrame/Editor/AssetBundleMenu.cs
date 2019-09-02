@@ -5,7 +5,6 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 
-
 namespace ZFrame.Editors
 {
     using Asset;
@@ -48,7 +47,6 @@ namespace ZFrame.Editors
                         assetName = assetName.Replace('~', '.');
                         string abName = string.Format("{0}/{1}", group, assetName).ToLower();
                         ai.assetBundleName = abName;
-                        AssetPacker.Log("设置了资源名称: {0} -> {1}", ai.assetPath, abName);
                     }
                 }
             }
@@ -75,8 +73,6 @@ namespace ZFrame.Editors
                     count += 1;
                 }
             }
-
-            AssetPacker.Log("设置了资源名称: {0} -> {1}。共{2}个资源", rootPath, abName, count);
         }
 
         /// <summary>
@@ -299,10 +295,10 @@ namespace ZFrame.Editors
             var listDel = new List<string>();
             foreach (var f in files) {
                 if (f.Name[0] == '.' ||
-                    f.Name == AssetBundleLoader.FILE_LIST ||
-                    f.Name == AssetBundleLoader.ASSETBUNDLE_FOLDER ||
-                    f.Extension == ".manifest" ||
-                    f.Name == "md5") continue;
+                    f.Name == AssetLoaderSettings.Instance.assetMD5File ||
+                    f.Name == AssetLoaderSettings.Instance.assetListFile ||
+                    f.Name == AssetLoaderSettings.Instance.assetBundleFolder ||
+                    f.Extension == ".manifest" ) continue;
 
                 var abName = f.FullName.Substring(index).Replace('\\', '/');
                 if (list.Contains(abName)) continue;

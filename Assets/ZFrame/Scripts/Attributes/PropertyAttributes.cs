@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 序列号字段在面板中显示的名称
 /// </summary>
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class NamedPropertyAttribute : PropertyAttribute
 {
     public string name { get; private set; }
@@ -14,7 +14,7 @@ public class NamedPropertyAttribute : PropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class EnumValueAttribute : NamedPropertyAttribute
 {
     public string format { get; private set; }
@@ -24,7 +24,7 @@ public class EnumValueAttribute : NamedPropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class EnumFlagsValueAttribute : PropertyAttribute
 {
     public readonly string[] flags;
@@ -34,7 +34,7 @@ public class EnumFlagsValueAttribute : PropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class AssetRefAttribute : NamedPropertyAttribute
 {
     public System.Type type { get; private set; }
@@ -48,7 +48,7 @@ public class AssetRefAttribute : NamedPropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class AssetPathAttribute : NamedPropertyAttribute
 {
     public System.Type type { get; private set; }
@@ -59,13 +59,13 @@ public class AssetPathAttribute : NamedPropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class AudioRefAttribute : PropertyAttribute
 {
     
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class ElementListAttribute : NamedPropertyAttribute
 {
     //public bool allowDrag = true, allowAdd = true, allowRemove = true;
@@ -75,13 +75,13 @@ public class ElementListAttribute : NamedPropertyAttribute
     }
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class ReadonlyFieldAttribute : PropertyAttribute
 {
     
 }
 
-[Conditional(LogMgr.UNITY_EDITOR)]
+[Conditional(ZFrame.Log.UNITY_EDITOR)]
 public class NavMeshAreaAttribute : PropertyAttribute
 {
 

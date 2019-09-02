@@ -143,7 +143,7 @@ namespace ZFrame.Lua
         private static int Log(ILuaState lua)
         {
             var traceLevel = lua.OptInteger(1, -1);
-            var logLevel = (LogMgr.LogLevel)lua.ToEnumValue(2, LogMgr.logLevel);
+            var logLevel = (LogLevel)lua.ToEnumValue(2, LogMgr.logLevel);
             if (LogMgr.logLevel > logLevel) return 0;
 
             var logStr = lua.ToCSFormatString(3);

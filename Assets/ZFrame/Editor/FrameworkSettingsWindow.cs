@@ -64,7 +64,7 @@ namespace ZFrame.Editors
         {
             return new[] {
                     typeof(UGUI.UGUISettings), typeof(UGUIEditorSettings),
-                    typeof(AssetBundleSettings),
+                    typeof(AssetLoaderSettings), typeof(AssetBundleSettings),
                     typeof(TextureProcessSettings), typeof(ModelProcessSettings), typeof(AudioProcessSettings),
                     typeof(ArtStandardChecker),
                     typeof(VersionInfo),  typeof(BuildPlayerSettings),

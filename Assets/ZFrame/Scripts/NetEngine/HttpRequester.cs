@@ -91,7 +91,7 @@ namespace ZFrame.NetEngine
             error = null;
             statusCode = 0;
 
-            LogMgr.I("{0} {1}?{2}", reqMethod, reqUri, reqPara);
+            Log.Format(LogLevel.I, "{0} {1}?{2}", reqMethod, reqUri, reqPara);
             switch (reqMethod) {
                 case "GET":
                     wrq = (HttpWebRequest)WebRequest.Create(reqUri + "?" + reqPara);
@@ -200,7 +200,7 @@ namespace ZFrame.NetEngine
         {
             lock (m_FileLock) {
                 if (file != null) {
-                    LogMgr.I("Close: {0}", file.Name);
+                    Log.Format(LogLevel.I, "Close: {0}", file.Name);
                     file.Close();
                     file = null;
                     return true;
@@ -276,7 +276,7 @@ namespace ZFrame.NetEngine
                 if (resp != null) {
                     statusCode = resp.StatusCode;
                     if (statusCode == HttpStatusCode.RequestedRangeNotSatisfiable) {
-                        LogMgr.I("File {0} is done.", rspFile);
+                        Log.Format(LogLevel.I, "File {0} is done.", rspFile);
                         rsb.Append(rspFile);
                         current = total;
                         return;

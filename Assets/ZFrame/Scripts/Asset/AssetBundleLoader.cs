@@ -7,21 +7,26 @@ using TinyJSON;
 
 namespace ZFrame.Asset
 {
-    using NetEngine;
-
     public sealed class AssetBundleLoader : AssetLoader
     {
-        public const float ASYNC_LOAD_TIME = 1f;
-        private const float LOADING_FILE_TIME_WEIGHTS = 0.75f;
-
         public static AssetBundleLoader I { get { return Instance as AssetBundleLoader; } }
 
-        static string m_persistentDataPath;
+#if UNITY_EDITOR
+        public static string EDITOR_RUNTIME_ASSETBUNDLE_FOLDER;
+#endif
+
+        [System.NonSerialized]
+        public float ASYNC_LOAD_TIME = 1f;
+        private float LOADING_FILE_TIME_WEIGHTS = 0.75f;
+
+        private static string m_persistentDataPath;
         public static string persistentDataPath {
             get {
                 if (m_persistentDataPath == null) {
-#if UNITY_EDITOR || UNITY_STANDALONE
-                    m_persistentDataPath = SystemTools.GetDirPath(Application.dataPath) + "/Issets/PersistentData";
+#if UNITY_EDITOR 
+                    m_persistentDataPath = SystemTools.GetDirPath(Application.dataPath) + "/" + AssetLoaderSettings.Instance.editorPersistentDataPath;
+#elif UNITY_STANDALONE
+                    m_persistentDataPath = SystemTools.GetDirPath(Application.dataPath) + "/PersistentData";
 #else
 					m_persistentDataPath = Application.persistentDataPath;
 #endif
@@ -29,12 +34,12 @@ namespace ZFrame.Asset
                 return m_persistentDataPath;
             }
         }
-        static string m_streamingAssetPath;
+        private static string m_streamingAssetPath;
         public static string streamingAssetsPath {
             get {
                 if (m_streamingAssetPath == null) {
 #if UNITY_EDITOR
-                    m_streamingAssetPath = SystemTools.GetDirPath(Application.dataPath) + "/Issets/StreamingAssets";
+                    m_streamingAssetPath = SystemTools.GetDirPath(Application.dataPath) + "/" + AssetLoaderSettings.Instance.editorStreamingAssetsPath;
 #else
 					m_streamingAssetPath = Application.streamingAssetsPath;
 #endif
@@ -43,16 +48,26 @@ namespace ZFrame.Asset
             }
         }
 
-        public const string MD5 = "md5";
-        public const string FILE_LIST = "filelist";
+        public static string MD5 { get { return AssetLoaderSettings.Instance.assetMD5File; } }
+        public static string FILE_LIST { get { return AssetLoaderSettings.Instance.assetListFile; } }
 
         public static string CombinePath(string path1, string path2)
         {
             return string.Concat(path1, '/', path2);
         }
 
-        public const string ASSETBUNDLE_FOLDER = "AssetBundles";
-        static string m_bundleRoot;
+        public static string ASSETBUNDLE_FOLDER {
+            get {
+#if UNITY_EDITOR
+                if (!string.IsNullOrEmpty(EDITOR_RUNTIME_ASSETBUNDLE_FOLDER)) {
+                    return EDITOR_RUNTIME_ASSETBUNDLE_FOLDER;
+                }
+#endif
+                return AssetLoaderSettings.Instance.assetBundleFolder;
+
+            }
+        }
+        private static string m_bundleRoot;
         public static string bundleRootPath {
             get {
                 if (m_bundleRoot == null) {
@@ -62,8 +77,8 @@ namespace ZFrame.Asset
             }
         }
 
-        public const string DOWNLOAD_FOLDER = "Downloads";
-        static string m_downloadRoot;
+        public static string DOWNLOAD_FOLDER { get { return AssetLoaderSettings.Instance.downloadFolder; } }
+        private static string m_downloadRoot;
         public static string downloadRootPath {
             get {
                 if (m_downloadRoot == null) {
@@ -73,7 +88,7 @@ namespace ZFrame.Asset
             }
         }
 
-        static string m_streamingRoot;
+        private static string m_streamingRoot;
         public static string streamingRootPath {
             get {
                 if (m_streamingRoot == null) {
@@ -100,16 +115,16 @@ namespace ZFrame.Asset
                 string expectMD5;
                 m_RemoteBundles.TryGetValue(bundleName, out expectMD5);
                 if (expectMD5 == null) {
-                    AssetDownload.Log2File(LogMgr.LogLevel.W, "资源校验异常： {0}的CRC期待值为0", bundleName);
+                    AssetDownload.Log2File(LogLevel.W, "资源校验异常： {0}的CRC期待值为0", bundleName);
                 } else {
                     if (string.CompareOrdinal(md5, expectMD5) != 0) {
-                        AssetDownload.Log2File(LogMgr.LogLevel.W,
+                        AssetDownload.Log2File(LogLevel.W,
                             "资源下载异常：{0}的MD5期望值={1}, 实际值={2}", bundleName, expectMD5, md5);
 #if !UNITY_EDITOR
                         return false;
 #endif
                     } else {
-                        AssetDownload.Log2File(LogMgr.LogLevel.D, "资源下载完成：{0} MD5={1}", bundleName, expectMD5);
+                        AssetDownload.Log2File(LogLevel.D, "资源下载完成：{0} MD5={1}", bundleName, expectMD5);
                     }
                 }
             }
@@ -130,12 +145,12 @@ namespace ZFrame.Asset
             // m_ExistBundles.Remove(bundleName);
         }
 
-        protected override void Awaking()
+        protected override void Start()
         {
-            base.Awaking();
-
-            var ab = AssetBundle.LoadFromFile(GetAssetBundlePath("AssetBundles", false));
+            var ab = AssetBundle.LoadFromFile(GetAssetBundlePath(ASSETBUNDLE_FOLDER, false));
             m_Manifest = ab.LoadAsset("AssetBundleManifest", typeof(AssetBundleManifest)) as AssetBundleManifest;
+
+            base.Start();
         }
 
         private void OnDestroy()
@@ -189,7 +204,10 @@ namespace ZFrame.Asset
                         strbld.Append(d).Append("; ");
                     }
                 }
-                if (strbld.Length > 0) LogMgr.D("[Asset] [DEP] [{0}]需要加载的依赖项：{1}", bundleName, strbld.ToString());
+                if (strbld.Length > 0) {
+                    this.LogFormat(LogLevel.D, 
+                        "[Asset] [DEP] [{0}]需要加载的依赖项：{1}", bundleName, strbld.ToString());
+                }
             }
 #endif
             return deps;
@@ -321,7 +339,7 @@ namespace ZFrame.Asset
             if (m_Tasking != null && m_Tasking.bundleName == abName) {
                 var createReq = m_Tasking.async as AssetBundleCreateRequest;
                 if (createReq != null && !createReq.isDone) {
-                    LogMgr.W("[Asset] [SYNC] 打断进行中的异步加载。[{0}]", abName);
+                    this.LogFormat(LogLevel.W, "[Asset] [SYNC] 打断进行中的异步加载。[{0}]", abName);
                     createReq.assetBundle.Unload(true);
                 }
             }
@@ -332,7 +350,7 @@ namespace ZFrame.Asset
                 var startTime = Time.realtimeSinceStartup;                
                 var ab = AssetBundle.LoadFromFile(suitPath);                
                 if (ab != null) {
-                    LogMgr.W("[Asset] [SYNC] Load [{0}]|{1} in {2}ms", 
+                    this.LogFormat(LogLevel.W, "[Asset] [SYNC] Load [{0}]|{1} in {2}ms", 
                         abName, (AssetOp)method, (Time.realtimeSinceStartup - startTime) * 1000);
                     var bundle = m_ABPool.Get();
                     var allAssets = method.HasOp(AssetOp.Cache) ? ab.LoadAllAssets() : null;
@@ -340,7 +358,7 @@ namespace ZFrame.Asset
                     FinishLoadindBundle(abName, bundle);
                     abRef = bundle;
                 } else {
-                    LogMgr.W("[Asset] [SYNC] Load [{0}] FAILURE!", abName);
+                    this.LogFormat(LogLevel.W, "[Asset] [SYNC] Load [{0}] FAILURE!", abName);
                 }
             }
             return abRef;
@@ -375,9 +393,9 @@ namespace ZFrame.Asset
             }
             var costTime = Time.realtimeSinceStartup - startTime;
             if (costTime > ASYNC_LOAD_TIME) {
-                LogMgr.W("[Asset] LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                this.LogFormat(LogLevel.W, "[Asset] LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
             } else {
-                Log("LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                Info("LoadFromFileAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
             }
 
             AssetBundle ab = req.assetBundle;
@@ -397,9 +415,9 @@ namespace ZFrame.Asset
                         }
                         costTime = Time.realtimeSinceStartup - startTime;
                         if (costTime > ASYNC_LOAD_TIME) {
-                            LogMgr.W("[Asset] LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                            this.LogFormat(LogLevel.W, "[Asset] LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
                         } else {
-                            Log("LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
+                            Info("LoadAllAssetsAsync [{0}]|{1} in {2}ms", abName, (AssetOp)task.method, costTime * 1000);
                         }
 
                         if (abReq.allAssets != null) allAssets = abReq.allAssets;
@@ -416,7 +434,7 @@ namespace ZFrame.Asset
                 bundle.Init(abName, ab, allAssets, task.method);
                 task.bundle = bundle;
             } else {
-                LogMgr.W("{0}加载失败。", task);
+                this.LogFormat(LogLevel.W, "{0}加载失败。", task);
             }
         }
 
@@ -603,7 +621,7 @@ namespace ZFrame.Asset
                 LoadedBundle.Release(loaded);
                 SystemTools.NeedDirectory(bundleRootPath);
                 File.WriteAllText(filePath, dirty ? joList.ToJSONString() : asset);
-                LogMgr.D("Save '{0}' at '{1}'", FILE_LIST, filePath);
+                this.LogFormat(LogLevel.D, "Save '{0}' at '{1}'", FILE_LIST, filePath);
             } else {
                 if (InitBundleList(joCached)) {
                     File.WriteAllText(filePath, joCached.ToJSONString());

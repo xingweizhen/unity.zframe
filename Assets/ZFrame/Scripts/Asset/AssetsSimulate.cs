@@ -229,13 +229,13 @@ namespace ZFrame.Asset
             SimAssetBundle bundle = null;
             if (m_AllAssetBundles.TryGetValue(bundleName, out bundle)) {
                 if (!bundle.loaded) {
-                    LogMgr.W("[Asset] [SYNC] 加载资源：{0}|{1}", bundleName, (AssetOp)method);
+                    this.LogFormat(LogLevel.W, "[Asset] [SYNC] 加载资源：{0}|{1}", bundleName, (AssetOp)method);
                     bundle.loaded = true;
                 }
 
                 bundle.SetMethod(method);
             } else {
-                LogMgr.E("资源不存在：{0}", bundleName);
+                this.LogFormat(LogLevel.E, "资源不存在：{0}", bundleName);
             }
             return bundle;
         }
@@ -253,7 +253,7 @@ namespace ZFrame.Asset
                 bundle.SetMethod(task.method);
                 task.bundle = bundle;
             } else {
-                LogMgr.E("资源不存在：{0}", task.bundleName);
+                this.LogFormat(LogLevel.E, "资源不存在：{0}", task.bundleName);
             }
             OnLoading(task.bundleName, 1);
         }
@@ -330,7 +330,7 @@ namespace ZFrame.Asset
                 }
 
             }
-            LogMgr.E(string.Format("场景未标志为<AssetBundle>：{0}({1}, {2})", path, assetbundleName, assetName));
+            this.LogFormat(LogLevel.E, string.Format("场景未标志为<AssetBundle>：{0}({1}, {2})", path, assetbundleName, assetName));
             return null;
         }
     }

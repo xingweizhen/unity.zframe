@@ -190,7 +190,7 @@ namespace ZFrame.UGUI
 
         public void OnLogLevelChanged(int logLevel)
         {
-            LogMgr.Instance.SetLevel((LogMgr.LogLevel)logLevel);
+            LogMgr.Instance.SetLevel((LogLevel)logLevel);
         }
 
         public void OnCmdLineLineClick()

@@ -79,7 +79,7 @@ namespace ZFrame.Asset
 		public void AddTask(AsyncLoadingTask task)
 		{
 			if (string.IsNullOrEmpty(task.assetPath)) {
-				LogMgr.W("{0}: NullOrEmpty asset path", task);
+				Log.Format(LogLevel.W, "{0}: NullOrEmpty asset path", task);
 				return;
 			}
 

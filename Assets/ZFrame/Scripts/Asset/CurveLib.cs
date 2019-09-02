@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using ZFrame;
 
 [CreateAssetMenu(menuName = "资源库/曲线", fileName = "New CurveLib.asset")]
 public class CurveLib : ScriptableObject
@@ -26,7 +27,7 @@ public class CurveLib : ScriptableObject
             }
         }
 
-        LogMgr.W("库中不存在名称为'{0}'的曲线", name);
+        this.LogFormat(LogLevel.W, "库中不存在名称为'{0}'的曲线", name);
         return default(AnimationCurve);
     }
 }

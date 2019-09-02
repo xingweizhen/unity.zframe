@@ -200,7 +200,7 @@ namespace ZFrame.Asset
             try {
                 m_Loaded(m_BundleName, m_Bundle);
             } catch (System.Exception e) {
-                LogMgr.E("Loaded {0}: {1}\n{2}", m_Bundle, e.Message, e.StackTrace);
+                Log.Exception(e, null);
             }
             
             Release(this);
@@ -239,7 +239,7 @@ namespace ZFrame.Asset
             try {
                 m_Loaded(m_Path, m_Asset, m_Param);
             } catch (System.Exception e) {
-                LogMgr.E("Loaded {0}: {1}\n{2}", m_Path, e.Message, e.StackTrace);
+                Log.Exception(e, null);
             }
             
             Release(this);

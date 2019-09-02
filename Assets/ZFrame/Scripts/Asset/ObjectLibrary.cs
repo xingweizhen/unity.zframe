@@ -48,7 +48,7 @@ namespace ZFrame.Asset
                 }
             }
 
-            if (warnIfMissing) LogMgr.W("[{0}]Get {1} = NULL", this.name, name);
+            if (warnIfMissing) this.LogFormat(LogLevel.W, "[{0}]Get {1} = NULL", this.name, name);
 
             return null;
         }
@@ -62,7 +62,7 @@ namespace ZFrame.Asset
                     return o;
                 }
             }
-            if (warnIfMissing) LogMgr.W("[{0}]Get {1}<{2}> = NULL", this.name, name, type);
+            if (warnIfMissing) this.LogFormat(LogLevel.W, "[{0}]Get {1}<{2}> = NULL", this.name, name, type);
             return null;
         }
 
@@ -74,7 +74,7 @@ namespace ZFrame.Asset
                     return o;
                 }
             }
-            if (warnIfMissing) LogMgr.W("[{0}]Get {1}<{2}> = NULL", this.name, name, type);
+            if (warnIfMissing) this.LogFormat(LogLevel.W, "[{0}]Get {1}<{2}> = NULL", this.name, name, type);
             return null;
         }
 

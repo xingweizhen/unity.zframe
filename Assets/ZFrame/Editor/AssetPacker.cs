@@ -492,9 +492,9 @@ namespace ZFrame.Editors
                 var patchPath = string.Format("{0}/Patch{1}({2})/Assets/{3}",
                     AssetBundleLoader.streamingAssetsPath, diffInf.version, assetCode,
 #if UNITY_ANDROID
-                RuntimePlatform.Android
+                    RuntimePlatform.Android
 #elif UNITY_IOS
-                RuntimePlatform.IPhonePlayer
+                    RuntimePlatform.IPhonePlayer
 #elif UNITY_STANDALONE_OSX
                     RuntimePlatform.OSXPlayer
 #elif UNITY_STANDALONE_WIN

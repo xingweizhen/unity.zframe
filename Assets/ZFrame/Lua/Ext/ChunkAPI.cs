@@ -20,7 +20,7 @@ public static class ChunkAPI
 
     private static FileSystemWatcher _FSWatcher;
 
-    [Conditional(LogMgr.UNITY_EDITOR)]
+    [Conditional(Log.UNITY_EDITOR)]
     public static void InitFileWatcher(FileSystemEventHandler onChanged, RenamedEventHandler onRenamed)
     {
         UninitFileWatcher();
@@ -49,7 +49,7 @@ public static class ChunkAPI
         }
     }
 
-    [Conditional(LogMgr.UNITY_EDITOR)]
+    [Conditional(Log.UNITY_EDITOR)]
     public static void UninitFileWatcher()
     {
         if (_FSWatcher != null) {

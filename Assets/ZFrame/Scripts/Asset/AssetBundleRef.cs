@@ -82,7 +82,7 @@ namespace ZFrame.Asset
 
                 var costTime = Time.realtimeSinceStartup - realTime;
                 if (costTime > 0.1f) {
-                    LogMgr.W("加载[{0}/{1}]={2}。消耗：{3}秒。", name, assetName, obj, costTime);
+                    Log.Format(LogLevel.W, "加载[{0}/{1}]={2}。消耗：{3}秒。", name, assetName, obj, costTime);
                 }
             }
 

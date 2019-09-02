@@ -67,11 +67,11 @@ namespace ZFrame.Asset
         public void Unload(bool forced = false)
         {
             if (allowUnload || forced) {
-                AssetLoader.Log("{0}Unload {1}", forced ? "Forced " : "", this);
+                AssetLoader.Info("{0}Unload {1}", forced ? "Forced " : "", this);
                 lastLoaded = 0;
                 UnloadAssets();
             } else {
-                AssetLoader.Log("Skip {0}", this.ToString());
+                AssetLoader.Info("Skip {0}", this.ToString());
             }
         }
 

@@ -7,7 +7,6 @@ using UnityEngine;
 namespace ZFrame.Asset
 {
     using NetEngine;
-    using LogLevel = LogMgr.LogLevel;
 
     public class AssetDownload : MonoSingleton<AssetDownload>
     {
@@ -305,10 +304,10 @@ namespace ZFrame.Asset
             }
         }
 
-        [Conditional(LogMgr.UNITY_EDITOR), Conditional(LogMgr.DEVELOPMENT_BUILD)]
+        [Conditional(Log.UNITY_EDITOR), Conditional(Log.DEVELOPMENT_BUILD)]
         public static void Log2File(LogLevel level, string fmt, params object[] args)
         {
-            LogMgr.Log(level, fmt, args);
+            Log.Format(level, fmt, args);
 #if !UNITY_EDITOR
             var time = Mathf.RoundToInt(Time.realtimeSinceStartup * 1000) + "|";
             var logSavePath = AssetBundleLoader.CombinePath(AssetBundleLoader.persistentDataPath, "asset_download.log");

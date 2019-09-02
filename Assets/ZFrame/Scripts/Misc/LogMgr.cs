@@ -1,22 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
+using ZFrame;
 
 public class LogMgr : MonoSingleton<LogMgr>
 {
     public const string DEBUG = "XWZ_DEBUG";
-    public const string UNITY_EDITOR = "UNITY_EDITOR";
-    public const string UNITY_STANDALONE = "UNITY_STANDALONE";
-    public const string DEVELOPMENT_BUILD = "DEVELOPMENT_BUILD";
 
-    const string PROMPT = "{0} {1}";
-    public enum LogLevel
-    {
-        I,
-        D,
-        W,
-        E,
-    }
+    const string PROMPT = "{0} {1}";   
 
     public LogLevel setLevel = LogLevel.D;
 #if UNITY_EDITOR || UNITY_STANDALONE || DEVELOPMENT_BUILD
@@ -25,7 +16,7 @@ public class LogMgr : MonoSingleton<LogMgr>
     private static LogLevel m_Level = LogLevel.E;
 #endif
 
-    public static LogLevel logLevel { get { return m_Level; } private set { m_Level = value; } }
+    public static LogLevel logLevel { get { return ZFrame.Log.level; } private set { ZFrame.Log.level = value; } }
 
     protected override void Awaking()
     {
@@ -59,42 +50,12 @@ public class LogMgr : MonoSingleton<LogMgr>
 
     public static void Log(LogLevel l, string format, params object[] Args)
     {
-        if (logLevel <= l) {
-            switch (l) {
-                case LogLevel.E:
-                    UnityEngine.Debug.LogErrorFormat(format, Args);
-                    break;
-                case LogLevel.W:
-                    UnityEngine.Debug.LogWarningFormat(format, Args);
-                    break;
-                case LogLevel.D:
-                    UnityEngine.Debug.LogFormat(format, Args);
-                    break;
-                default:
-                    UnityEngine.Debug.LogFormat(PROMPT, l, string.Format(format, Args));
-                    break;
-            }
-        }
+        ZFrame.Log.Format(l, format, Args);
     }
 
     public static void Log(LogLevel l, Object context, string format, params object[] Args)
     {
-        if (logLevel <= l) {
-            switch (l) {
-                case LogLevel.E:
-                    UnityEngine.Debug.LogErrorFormat(context, format, Args);
-                    break;
-                case LogLevel.W:
-                    UnityEngine.Debug.LogWarningFormat(context, format, Args);
-                    break;
-                case LogLevel.D:
-                    UnityEngine.Debug.LogFormat(context, format, Args);
-                    break;
-                default:
-                    UnityEngine.Debug.LogFormat(context, PROMPT, l, string.Format(format, Args));
-                    break;
-            }
-        }
+        ZFrame.Log.LogFormat(context, l, format, Args);
     }
 
     public static void I(string format, params object[] Args)

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
 using System.Collections;
+using ZFrame;
 
 [CreateAssetMenu(menuName = "资源库/颜色", fileName = "New ColorLib.asset")]
 public class ColorLib : ScriptableObject
@@ -40,7 +41,7 @@ public class ColorLib : ScriptableObject
         }
 
         if (warnIfMissing)
-            LogMgr.W("库中不存在名称为'{0}'的颜色", name);
+            this.LogFormat(LogLevel.W, "库中不存在名称为'{0}'的颜色", name);
         
         return Color.clear;
     }
@@ -54,7 +55,7 @@ public class ColorLib : ScriptableObject
         }
 
         if (warnIfMissing)
-            LogMgr.W("库中不存在名称为'{0}'的字体颜色", name);
+            this.LogFormat(LogLevel.W, "库中不存在名称为'{0}'的字体颜色", name);
         
         return TextColor.Empty;
     }
