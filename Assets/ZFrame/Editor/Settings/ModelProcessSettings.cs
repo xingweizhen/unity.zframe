@@ -70,7 +70,14 @@ namespace ZFrame.Settings
                     if (ContainsFlag(flags, (int)Prop.NormalSmoothingAngle)) mi.normalSmoothingAngle = NormalSmoothingAngle;
                     if (ContainsFlag(flags, (int)Prop.ImportTangents)) mi.importTangents = ImportTangents;
                     if (ContainsFlag(flags, (int)Prop.OptimizeGameObjects)) mi.optimizeGameObjects = OptimizeGameObjects;
-                    if (ContainsFlag(flags, (int)Prop.AnimationType)) mi.animationType = AnimationType;
+                    if (ContainsFlag(flags, (int)Prop.AnimationType)) {
+                        mi.animationType = AnimationType;                        
+                    }
+                    if (mi.animationType == ModelImporterAnimationType.None) {
+                        mi.generateAnimations = ModelImporterGenerateAnimations.None;
+                    } else {
+                        mi.generateAnimations = ModelImporterGenerateAnimations.GenerateAnimations;
+                    }
 
                     var hasAni = mi.assetPath.IndexOf('@') > 0;
                     mi.importAnimation = hasAni;

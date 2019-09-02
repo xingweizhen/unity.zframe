@@ -41,7 +41,7 @@ namespace ZFrame.Editors
 
             if (m_TimeProps.Count > 0 || m_NTimeProps.Count > 0) {
                 var usingTime = System.Array.IndexOf(targetMat.shaderKeywords, "USING_TIME") != -1;
-                if (EditorUtil.KeywordCheck(targetMat, "使用时间值", "USING_TIME", usingTime)) {
+                if (EditorAPI.KeywordCheck(targetMat, "使用时间值", "USING_TIME", usingTime)) {
                     EditorGUI.indentLevel++;
                     foreach (var prop in m_TimeProps) materialEditor.DrawProperty(prop);
                     EditorGUI.indentLevel--;
@@ -56,7 +56,7 @@ namespace ZFrame.Editors
 
             if (m_DistortProps.Count > 0) {
                 var texDistort = System.Array.IndexOf(targetMat.shaderKeywords, "TEX_DISTORT") != -1;
-                if (EditorUtil.KeywordCheck(targetMat, "使用贴图扭曲", "TEX_DISTORT", texDistort)) {
+                if (EditorAPI.KeywordCheck(targetMat, "使用贴图扭曲", "TEX_DISTORT", texDistort)) {
                     EditorGUI.indentLevel++;
                     foreach (var prop in m_DistortProps) materialEditor.DrawProperty(prop);
                     EditorGUI.indentLevel--;

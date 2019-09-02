@@ -5,8 +5,8 @@ using UnityEditor;
 
 namespace ZFrame.Settings
 {
-	public abstract class AssetProcessSettings : ZFrameSettings4Folder
-	{
+    public abstract class AssetProcessSettings : ZFrameSettings4Folder
+    {
         //public enum PropertyType { Boolean, Integer, Float };
 
         //protected class ProcessProperty
@@ -21,7 +21,7 @@ namespace ZFrame.Settings
 
         protected abstract class AbstractSettings : SettingsBase
         {
-	        public int flags;
+            public int flags;
         }
 
         [SerializeField]
@@ -36,23 +36,23 @@ namespace ZFrame.Settings
 
         public abstract System.Enum props { get; set; }
 
-		public abstract void OnPreprocess(AssetImporter ai);
-		public abstract void OnPostprocess(Object obj);
+        public abstract void OnPreprocess(AssetImporter ai);
+        public abstract void OnPostprocess(Object obj);
 
-		protected static bool ContainsAsset(IEnumerable<string> folders, string path)
-		{
-			foreach (var folder in folders) {
-				if (path.Contains(folder)) {
-					return true;
-				}
-			}
+        protected static bool ContainsAsset(IEnumerable<string> folders, string path)
+        {
+            foreach (var folder in folders) {
+                if (path.Contains(folder)) {
+                    return true;
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		protected static bool ContainsFlag(int flags, int value)
-		{
-			return (flags & value) != 0;
-		}
-	}
+        protected static bool ContainsFlag(int flags, int value)
+        {
+            return (flags & value) != 0;
+        }
+    }
 }

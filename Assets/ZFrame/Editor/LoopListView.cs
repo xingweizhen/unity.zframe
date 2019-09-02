@@ -151,7 +151,7 @@ namespace ZFrame.Editors
 			if (onMatchItem != null) {
 				var searchRect = new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight);
 				GUILayout.BeginArea(searchRect);
-				searchString = EditorUtil.SearchField(searchString);
+				searchString = EditorAPI.SearchField(searchString);
 				GUILayout.EndArea();
 				rect.y += searchRect.height;
 				rect.height -= searchRect.height;

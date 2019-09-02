@@ -17,12 +17,14 @@ namespace ZFrame.Editors
         private ReorderableList NewReorderableList(string property)
         {
             var serializedProperty = serializedObject.FindProperty(property);
-            return new ReorderableList(serializedObject, serializedProperty, true, false, false, true) {
-                headerHeight = 0,
-                drawElementCallback = (rect, index, isActive, isFocus) => {
-                    FrameworkSettingsWindow.DrawFolderPath(serializedProperty, index, rect);
-                },
-            };
+            if (serializedProperty != null) {
+                return new ReorderableList(serializedObject, serializedProperty, true, false, false, true) {
+                    headerHeight = 0,
+                    drawElementCallback = (rect, index, isActive, isFocus) => {
+                        FrameworkSettingsWindow.DrawFolderPath(serializedProperty, index, rect);
+                    },
+                };
+            } return null;
         }
 
         private void OnEnable()
@@ -36,9 +38,11 @@ namespace ZFrame.Editors
 
         private void DrawFolderEditGUI(string name, ReorderableList list, ref bool toggle)
         {
-            toggle = EditorGUILayout.Foldout(toggle, name);
-            if (toggle) {
-                ZFrameSettings4FolderEditor.DrawFolderList(list);
+            if (list != null) {
+                toggle = EditorGUILayout.Foldout(toggle, name);
+                if (toggle) {
+                    ZFrameSettings4FolderEditor.DrawFolderList(list);
+                }
             }
         }
 

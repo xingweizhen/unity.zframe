@@ -23,6 +23,7 @@ namespace ZFrame.Settings
             sRGB = 512,
             AlphaSource = 1024,
             AlphaIsTransparency = 2048,
+            SpritePackingTag = 4096,
         }
 
         [System.Serializable]
@@ -40,6 +41,7 @@ namespace ZFrame.Settings
             public bool sRGB;
             public TextureImporterAlphaSource AlphaSource;
             public bool AlphaIsTransparency;
+            public string SpritePackingTag;
 
             public void OnPreprocess(TextureImporter ti)
             {
@@ -58,6 +60,8 @@ namespace ZFrame.Settings
                     if (ContainsFlag(flags, (int)Prop.sRGB)) ti.sRGBTexture = sRGB;
                     if (ContainsFlag(flags, (int)Prop.AlphaSource)) ti.alphaSource = AlphaSource;
                     if (ContainsFlag(flags, (int)Prop.AlphaIsTransparency)) ti.alphaIsTransparency = AlphaIsTransparency;
+                    if (ContainsFlag(flags, (int)Prop.SpritePackingTag)) ti.spritePackingTag = SpritePackingTag;
+                    
                 }
             }
 

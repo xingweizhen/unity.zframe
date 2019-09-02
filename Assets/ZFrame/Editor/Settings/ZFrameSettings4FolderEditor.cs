@@ -75,7 +75,21 @@ namespace ZFrame.Editors
 				UpdateSelectedItem();
 			}
 
-			EditorGUI.BeginDisabledGroup(m_SelIndex >= m_SettingsList.arraySize);
+            EditorGUI.BeginDisabledGroup(m_SelIndex == 0);
+            if (GUILayout.Button("往前", "buttonmid")) {
+                m_SettingsList.MoveArrayElement(m_SelIndex, --m_SelIndex);
+                __SettingsNames = null;
+            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(m_SelIndex == m_SettingsList.arraySize - 1);
+            if (GUILayout.Button("往后", "buttonmid")) {
+                m_SettingsList.MoveArrayElement(m_SelIndex, ++m_SelIndex);
+                __SettingsNames = null;
+            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(m_SelIndex >= m_SettingsList.arraySize);
 			if (GUILayout.Button("X", "buttonright")) {
 				var settingsName = m_SelSettings.FindPropertyRelative("name").stringValue;
 				if (EditorUtility.DisplayDialog("删除设置",

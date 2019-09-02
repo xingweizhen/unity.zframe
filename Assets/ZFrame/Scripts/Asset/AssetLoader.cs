@@ -995,22 +995,11 @@ namespace ZFrame.Asset
             {
                 base.OnInspectorGUI();
 
-                m_SearchText = SearchField(m_SearchText);
+                m_SearchText = EditorAPI.SearchField(m_SearchText);
 
                 var self = target as AssetLoader;
                 ShowDictionary("已加载的资源", self.m_LoadedAssetBundles);
                 ShowDictionary("已加载的资源", self.m_LoadedFileAssets);
-            }
-
-            private static string SearchField(string value, params GUILayoutOption[] options)
-            {
-                var info = typeof(EditorGUILayout).GetMethod("ToolbarSearchField",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static, null,
-                    new[] { typeof(string), typeof(GUILayoutOption[]) }, null);
-                if (info != null) {
-                    value = (string)info.Invoke(null, new object[] { value, options });
-                }
-                return value;
             }
         }
 #endif

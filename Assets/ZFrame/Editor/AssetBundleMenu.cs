@@ -343,7 +343,7 @@ namespace ZFrame.Editors
         [MenuItem("Assets/资源/刷新shader集")]
         public static void CollectShaders()
         {
-            var shaderBundle = AssetLoader.SHADER_ABNAME;
+            var shaderBundle = AssetLoaderSettings.Instance.shaderBundle;
             var dict = new Dictionary<string, string>();
             var assetPaths = new HashSet<string>();
 

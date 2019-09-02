@@ -66,7 +66,7 @@ namespace ZFrame.Editors
             EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
             if (UILabel.LOC) {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(m_Localized, EditorUtil.TempContent("Enable"));
+                EditorGUILayout.PropertyField(m_Localized, EditorAPI.TempContent("Enable"));
 
                 if (m_Localized.boolValue) {
                     if (locText != m_Text.stringValue) m_AutoKeys.Clear();
@@ -87,7 +87,7 @@ namespace ZFrame.Editors
                         foreach (var key in m_AutoKeys) {
                             rect = EditorGUILayout.GetControlRect();
                             rect.xMin += EditorGUIUtility.labelWidth;
-                            if (EditorGUI.ToggleLeft(rect, EditorUtil.TempContent(key), false)) {
+                            if (EditorGUI.ToggleLeft(rect, EditorAPI.TempContent(key), false)) {
                                 m_RawText.stringValue = key;
                             }
                         }

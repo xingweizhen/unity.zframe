@@ -128,8 +128,8 @@ namespace ZFrame
                 }
             }
 
-            if (ZFrame.UIManager.Instance == null) {
-                yield return AssetLoader.Instance.LoadingAsset(null, AssetLoader.SHADER_ABNAME, null, null, LoadMethod.Always);
+            if (UIManager.Instance == null) {
+                yield return AssetLoader.Instance.LoadingAsset(null, AssetLoaderSettings.Instance.shaderBundle, null, null, LoadMethod.Always);
                 var loaded = new LoadedBundle();
                 yield return AssetLoader.Instance.LoadingAsset(typeof(GameObject), m_LaunchPrefab, loaded, LoadMethod.Forever);
                 GoTools.AddForever(loaded.asset as GameObject);

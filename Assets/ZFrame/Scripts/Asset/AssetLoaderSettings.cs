@@ -13,6 +13,7 @@ namespace ZFrame.Asset
         public string downloadFolder = "Downloads";
         public string assetMD5File = "md5";
         public string assetListFile = "filelist";
+        public string shaderBundle = "shaders";
 
         private static AssetLoaderSettings m_Inst;
         public static AssetLoaderSettings Instance {

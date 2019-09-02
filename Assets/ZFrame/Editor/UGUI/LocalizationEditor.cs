@@ -136,7 +136,7 @@ namespace ZFrame.Editors
 
             EditorGUILayout.Separator();
             var searchText = m_SearchText;
-            m_SearchText = EditorUtil.SearchField(searchText);
+            m_SearchText = EditorAPI.SearchField(searchText);
             bool searching = !string.IsNullOrEmpty(m_SearchText);
 
             m_CustomTextsList.displayAdd = !searching;

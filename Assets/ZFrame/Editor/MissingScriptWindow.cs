@@ -34,6 +34,8 @@ namespace ZFrame.Editors
             var transList = ListPool<Component>.Get();
             var cps = ListPool<Component>.Get();
             foreach (var prefab in prefabs) {
+                if (prefab == null) continue;
+
                 transList.Clear();
                 var list = new List<string>();
                 prefab.GetComponentsInChildren(typeof(Transform), transList, true);
