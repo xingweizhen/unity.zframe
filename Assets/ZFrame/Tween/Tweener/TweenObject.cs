@@ -25,13 +25,20 @@ namespace ZFrame.Tween
     {
         private static List<TweenGroup> _Groups = new List<TweenGroup>();
 
-        public float delay = 0;
-        public float duration = 1;
-        public Ease ease = Ease.Linear;
-        public int loops = 1;
-        public LoopType loopType = LoopType.Restart;
-        public UpdateType updateType = UpdateType.Normal;
-        public bool ignoreTimescale = false;
+        public TweenParameter parameter;
+
+        protected TweenObject()
+        {
+            parameter = TweenParameter.Default;
+        }
+
+        public float delay { get { return parameter.delay; } set { parameter.delay = value; } }
+        public float duration { get { return parameter.duration; } set { parameter.duration = value; } }
+        public Ease ease { get { return parameter.ease; } set { parameter.ease = value; } }
+        public int loops { get { return parameter.loops; } set { parameter.loops = value; } }
+        public LoopType loopType { get { return parameter.loopType; } set { parameter.loopType = value; } }
+        public UpdateType updateType { get { return parameter.updateType; } set { parameter.updateType = value; } }
+        public bool ignoreTimescale { get { return parameter.ignoreTimescale; } set { parameter.ignoreTimescale = value; } }
 
         protected ZTweener m_Tweener;
         public ZTweener tweener { get { return m_Tweener; } }
@@ -78,13 +85,16 @@ namespace ZFrame.Tween
 
             protected virtual void OnEnable()
             {
-                m_Delay = serializedObject.FindProperty("delay");
-                m_Duration = serializedObject.FindProperty("duration");
-                m_Ease = serializedObject.FindProperty("ease");
-                m_Loops = serializedObject.FindProperty("loops");
-                m_LoopType = serializedObject.FindProperty("loopType");
-                m_UpdateType = serializedObject.FindProperty("updateType");
-                m_IgnoreTimescale = serializedObject.FindProperty("ignoreTimescale");
+                var parameter = serializedObject.FindProperty("parameter");
+
+                m_Delay = parameter.FindPropertyRelative("delay");
+                m_Duration = parameter.FindPropertyRelative("duration");
+                m_Ease = parameter.FindPropertyRelative("ease");
+                m_Loops = parameter.FindPropertyRelative("loops");
+                m_LoopType = parameter.FindPropertyRelative("loopType");
+                m_UpdateType = parameter.FindPropertyRelative("updateType");
+                m_IgnoreTimescale = parameter.FindPropertyRelative("ignoreTimescale");
+
                 tweenAutomatically = serializedObject.FindProperty("tweenAutomatically");
             }
 
