@@ -702,21 +702,28 @@ namespace ZFrame.Asset
         protected AsyncLoadingTask m_Tasking;
         public event TaskInitializer InitNewTask;
 
-        public AsyncLoadingTask NewTask(BundleType bundleType, string bundleName, string assetName, LoadMethod method = LoadMethod.Default,
-            DelegateAssetBundleLoaded onLoaded = null, System.Type type = null,
-            DelegateObjectLoaded onObjectLoaded = null, object param = null)
+        protected AsyncLoadingTask GetLoadingTask(BundleType bundleType, string bundleName, string assetName, LoadMethod method, 
+            DelegateAssetBundleLoaded onLoaded, System.Type type, DelegateObjectLoaded onObjectLoaded, object param)
         {
-            UnityEngine.Assertions.Assert.IsNotNull(bundleName);
-
             var task = AsyncLoadingTask.Get();
 
-            if (InitNewTask != null) {
+            if (bundleType == BundleType.AssetBundle && InitNewTask != null) {
                 InitNewTask.Invoke(task, bundleName, assetName, method, onLoaded, type, onObjectLoaded, param);
             }
 
             if (task.bundleType == BundleType.None) {
                 task.SetInfo(bundleType, bundleName, assetName).SetBundle(method, onLoaded).SetAsset(type, onObjectLoaded, param);
             }
+            return task;
+        }
+
+        public AsyncLoadingTask NewTask(BundleType bundleType, string bundleName, string assetName, LoadMethod method = LoadMethod.Default,
+            DelegateAssetBundleLoaded onLoaded = null, System.Type type = null,
+            DelegateObjectLoaded onObjectLoaded = null, object param = null)
+        {
+            UnityEngine.Assertions.Assert.IsNotNull(bundleName);
+
+            var task = GetLoadingTask(bundleType, bundleName, assetName, method, onLoaded, type, onObjectLoaded, param);
 
 #if UNITY_EDITOR
             if (GetBundleStat(task) == BundleStat.NotExist) {

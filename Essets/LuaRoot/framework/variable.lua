@@ -177,9 +177,9 @@ do
     dofile "framework/util/math"
     -- lua5.3已经支持位运算
     --dofile "framework/util/bit32.lua"
-    dofile "framework/util/class.lua"
-    dofile "framework/util/date.lua"
-    dofile "framework/util/debug.lua"
+    dofile "framework/util/class"
+    dofile "framework/util/date"
+    dofile "framework/util/debug"
 
     -- 内部类
     dofile "framework/util/client"

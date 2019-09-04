@@ -40,7 +40,7 @@ end
 -- 参数 @levelName	表示加载完成的场景名称
 -- 参数 @launching 	表示该场景是否首个启动场景
 function P.on_level_loaded(levelName, launching)
-	ui.clear_stack()
+	-- ui.clear_stack()
 	P.current = levelName
 	print("level loaded", levelName)
 

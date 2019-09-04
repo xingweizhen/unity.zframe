@@ -25,6 +25,8 @@ namespace ZFrame.Lua
 
             // Debug
             lua.SetDict("Log", Log);
+            lua.SetDict("BeginSample", BeginSample);
+            lua.SetDict("EndSample", EndSample);
 
             // GameObject
             lua.SetDict("IsObject", IsObject);
@@ -154,6 +156,21 @@ namespace ZFrame.Lua
                 LogMgr.Log(logLevel, "{0}", currLine + logStr);
             }
 
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int BeginSample(ILuaState lua)
+        {
+            var sampleName = lua.ToString(1);
+            UnityEngine.Profiling.Profiler.BeginSample(sampleName);
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int EndSample(ILuaState lua)
+        {
+            UnityEngine.Profiling.Profiler.EndSample();
             return 0;
         }
 

@@ -446,8 +446,8 @@ namespace ZFrame.Asset
                 foreach (var abName in deps) {
                     AbstractAssetBundleRef abRef;
                     if (!TryGetAssetBundle(abName, out abRef)) {
-                        var subTask = AsyncLoadingTask.Get();
-                        subTask.SetInfo(BundleType.AssetBundle, abName, null);
+                        var subTask = GetLoadingTask(BundleType.AssetBundle, abName, string.Empty, LoadMethod.Default, 
+                            null, null, null, null);
                         m_Tasking = subTask;
                         yield return LoadBundleFromFileAsync(subTask);
                         FinishLoadindBundle(abName, subTask.bundle);

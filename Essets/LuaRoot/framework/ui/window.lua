@@ -192,7 +192,7 @@ local function on_open(go, pkgName)
 
 	trycall(Wnd.init_logic)
 	callhook("starting", Wnd)
-
+	
 	if Wnd.instantly then
 		libunity.Invoke(go, 0, do_create_wnd, go)
 	else
@@ -762,7 +762,7 @@ end
 
 function ui.clear_stack()
 	for k,v in pairs(LCWnds) do
-		if v.stacked then LCWnds[k] = nil end
+		if v.stacked and not v:is_opened() then LCWnds[k] = nil end
 	end
 	WNDStack:clear()
 end

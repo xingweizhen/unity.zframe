@@ -76,11 +76,13 @@ namespace ZFrame.Editors
         
         private void OnSpriteChanged(string spriteName)
         {
-            m_SpriteName.stringValue = spriteName;
+            //serializedObject.FindProperty("m_SpriteName").stringValue = spriteName;
+            //m_SpriteName.stringValue = spriteName;
             
             var self = (UISprite)target;
-            UpdateSprite(self.atlas.GetSprite(spriteName));
-            serializedObject.ApplyModifiedProperties();
+            self.spriteName = spriteName;
+            //UpdateSprite(self.atlas.GetSprite(spriteName));
+            //serializedObject.ApplyModifiedProperties();
         }
 
         private bool OverrideSpriteGUI()
