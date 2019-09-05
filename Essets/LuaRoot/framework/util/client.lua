@@ -1,5 +1,5 @@
 --
--- @file    datamgr/object/client.lua
+-- @file    framework/util/client.lua
 -- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-01-04 12:07:13
 -- @desc    客户端类

@@ -23,9 +23,9 @@ do
             if func then
                 local status, ret = trycall(func)
                 if status then return ret end
+            else
+                libunity.LogE("lua load fail!: {0}", code)
             end
-
-            libunity.LogE("lua load fail!: {0}", code)
         end,
         ver = function () 
             local AppVer, AssetVer = libasset.GetVersion()

@@ -1,5 +1,5 @@
 --
--- @file    util/date.lua
+-- @file    framework/util/date.lua
 -- @author  xing weizhen (kokohna@163.com)
 -- @date    2016-01-17 11:22:10
 -- @desc    日期工具

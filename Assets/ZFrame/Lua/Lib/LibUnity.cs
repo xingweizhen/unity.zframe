@@ -146,7 +146,7 @@ namespace ZFrame.Lua
         {
             var traceLevel = lua.OptInteger(1, -1);
             var logLevel = (LogLevel)lua.ToEnumValue(2, LogMgr.logLevel);
-            if (LogMgr.logLevel > logLevel) return 0;
+            if (LogMgr.logLevel < logLevel) return 0;
 
             var logStr = lua.ToCSFormatString(3);
             if (traceLevel < 0) {

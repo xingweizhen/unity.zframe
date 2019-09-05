@@ -175,6 +175,7 @@ do
     dofile "framework/util/string"
     dofile "framework/util/table"
     dofile "framework/util/math"
+    dofile "framework/util/io"
     -- lua5.3已经支持位运算
     --dofile "framework/util/bit32.lua"
     dofile "framework/util/class"

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fcd7fc2119798544aae015e804c4a42, type: 3}
+  m_Name: AssetLoaderSettings
+  m_EditorClassIdentifier: 
+  editorPersistentDataPath: Issets/PersistentData
+  editorStreamingAssetsPath: Issets/StreamingAssets
+  assetBundleFolder: AssetBundles
+  downloadFolder: Downloads
+  assetMD5File: md5
+  assetListFile: filelist
+  shaderBundle: shaders

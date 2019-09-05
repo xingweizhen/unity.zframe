@@ -1,5 +1,12 @@
-local LogType ={"I", "D", "W", "E"}
-local DefaultLogType = LogType[2] --"D"
+--
+-- @file    framework/util/debug.lua
+-- @author  xing weizhen (kokohna@163.com)
+-- @date    2016-01-17 11:22:10
+-- @desc    扩展调试库
+--
+
+local LogType ={ [0] = "E", [2] = "W", [3] = "D", [4] = "I", }
+local DefaultLogType = LogType[3] --"D"
 
 local function cprint(log, color, showTrace, logType)
 	local logStr
