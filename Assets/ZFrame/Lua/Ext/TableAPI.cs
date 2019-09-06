@@ -167,7 +167,7 @@ public static class TableAPI
         return ret;
     }
 
-    public static object GetEnum(this ILuaState self, int index, string key, System.Enum def)
+    public static int GetEnum(this ILuaState self, int index, string key, System.Enum def)
     {
         self.GetField(index, key);
         var ret = self.ToEnumValue(-1, def);

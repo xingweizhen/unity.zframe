@@ -48,9 +48,9 @@ public static class LuaIndexOpt
         return self.IsNoneOrNil(index) ? def : self.ToLong(index);
     }
 
-    public static object OptEnumValue(this ILuaState self, int index, System.Type type, System.Enum def)
+    public static int OptEnumValue(this ILuaState self, int index, System.Type type, System.Enum def)
     {
-        return self.IsNoneOrNil(index) ? def : self.ToEnumValue(index, type);
+        return self.IsNoneOrNil(index) ? System.Convert.ToInt32(def) : self.ToEnumValue(index, type);
     }
 
     public static object OptUserData(this ILuaState self, int index, System.Type type, object def)

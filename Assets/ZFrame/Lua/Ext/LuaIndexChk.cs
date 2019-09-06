@@ -45,7 +45,8 @@ public static class LuaIndexChk
         return default(int);
     }
 
-    public static object ChkEnumValue(this ILuaState self, int index, System.Type type)
+    [System.Obsolete("存在装箱操作，不建议使用")]
+    public static int ChkEnumValue(this ILuaState self, int index, System.Type type)
     {
         var obj = self.ToEnumValue(index, type);
         if (!System.Enum.IsDefined(type, obj)) {

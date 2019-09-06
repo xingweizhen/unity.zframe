@@ -8,9 +8,9 @@
 local io = io
 
 function io.copy(src, dst)
-	local fsrc = io.open(src, "r")
+	local fsrc = io.open(src, "rb")
 	if fsrc then
-		local fdst = io.open(dst, "w")
+		local fdst = io.open(dst, "wb")
 		if fdst then
 			fdst:write(fsrc:read("*a"))
 			fdst:flush()

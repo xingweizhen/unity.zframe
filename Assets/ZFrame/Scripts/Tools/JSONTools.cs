@@ -29,11 +29,6 @@ public static class JSONTools {
         return def;
     }
 
-    public static T ToEnum<T>(this Variant self, T def = default(T))
-    {
-        return (T)self.ToEnum(def);
-	}
-
     public static float ConvTo(this Variant self, string key, float defautValue)
     {
         Variant ret = self[key];

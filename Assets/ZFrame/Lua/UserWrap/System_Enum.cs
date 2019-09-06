@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 #if ULUA
 using LuaInterface;
 #else
@@ -13,49 +14,71 @@ public static class System_Enum
 {
     public const string CLASS = "System.Enum";
 
+    private class EnumValue
+    {
+        public readonly int value;
+        public readonly string name;
+        public EnumValue(int value, string name)
+        {
+            this.value = value;
+            this.name = name;
+        }
+    }
+
+    private static Dictionary<System.Type, EnumValue[]> s_EnumMap = new Dictionary<System.Type, EnumValue[]>();
+
+    private static int NameToEnumValue(System.Type enumType, string name, int def)
+    {
+        EnumValue[] enumValues;
+        if (!s_EnumMap.TryGetValue(enumType, out enumValues)) {
+            var enumArr = System.Enum.GetValues(enumType);
+            
+            enumValues = new EnumValue[enumArr.Length];
+            for (int i = 0; i < enumArr.Length; i++) {
+                var eVal = enumArr.GetValue(i);
+                enumValues[i] = new EnumValue((int)eVal, eVal.ToString());
+            }
+        }
+        
+        for (int i = 0; i < enumValues.Length; i++) {
+            if (enumValues[i].name == name) {
+                return enumValues[i].value;
+            }
+        }
+        return def;
+    }
+
     public static bool IsEnumValue(this ILuaState self, int index)
     {
         var type = self.Type(index);
         return type == LuaTypes.LUA_TNUMBER || type == LuaTypes.LUA_TSTRING || type == LuaTypes.LUA_TTABLE;
     }
 
-    public static object ToEnumValue(this ILuaState self, int index, System.Type type)
+    public static int ToEnumValue(this ILuaState self, int index, System.Type type, int def = 0)
     {
         var luaT = self.Type(index);
         switch (luaT) {
             case LuaTypes.LUA_TNUMBER:
-                return System.Enum.ToObject(type, self.ToInteger(index));
-            case LuaTypes.LUA_TSTRING: {
-                    var enName = self.ToString(index);
-                    if (System.Enum.IsDefined(type, enName)) {
-                        return System.Enum.Parse(type, enName);
-                    }
-                }
-                break;
+                return self.ToInteger(index);
+            case LuaTypes.LUA_TSTRING:
+                return NameToEnumValue(type, self.ToString(index), def);
             case LuaTypes.LUA_TTABLE: {
                     self.PushString("id");
                     self.RawGet(index);
                     int id = self.ToInteger(-1);
                     self.Pop(1);
-
-                    if (type != null) {
-                        if (System.Enum.IsDefined(type, id)) {
-                            return System.Enum.ToObject(type, id);
-                        }
-                    } else return id;
+                    return id;
                 }
-                break;
             default:
                 break;
         }
 
-        return null;
+        return def;
     }
 
-    public static object ToEnumValue(this ILuaState self, int index, System.Enum def)
+    public static int ToEnumValue(this ILuaState self, int index, System.Enum def)
     {
-        var ret = self.ToEnumValue(index, def.GetType());
-        return ret ?? def;
+        return self.ToEnumValue(index, def.GetType(), System.Convert.ToInt32(def));
     }
 
     public static void PushX(this ILuaState self, System.Enum value)
