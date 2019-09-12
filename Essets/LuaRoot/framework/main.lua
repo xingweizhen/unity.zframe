@@ -14,8 +14,6 @@ local function awake()
 end
 
 local function start()
-    dofile("game/init")
-    
     -- 读用户配置
     local UserSettings = {}
     local settingRoot = ENV.debug and "" or ENV.app_persistentdata_path .. "/"
@@ -33,6 +31,8 @@ local function start()
     end
 
     rawset(_G, "UserSettings", UserSettings)
+
+    dofile("game/init")
 end
 
 local function on_key(key)

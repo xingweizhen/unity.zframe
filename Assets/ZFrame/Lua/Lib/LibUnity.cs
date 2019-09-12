@@ -56,7 +56,7 @@ namespace ZFrame.Lua
             lua.SetDict("CameraForLayer", CameraForLayer);
             lua.SetDict("FaceCamera", FaceCamera);
 
-            // Render
+            // Rendering
             lua.SetDict("SetMaterials", SetMaterials);
             lua.SetDict("ClsMaterials", ClsMaterials);
 
@@ -64,6 +64,8 @@ namespace ZFrame.Lua
             lua.SetDict("DelCullingMask", DelCullingMask);
             lua.SetDict("HasCullingMask", HasCullingMask);
 
+            lua.SetDict("InitMaterialProperty", InitMaterialProperty);
+            lua.SetDict("KeepMaterialProperty", KeepMaterialProperty);
             lua.SetDict("SetMaterialProperty", SetMaterialProperty);
             //rendertexture
             lua.SetDict("GetRenderTexture", GetRenderTexture);
@@ -821,40 +823,211 @@ namespace ZFrame.Lua
             return 1;
         }
 
+        private static bool CopyPropertiesFromMat(ILuaState lua, int index, Renderer rdr, int matIdx, Material mat)
+        {
+            using (var scope = new MaterialPropertyScope(rdr, matIdx)) {
+                bool hasPropertyBlock = true;
+                lua.PushNil();
+                while (lua.Next(index)) {
+                    // Color = 0, Vector = 1, Float = 2, Range = 3, TexEnv = 4
+                    var propId = Shader.PropertyToID(lua.ToString(-2));
+                    var propType = lua.ToInteger(-1);
+                    if (mat.HasProperty(propId)) {
+                        switch (propType) {
+                            case 0:
+                                scope.block.SetColor(propId, mat.GetColor(propId));
+                                break;
+                            case 1:
+                                scope.block.SetVector(propId, mat.GetVector(propId));
+                                break;
+                            case 2:
+                            case 3:
+                                scope.block.SetFloat(propId, mat.GetFloat(propId));
+                                break;
+                            case 4:
+                                var tex = mat.GetTexture(propId);
+                                if (tex) scope.block.SetTexture(propId, tex);
+                                break;
+                        }
+                    } else {
+                        hasPropertyBlock = false;
+                    }
+                    lua.Pop(1);
+                }
+                return hasPropertyBlock;
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int InitMaterialProperty(ILuaState lua)
+        {
+            var go = lua.ToGameObject(1);
+            if (go == null) return 0;
+
+            var templateMat = lua.ToUnityObject(2) as Material;
+            if (templateMat == null) return 0;
+
+            if (!lua.IsTable(3)) return 0;
+
+            var applyToEach = lua.OptBoolean(4, false);
+
+            bool hasPropertyBlock = false;
+            var list = ListPool<Component>.Get();
+            go.GetComponentsInChildren(typeof(Renderer), list, true);
+            foreach (Renderer rdr in list) {
+                if (rdr.HasPropertyBlock()) continue;
+
+                if (applyToEach) {
+                    var mats = ListPool<Material>.Get();
+                    rdr.GetSharedMaterials(mats);
+                    for (var i = 0; i < mats.Count; ++i) {
+                        var mat = mats[i];
+                        if (mat == null) continue;
+
+                        if (CopyPropertiesFromMat(lua, 3, rdr, i, mat)) {
+                            hasPropertyBlock = true;
+                            mats[i] = templateMat;
+                        }
+                    }
+
+                    if (hasPropertyBlock) rdr.sharedMaterials = mats.ToArray();
+                    ListPool<Material>.Release(mats);
+                } else {
+                    if (CopyPropertiesFromMat(lua, 3, rdr, -1, rdr.sharedMaterial)) {
+                        hasPropertyBlock = true;
+                        rdr.sharedMaterial = templateMat;
+                    }
+                }
+            }
+            ListPool<Component>.Release(list);
+
+            lua.PushBoolean(hasPropertyBlock);
+            return 1;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int KeepMaterialProperty(ILuaState lua)
+        {
+            var go = lua.ToGameObject(1);
+            if (go == null) return 0;
+
+            if (!lua.IsTable(2)) return 0;
+
+            var index = lua.OptInteger(3, -1);
+
+            var list = ListPool<Component>.Get();
+            go.GetComponentsInChildren(typeof(Renderer), list, true);
+            foreach (Renderer rdr in list) {
+                var oldBlock = MaterialPropertyScope.Get();
+#if UNITY_2018_3_OR_NEWER
+                if (index < 0) {
+                    rdr.GetPropertyBlock(oldBlock);
+                } else {
+                    rdr.GetPropertyBlock(oldBlock, index);
+                }
+#else
+                rdr.GetPropertyBlock(oldBlock);
+#endif
+                if (oldBlock.isEmpty) continue;
+
+                using (var scope = new MaterialPropertyScope(rdr, index)) {
+                    lua.PushNil();
+                    while (lua.Next(2)) {
+                        // Color = 0, Vector = 1, Float = 2, Range = 3, TexEnv = 4
+                        var propId = Shader.PropertyToID(lua.ToString(-2));
+                        var propType = lua.ToInteger(-1);
+                        switch (propType) {
+                            case 0:
+                                scope.block.SetColor(propId, oldBlock.GetColor(propId));
+                                break;
+                            case 1:
+                                scope.block.SetVector(propId, oldBlock.GetVector(propId));
+                                break;
+                            case 2:
+                            case 3:
+                                scope.block.SetFloat(propId, oldBlock.GetFloat(propId));
+                                break;
+                            case 4:
+                                var tex = oldBlock.GetTexture(propId);
+                                if (tex) scope.block.SetTexture(propId, tex);
+                                break;
+                        }
+                        lua.Pop(1);
+                    }
+                }
+                MaterialPropertyScope.Release(oldBlock);
+            }
+            ListPool<Component>.Release(list);
+
+            return 0;
+        }
+
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int SetMaterialProperty(ILuaState lua)
         {
             var rdr = lua.ToComponent(1, typeof(Renderer)) as Renderer;
-            if (rdr) {
-                if (lua.IsTable(2)) {
-                    var prop = MaterialPropertyTool.Begin(rdr);
+            if (rdr && lua.IsTable(2)) {
+                var index = lua.OptInteger(3, -1);
+                using (var scope = new MaterialPropertyScope(rdr, index)) {
+                    var prop = scope.block;
+#if UNITY_2018_3_OR_NEWER
+                    if (index < 0) {
+                        rdr.GetPropertyBlock(prop);
+                    } else {
+                        rdr.GetPropertyBlock(prop, index);
+                    }
+#else
+                    rdr.GetPropertyBlock(prop);
+#endif
                     lua.PushNil();
                     while (lua.Next(2)) {
                         var name = lua.ToString(-2);
-                        if (lua.IsNumber(-1)) {
-                            prop.SetFloat(name, lua.ToSingle(-1));
-                        } else if (lua.IsString(-1)) {
-                            prop.SetColor(name, lua.ToColor(-1));
-                        } else {
-                            var klass = lua.Class(-1);
-                            switch (klass) {
-                                case UnityEngine_Color.CLASS:
-                                    prop.SetColor(name, lua.ToColor(-1));
-                                    break;
-                                case UnityEngine_Vector4.CLASS:
-                                    prop.SetVector(name, lua.ToVector4(-1));
-                                    break;
-                                default: break;
-                            }
-                        }
+                        var type = lua.Type(-1);
+                        switch (type) {
+                            case LuaTypes.LUA_TNUMBER:
+                                prop.SetFloat(name, (float)lua.ToNumber(-1));
+                                break;
+                            case LuaTypes.LUA_TSTRING:
+                                Color color;
+                                if (ColorUtility.TryParseHtmlString(lua.ToString(-1), out color)) {
+                                    prop.SetColor(name, color);
+                                } else {
 
+                                }
+                                break;
+                            case LuaTypes.LUA_TTABLE: {
+                                    switch (lua.Class(1)) {
+                                        case UnityEngine_Color.CLASS:
+                                            prop.SetColor(name, lua.ToColor(1));
+                                            break;
+                                        case UnityEngine_Vector4.CLASS:
+                                            prop.SetVector(name, lua.ToVector4(1));
+                                            break;
+                                    }
+                                }
+                                break;
+                            case LuaTypes.LUA_TLIGHTUSERDATA:
+                            case LuaTypes.LUA_TUSERDATA:
+                                var tex = lua.ToUnityObject(-1) as Texture;
+                                if (tex) prop.SetTexture(name, tex);
+                                break;
+                            //default: {
+                            //        var translator = lua.ToTranslator();
+                            //        var uType = translator.GetTypeOf(lua, -1);
+                            //        if (uType == typeof(Color)) {
+                            //            prop.SetColor(name, lua.ToColor(1)); ;
+                            //        } else if (uType == typeof(Vector4)) {
+                            //            prop.SetVector(name, lua.ToVector4(1));
+                            //        } else if (typeof(Texture).IsAssignableFrom(uType)) {
+                            //            prop.SetTexture(name, lua.ToUserData(-1) as Texture);
+                            //        }
+                            //    }
+                            //    break;
+                        }
                         lua.Pop(1);
                     }
-
-                    MaterialPropertyTool.Finish();
                 }
             }
-
             return 0;
         }
 
@@ -865,15 +1038,15 @@ namespace ZFrame.Lua
             var height = lua.ToInteger(2);
             var depth = lua.OptInteger(3, 0);
 
-            var rdrTex = RenderTexture.GetTemporary(width, height, depth);
+            var rt = RenderTexture.GetTemporary(width, height, depth);
             if (lua.IsTable(4)) {
-                rdrTex.format = (RenderTextureFormat)lua.GetEnum(4, "format", RenderTextureFormat.Default);
-                rdrTex.antiAliasing = lua.GetInteger(4, "antiAliasing", 1);
-                rdrTex.autoGenerateMips = lua.GetBoolean(4, "generateMips", false);
-                rdrTex.useMipMap = lua.GetBoolean(4, "useMipMap", false);
+                rt.format = (RenderTextureFormat)lua.GetEnum(4, "format", RenderTextureFormat.Default);
+                rt.antiAliasing = lua.GetInteger(4, "antiAliasing", 1);
+                rt.autoGenerateMips = lua.GetBoolean(4, "generateMips", false);
+                rt.useMipMap = lua.GetBoolean(4, "useMipMap", false);
             }
 
-            lua.PushX(rdrTex);
+            lua.PushX(rt);
 
             return 1;
         }
@@ -881,10 +1054,9 @@ namespace ZFrame.Lua
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int ReleaseRenderTexture(ILuaState lua)
         {
-            var uObj = lua.ToUnityObject(1);
-            var rdr = uObj as RenderTexture;
-            if (rdr) {
-                RenderTexture.ReleaseTemporary(rdr);
+            var rt = lua.ToUnityObject(1) as RenderTexture;
+            if (rt) {
+                RenderTexture.ReleaseTemporary(rt);
             }
 
             return 0;

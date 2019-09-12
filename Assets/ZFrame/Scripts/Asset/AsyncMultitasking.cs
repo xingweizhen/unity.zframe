@@ -73,6 +73,7 @@ namespace ZFrame.Asset
 			m_Tasks.Clear();
 			m_Loaded = null;
 			m_Param = null;
+            m_Progress = null;
 			loadType = LoadType.IDLE;
 		}
 
