@@ -98,6 +98,22 @@ namespace ZFrame.Lua
 
         protected override void Awaking()
         {
+            // 设定全局参数
+            L.NewTable();
+            L.SetDict(S_APP_PERSISTENTDATA_PATH, AssetBundleLoader.persistentDataPath);
+            L.SetDict(S_APP_STREAMINGASSETS_PATH, AssetBundleLoader.streamingAssetsPath);
+            L.SetDict(B_USING_ASSETBUNDLE, AssetBundleLoader.I != null);
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            L.SetDict("development", true);
+#endif
+            L.SetGlobal("ENV");
+
+            // "none break space"
+            L.GetGlobal("string");
+            L.SetDict("nbs", UGUI.UILabel.NBS);
+            L.Pop(1);
+
             AssetLoader.Instance.CollectGarbage += () => L.GC(LuaGCOptions.LUA_GCCOLLECT, 0);
 
             var ret = L.DoFile(SCRIPT_FILE);
@@ -117,22 +133,6 @@ namespace ZFrame.Lua
 
         protected virtual void Start()
         {
-            // 设定全局参数
-            L.GetGlobal("ENV");
-            L.SetDict(S_APP_PERSISTENTDATA_PATH, AssetBundleLoader.persistentDataPath);
-            L.SetDict(S_APP_STREAMINGASSETS_PATH, AssetBundleLoader.streamingAssetsPath);
-            L.SetDict(B_USING_ASSETBUNDLE, AssetBundleLoader.I != null);
-
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-            L.SetDict("development", true);
-#endif
-            L.Pop(1);
-
-            // "none break space"
-            L.GetGlobal("string");
-            L.SetDict("nbs", UGUI.UILabel.NBS);
-            L.Pop(1);
-
             m_Tb.CallFunc(0, "start", gameObject);
 
             UGUI.UIButton.onButtonClick = OnUIClick;
