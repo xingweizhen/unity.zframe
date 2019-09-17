@@ -43,19 +43,34 @@ public class MaterialPropertyTool : Singleton<MaterialPropertyTool>
 
 public struct MaterialPropertyScope : System.IDisposable
 {
-    public bool apply;
-    public MaterialPropertyScope(Renderer renderer)
+    private static ZFrame.Pool<MaterialPropertyBlock> s_Pool = new ZFrame.Pool<MaterialPropertyBlock>(null, mpb => mpb.Clear());
+    public static MaterialPropertyBlock Get() { return s_Pool.Get(); }
+    public static void Release(MaterialPropertyBlock block) { s_Pool.Release(block); }
+
+    public MaterialPropertyBlock block { get; private set; }
+    private Renderer m_Rdr;
+    private int m_MatIndex;
+
+    public MaterialPropertyScope(Renderer rdr, int materialIndex = -1)
     {
-        apply = true;
-        MaterialPropertyTool.Begin(renderer);
+        m_Rdr = rdr;
+        m_MatIndex = materialIndex;
+        block = Get();
     }
 
-    void System.IDisposable.Dispose()
+    public void Dispose()
     {
-        if (apply) {
-            MaterialPropertyTool.Finish();
-        } else {
-            MaterialPropertyTool.Clear();
+        if (m_Rdr) {
+#if UNITY_2018_3_OR_NEWER
+            if (m_MatIndex < 0) {
+                m_Rdr.SetPropertyBlock(block);
+            } else {
+                m_Rdr.SetPropertyBlock(block, m_MatIndex);
+            }
+#else
+            m_Rdr.SetPropertyBlock(block);
+#endif
         }
+        Release(block);
     }
 }
