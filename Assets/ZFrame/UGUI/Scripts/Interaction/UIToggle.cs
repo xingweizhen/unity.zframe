@@ -87,7 +87,7 @@ namespace ZFrame.UGUI
                 if (toggleTransition == ToggleTransition.None) {
                     cv.alpha = visible ? 1 : 0;
                 } else {
-                    ZTween.Stop(target);
+                    ZTween.Finish(target);
                     cv.blocksRaycasts = visible;
                     cv.interactable = visible;
                     cv.TweenAlpha(visible ? 1 : 0, 0.1f).SetUpdate(UpdateType.Normal, true);

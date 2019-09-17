@@ -60,7 +60,7 @@ namespace ZFrame.UGUI
         protected override void OnDisable()
         {
             for (int i = 0; i < rectChildren.Count; ++i) {
-                ZTween.Stop(rectChildren[i]);
+                ZTween.Finish(rectChildren[i]);
             }
             base.OnDisable();
         }

@@ -35,9 +35,9 @@ namespace ZFrame.UGUI
         private Color ColorGetter() { return m_Color; }
         private void ColorSetter(Color value) { color = value; }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
             if (to is Color) {
                 tw = this.Tween(ColorGetter, ColorSetter, (Color)to, 0f);
                 if (from is Color) {

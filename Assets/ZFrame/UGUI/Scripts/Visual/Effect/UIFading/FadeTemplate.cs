@@ -3,6 +3,8 @@ using System.Collections;
 
 namespace ZFrame.UGUI
 {
+    using Tween;
+
     public abstract class FadeTemplate<T> : Fading
     {
         [SerializeField]protected T m_Source;

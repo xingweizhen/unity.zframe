@@ -59,7 +59,7 @@ namespace ZFrame.Tween
         {
             if (m_Tweens != null) {
                 for (var i = 0; i < m_Tweens.Count; ++i) {
-                    ZTween.Stop(m_Tweens[i]);
+                    ZTween.Finish(m_Tweens[i]);
                 }
             }
         }

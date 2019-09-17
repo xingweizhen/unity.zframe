@@ -27,9 +27,9 @@ namespace ZFrame.Tween
             transform.eulerAngles = value;
         }
 
-        public override ZTweener Tween(object from, object to, float duration)
+        public override object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
             var trans = transform;
             switch (space) {
                 case Space.Self:
@@ -51,7 +51,7 @@ namespace ZFrame.Tween
             return tw;
         }
 
-        public ZTweener Tween(Vector3 to, float duration)
+        public object Tween(Vector3 to, float duration)
         {
             switch (space) {
                 case Space.Self:
@@ -62,7 +62,7 @@ namespace ZFrame.Tween
             return null;
         }
 
-        public ZTweener Tween(Vector3 from, Vector3 to, float duration)
+        public object Tween(Vector3 from, Vector3 to, float duration)
         {
             switch (space) {
                 case Space.Self: transform.localEulerAngles = from; break;

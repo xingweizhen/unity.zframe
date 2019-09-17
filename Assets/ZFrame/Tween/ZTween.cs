@@ -631,60 +631,123 @@ namespace ZFrame.Tween
     
     public static partial class ZTween
     {
-        public static void Init()
+        private static ITweenKit __Kit;
+        private static ITweenKit m_Kit {
+            get {
+                if (__Kit == null) __Kit = new TweenKit();
+                return __Kit;
+            }
+        }
+
+        public static void Init(ITweenKit kit = null)
         {
-            
+            __Kit = kit;
+            m_Kit.Init();
         }
 
         #region Tween Config
-        
-
-        public static int Stop(object tarOrTag, bool complete = false)
+        public static bool IsTweening(this object self)
         {
-            //throw new System.NotImplementedException();
-            return 0;
+            return m_Kit.IsTweening(self);
+        }
+        
+        public static object SetTag(this object self, object tag)
+        {
+            return m_Kit.SetTag(self, tag);
+        }
+
+        public static object SetTimeScale(this object self, float timeScale)
+        {
+            return m_Kit.SetTimeScale(self, timeScale);
+        }
+
+        public static object SetUpdate(this object self, UpdateType updateType, bool ignoreTimeScale)
+        {
+            return m_Kit.SetUpdate(self, updateType, ignoreTimeScale);
+        }
+
+        public static object DelayFor(this object self, float time)
+        {
+            return m_Kit.DelayFor(self, time);
+        }
+
+        public static object LoopFor(this object self, int loops, LoopType loopType)
+        {
+            return m_Kit.LoopFor(self, loops, loopType);
+        }
+
+        public static object EaseBy(this object self, Ease ease)
+        {
+            return m_Kit.EaseBy(self, ease);
+        }
+
+        public static object StartFrom(this object self, object from)
+        {
+            return m_Kit.StartFrom(self, from);
+        }
+
+        public static object EndAt(this object self, object at)
+        {
+            return m_Kit.EndAt(self, at);
+        }
+
+        public static object StartWith(this object self, CallbackOnUpdate onStart)
+        {
+            return m_Kit.StartWith(self, onStart);
+        }
+
+        public static object UpdateWith(this object self, CallbackOnUpdate onUpdate)
+        {
+            return m_Kit.UpdateWith(self, onUpdate);
+        }
+
+        public static object CompleteWith(this object self, CallbackOnComplete onComplete)
+        {
+            return m_Kit.CompleteWith(self, onComplete);
+        }
+
+        public static object Stop(this object self, bool complete = false)
+        {
+            return m_Kit.Stop(self, complete);
+        }
+
+        public static int Finish(object tarOrTag, bool complete = false)
+        {
+            return m_Kit.Finish(tarOrTag, complete);
         }
         #endregion
 
         #region Tween Alpha
-        public static ZTweener TweenAlpha(this CanvasGroup self, float to, float duration)
+        public static object TweenAlpha(this CanvasGroup self, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenAlpha(self, self.alpha, to, duration);
         }
 
-        public static ZTweener TweenAlpha(this CanvasGroup self, float from, float to, float duration)
+        public static object TweenAlpha(this CanvasGroup self, float from, float to, float duration)
         {
-            return ZTweenMgr.Instance.Begin(self, CanvasGroupAlphaGetAndSet.Get(from, to), new TweenParameter() {
-                duration = duration,
-            });
+            return m_Kit.TweenAlpha(self, from, to, duration);
         }
 
-        public static ZTweener TweenAlpha(this Graphic self, float to, float duration)
+        public static object TweenAlpha(this Graphic self, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenAlpha(self, self.color.a, to, duration);
         }
 
-        public static ZTweener TweenAlpha(this Graphic self, float from, float to, float duration)
+        public static object TweenAlpha(this Graphic self, float from, float to, float duration)
         {
-            var c = self.color;
-            c.a = from;
-            self.color = c;
-            self.CrossFadeAlpha(to, duration, false);
-            return new ZTweener();
+            return m_Kit.TweenAlpha(self, from, to, duration);
         }
         #endregion
 
         #region Tween Color
-        public static ZTweener TweenColor(this Graphic self, Color to, float duration)
+        public static object TweenColor(this Graphic self, Color to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenColor(self, self.color, to, duration);
         }
 
-        public static ZTweener TweenColor(this Graphic self, Color from, Color to, float duration)
+        public static object TweenColor(this Graphic self, Color from, Color to, float duration)
         {
-            self.color = from;
-            self.CrossFadeColor(to, duration, false, true);
-            return new ZTweener();
+            return m_Kit.TweenColor(self, from, to, duration);
         }
 
         public static ZTweener TweenColor(this Material self, Color to, string property, float duration)
@@ -698,15 +761,15 @@ namespace ZFrame.Tween
         }
         #endregion
 
-        #region Tween String
-        public static ZTweener TweenFill(this Image self, float to, float duration)
+        #region Tween FillAmount
+        public static object TweenFill(this Image self, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenFillAmount(self, self.fillAmount, to, duration);
         }
 
-        public static ZTweener TweenFill(this Image self, float from, float to, float duration)
+        public static object TweenFill(this Image self, float from, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenFillAmount(self, from, to, duration);
         }
         #endregion
 
@@ -723,14 +786,14 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween Size
-        public static ZTweener TweenSize(this RectTransform self, Vector2 to, float duration)
+        public static object TweenSize(this RectTransform self, Vector2 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenSizeDelta(self, self.sizeDelta, to, duration);
         }
 
-        public static ZTweener TweenSize(this RectTransform self, Vector2 from, Vector2 to, float duration)
+        public static object TweenSize(this RectTransform self, Vector2 from, Vector2 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenSizeDelta(self, from, to, duration);
         }
         #endregion
 
@@ -759,78 +822,74 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween Anchor Position
-        public static ZTweener TweenAnchorPos(this RectTransform self, Vector3 to, float durtion)
+        public static object TweenAnchorPos(this RectTransform self, Vector3 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenAnchoredPosition(self, self.anchoredPosition3D, to, duration);
         }
 
-        public static ZTweener TweenAnchorPos(this RectTransform self, Vector3 from, Vector3 to, float durtion)
+        public static object TweenAnchorPos(this RectTransform self, Vector3 from, Vector3 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenAnchoredPosition(self, from, to, duration);
         }
         #endregion
 
         #region Tween Position
-        public static ZTweener TweenPosition(this Transform self, Vector3 to, float durtion)
+        public static object TweenPosition(this Transform self, Vector3 to, float duration)
         {
-            return ZTweenMgr.Instance.Begin(self, TransformPositionGetAndSet.Get(self.position, to), new TweenParameter() {
-                duration = durtion,
-            });
+            return m_Kit.TweenPosition(self, self.position, to, duration, Space.World);
         }
 
-        public static ZTweener TweenPosition(this Transform self, Vector3 from, Vector3 to, float durtion)
+        public static object TweenPosition(this Transform self, Vector3 from, Vector3 to, float duration)
         {
-            return ZTweenMgr.Instance.Begin(self, TransformPositionGetAndSet.Get(self.position, to), new TweenParameter() {
-                duration = durtion,
-            });
+            return m_Kit.TweenPosition(self, from, to, duration, Space.World);
         }
         #endregion
 
         #region Tween LocalPosition
-        public static ZTweener TweenLocalPosition(this Transform self, Vector3 to, float durtion)
+        public static object TweenLocalPosition(this Transform self, Vector3 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenPosition(self, self.localPosition, to, duration, Space.Self);
         }
 
-        public static ZTweener TweenLocalPosition(this Transform self, Vector3 from, Vector3 to, float durtion)
+        public static object TweenLocalPosition(this Transform self, Vector3 from, Vector3 to, float duration)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenPosition(self, from, to, duration, Space.Self);
         }
         #endregion
 
         #region Tween Rotation
-        public static ZTweener TweenRotation(this Transform self, Vector3 to, float durtion, RotateMode mode = RotateMode.Fast)
+        public static object TweenRotation(this Transform self, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenRotation(self, self.eulerAngles, to, duration, Space.World, mode);
         }
 
-        public static ZTweener TweenRotation(this Transform self, Vector3 from, Vector3 to, float durtion, RotateMode mode = RotateMode.Fast)
+        public static object TweenRotation(this Transform self, Vector3 from, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
         {
-            throw new System.NotImplementedException();
-        }
-        #endregion
-
-        #region Tween LocalRotation
-        public static ZTweener TweenLocalRotation(this Transform self, Vector3 to, float durtion, RotateMode mode = RotateMode.Fast)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public static ZTweener TweenLocalRotation(this Transform self, Vector3 from, Vector3 to, float durtion, RotateMode mode = RotateMode.Fast)
-        {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenRotation(self, from, to, duration, Space.World, mode);
         }
         #endregion
 
         #region Tween LocalRotation
-        public static ZTweener TweenScaling(this Transform self, Vector3 to, float durtion)
+        public static object TweenLocalRotation(this Transform self, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenRotation(self, self.localEulerAngles, to, duration, Space.Self, mode);
         }
 
-        public static ZTweener TweenScaling(this Transform self, Vector3 from, Vector3 to, float durtion)
+        public static object TweenLocalRotation(this Transform self, Vector3 from, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
         {
-            throw new System.NotImplementedException();
+            return m_Kit.TweenRotation(self, from, to, duration, Space.Self, mode);
+        }
+        #endregion
+
+        #region Tween LocalScale
+        public static object TweenScaling(this Transform self, Vector3 to, float duration)
+        {
+            return m_Kit.TweenScaling(self, self.localScale, to, duration);
+        }
+
+        public static object TweenScaling(this Transform self, Vector3 from, Vector3 to, float duration)
+        {
+            return m_Kit.TweenScaling(self, from, to, duration);
         }
         #endregion
 
@@ -843,7 +902,7 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween T
-        public static ZTweener Tween<T>(this object self, System.Func<T> getter, System.Action<T> setter, T to, float duration)
+        public static object Tween<T>(this object self, System.Func<T> getter, System.Action<T> setter, T to, float duration)
         {
             throw new System.NotImplementedException();
         }

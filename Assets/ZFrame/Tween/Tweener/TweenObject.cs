@@ -40,8 +40,8 @@ namespace ZFrame.Tween
         public UpdateType updateType { get { return parameter.updateType; } set { parameter.updateType = value; } }
         public bool ignoreTimescale { get { return parameter.ignoreTimescale; } set { parameter.ignoreTimescale = value; } }
 
-        protected ZTweener m_Tweener;
-        public ZTweener tweener { get { return m_Tweener; } }
+        protected object m_Tweener;
+        public object tweener { get { return m_Tweener; } }
 
         public float lifetime {
             get {

@@ -29,7 +29,7 @@ namespace ZFrame.UGUI
             m_Tweener.StartFrom(Vector3.one * tweenTar);
         }
 
-        protected override ZTweener AnimateFade(bool forward)
+        protected override object AnimateFade(bool forward)
         {
             var tweenTar = forward ? m_Scale : m_Origin;
 

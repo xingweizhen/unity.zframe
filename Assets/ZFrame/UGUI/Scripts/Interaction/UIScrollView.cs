@@ -189,9 +189,9 @@ namespace ZFrame.UGUI
             return normalizedPosition;
         }
         
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
             if (to is Vector2) {
                 tw = this.Tween(GetNormalizedPosition, SetNormalizedPosition, (Vector2)to, duration);
                 if (from is Vector2) {
@@ -202,9 +202,9 @@ namespace ZFrame.UGUI
             return tw;
         }
 
-        public ZTweener Tween(float to, float duration)
+        public object Tween(float to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
 
             if (vertical) {
                 var v2To = new Vector2(0, to);
@@ -218,7 +218,7 @@ namespace ZFrame.UGUI
             return tw;
         }
 
-        public ZTweener Tween(float from, float to, float duration)
+        public object Tween(float from, float to, float duration)
         {
             if (vertical) {
                 verticalNormalizedPosition = from;

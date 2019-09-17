@@ -14,7 +14,7 @@ namespace ZFrame.Tween
             m_To = m_From;
         }
 
-        protected override ZTweener StartTween(bool reset, bool forward)
+        protected override object StartTween(bool reset, bool forward)
         {
             return target ? target.TweenColor(m_From, m_To, duration) : null;
         }

@@ -39,7 +39,7 @@ namespace ZFrame.UGUI
             }
         }
 
-        protected override ZTweener AnimateFade(bool forward)
+        protected override object AnimateFade(bool forward)
         {
             var tweenTar = forward ? m_Destina : m_Source;
 

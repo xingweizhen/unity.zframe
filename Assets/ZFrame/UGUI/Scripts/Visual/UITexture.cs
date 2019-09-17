@@ -201,9 +201,9 @@ namespace ZFrame.UGUI
             uvRect = uv;
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
             if (to is Color) {
                 tw = this.TweenColor((Color)to, duration);
                 if (from is Color) {

@@ -305,9 +305,9 @@ namespace ZFrame.UGUI
             return value;
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
 
             if (to is float) {
                 tw = this.Tween(Getter, Setter, (float)to, duration);
@@ -321,14 +321,14 @@ namespace ZFrame.UGUI
             return tw;
         }
 
-        public ZTweener Tween(float to, float duration)
+        public object Tween(float to, float duration)
         {
             return this.Tween(Getter, Setter, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(float from, float to, float duration)
+        public object Tween(float from, float to, float duration)
         {
-            ZTweener tw = this.Tween(Getter, Setter, to, duration);
+            object tw = this.Tween(Getter, Setter, to, duration);
             value = (float)from;
             return tw.StartFrom(value).SetTag(this);
         }

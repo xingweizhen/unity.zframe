@@ -391,37 +391,37 @@ namespace ZFrame.UGUI
             GenLinkData();
         }
 
-        public ZTweener Tween(float to, float duration)
+        public object Tween(float to, float duration)
         {
             return this.TweenAlpha(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(float from, float to, float duration)
+        public object Tween(float from, float to, float duration)
         {
             return this.TweenAlpha(from, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Color to, float duration)
+        public object Tween(Color to, float duration)
         {
             return this.TweenColor(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Color from, Color to, float duration)
+        public object Tween(Color from, Color to, float duration)
         {
             return this.TweenColor(from, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(string to, float duration)
+        public object Tween(string to, float duration)
         {
             return this.TweenString(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(string from, string to, float duration)
+        public object Tween(string from, string to, float duration)
         {
             return this.TweenString(from, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
             var s = to as string;
             if (s != null) {

@@ -7,9 +7,9 @@ namespace ZFrame.UGUI
 
     public static class FadeTool
     {
-        public static ZTweener DOFade(GameObject go, FadeGroup fadeDir, bool reset, bool forward = true)
+        public static object DOFade(GameObject go, FadeGroup fadeDir, bool reset, bool forward = true)
         {
-            ZTweener ret = null;
+            object ret = null;
             if (go) {
                 var list = ListPool<Component>.Get();
                 go.GetComponents(typeof(IFading), list);
@@ -32,9 +32,9 @@ namespace ZFrame.UGUI
             return ret;
         }
 
-        public static ZTweener DOFade(GameObject go, bool reset, bool forward = true)
+        public static object DOFade(GameObject go, bool reset, bool forward = true)
         {
-            ZTweener ret = null;
+            object ret = null;
             if (go) {
                 var list = ListPool<Component>.Get();
                 go.GetComponents(typeof(IFading), list);

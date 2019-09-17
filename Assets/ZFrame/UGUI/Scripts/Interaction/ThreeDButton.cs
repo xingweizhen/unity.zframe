@@ -28,7 +28,7 @@ namespace ZFrame.UGUI
             throw new System.NotImplementedException();
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
             throw new System.NotImplementedException();
         }

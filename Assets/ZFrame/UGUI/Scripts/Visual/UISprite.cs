@@ -217,27 +217,27 @@ namespace ZFrame.UGUI
         }
 
         #region Tweenable
-        public ZTweener Tween(float to, float duration)
+        public object Tween(float to, float duration)
         {
             return this.TweenFill(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(float from, float to, float duration)
+        public object Tween(float from, float to, float duration)
         {
             return this.TweenFill(from, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Color to, float duration)
+        public object Tween(Color to, float duration)
         {
             return this.TweenColor(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Color from, Color to, float duration)
+        public object Tween(Color from, Color to, float duration)
         {
             return this.TweenColor(from, to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
             if (to is Color) {
                 return from is Color ?

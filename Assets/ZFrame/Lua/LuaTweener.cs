@@ -22,15 +22,11 @@ namespace ZFrame.Lua
             get { return m_Group; }
         }
 
-        private ZTweener m_Tweener;
-
-        public ZTweener tweener {
-            get { return m_Tweener; }
-        }
+        public object tweener { get; private set; }
 
         public bool DOFade(bool reset, bool forward)
         {
-            m_Tweener = null;
+            tweener = null;
             m_Lifetime = 0;
             var lua = LuaScriptMgr.Instance.L;
             lua.GetGlobal("TWEEN", m_TweenFunc);
@@ -40,7 +36,7 @@ namespace ZFrame.Lua
                 lua.PushBoolean(reset);
                 lua.PushBoolean(forward);
                 lua.ExecPCall(3, 2, b);
-                m_Tweener = lua.ToAnyObject(-2) as ZTweener;
+                tweener = lua.ToAnyObject(-2) as ZTweener;
                 m_Lifetime = lua.OptSingle(-1, 0f);
                 lua.Pop(2);
             } else {
@@ -48,7 +44,7 @@ namespace ZFrame.Lua
                 LogMgr.W("Call TWEEN:{0}() failure!", m_TweenFunc);
             }
 
-            return m_Tweener != null;
+            return tweener != null;
         }
     }
 }

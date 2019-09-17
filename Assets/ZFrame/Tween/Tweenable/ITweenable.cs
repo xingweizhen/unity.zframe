@@ -5,12 +5,12 @@ namespace ZFrame.Tween
 {
     public interface ITweenable
     {
-        ZTweener Tween(object from, object to, float duration);
+        object Tween(object from, object to, float duration);
     }
 
     public interface ITweenable<T>
     {
-        ZTweener Tween(T to, float duration);
-        ZTweener Tween(T from, T to, float duration);
+        object Tween(T to, float duration);
+        object Tween(T from, T to, float duration);
     }
 }

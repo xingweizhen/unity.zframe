@@ -27,7 +27,7 @@ namespace ZFrame.Tween
             if (tweenAutomatically) DoTween(true, true);
         }
 
-        protected abstract ZTweener StartTween(bool reset, bool forward);
+        protected abstract object StartTween(bool reset, bool forward);
 
         /// <summary>
         /// 启动缓动动画

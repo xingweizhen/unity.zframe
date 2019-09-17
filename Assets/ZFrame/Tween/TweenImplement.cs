@@ -25,15 +25,97 @@ namespace ZFrame.Tween
 
     public abstract class TweenGetAndSet
     {
+        //private static Dictionary<System.Type, System.Delegate> s_Type2LerpUnclamped = new Dictionary<System.Type, System.Delegate> {
+        //    { typeof(float), new System.Func<float, float, float, float>(Mathf.LerpUnclamped) },
+        //    { typeof(Vector2), new System.Func<Vector2, Vector2, float, Vector2>(Vector2.LerpUnclamped) },
+        //    { typeof(Vector3), new System.Func<Vector3, Vector3, float, Vector3>(Vector3.LerpUnclamped) },
+        //    { typeof(Quaternion), new System.Func<Quaternion, Quaternion, float, Quaternion>(Quaternion.LerpUnclamped) },
+        //};
+
         public abstract void Evaluate(object target, float t);
     }
 
-    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S :  TweenGetAndSet<S, T, V>, new() where T : Object
+    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S :  TweenGetAndSet<S, T, V> where T : Object
     {
+        protected TweenGetAndSet() { }
+
         public V from, to;
+
+        // public abstract V GetValue();
+
+        // public abstract void SetValue(V value);
+
         public static S Get(V from, V to)
         {
-            return new S() { from = from, to = to };
+            var obj = (S)System.Activator.CreateInstance(typeof(S));
+            obj.from = from;
+            obj.to = to;
+            return obj;
+        }
+    }
+
+    public sealed class TransformPositionGetAndSet : TweenGetAndSet<TransformPositionGetAndSet, Transform, Vector3>
+    {
+        public Space space;
+
+        public override void Evaluate(object target, float t)
+        {
+            //var value = from + (to - from) * t;
+            var value = Vector3.LerpUnclamped(from, to, t);
+            switch (space) {
+                case Space.Self:
+                    ((Transform)target).localPosition = value;
+                    break;
+                case Space.World:
+                    ((Transform)target).position = value;
+                    break;
+            }            
+        }
+    }
+
+    public sealed class TransformRotationGetAndSet : TweenGetAndSet<TransformRotationGetAndSet, Transform, Quaternion>
+    {
+        public Space space;
+        public RotateMode mode;
+
+        public override void Evaluate(object target, float t)
+        {
+            var value = Quaternion.LerpUnclamped(from, to, t);
+            switch (space) {
+                case Space.Self:
+                    ((Transform)target).localRotation = value;
+                    break;
+                case Space.World:
+                    ((Transform)target).rotation = value;
+                    break;
+            }
+        }
+    }
+
+    public sealed class TransformScaleGetAndSet : TweenGetAndSet<TransformScaleGetAndSet, Transform, Vector3>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Vector3.LerpUnclamped(from, to, t);
+            ((Transform)target).localScale = value;
+        }
+    }
+
+    public sealed class RectTransformAnchoredPosGetAndSet : TweenGetAndSet<RectTransformAnchoredPosGetAndSet, RectTransform, Vector3>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Vector3.LerpUnclamped(from, to, t);
+            ((RectTransform)target).anchoredPosition3D = value;
+        }
+    }
+
+    public sealed class RectTransformSizeDeltaGetAndSet : TweenGetAndSet<RectTransformSizeDeltaGetAndSet, RectTransform, Vector2>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Vector2.LerpUnclamped(from, to, t);
+            ((RectTransform)target).sizeDelta = value;
         }
     }
 
@@ -46,13 +128,44 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class TransformPositionGetAndSet : TweenGetAndSet<TransformPositionGetAndSet, Transform, Vector3>
+    public sealed class UIGraphicAlphaGetAndSet : TweenGetAndSet<UIGraphicAlphaGetAndSet, UnityEngine.UI.Graphic, float>
     {
         public override void Evaluate(object target, float t)
         {
-            var value = from + (to - from) * t;
-            ((Transform)target).position = value;
-        }        
+            var value = Mathf.LerpUnclamped(from, to, t);
+            var color = ((UnityEngine.UI.Graphic)target).color;
+            color.a = value;
+            ((UnityEngine.UI.Graphic)target).color = color;
+        }
+    }
+
+    public sealed class UIGraphicColorGetAndSet : TweenGetAndSet<UIGraphicColorGetAndSet, UnityEngine.UI.Graphic, Color>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Color.LerpUnclamped(from, to, t);
+            ((UnityEngine.UI.Graphic)target).color = value;
+        }
+    }
+
+    public sealed class UIImageFillAmountGetAndSet : TweenGetAndSet<UIImageFillAmountGetAndSet, UnityEngine.UI.Image, float>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Mathf.LerpUnclamped(from, to, t);
+            ((UnityEngine.UI.Image)target).fillAmount = value;
+        }
+    }
+
+    public sealed class UserDefineGetAndSet<V> : TweenGetAndSet<UserDefineGetAndSet<V>, Object, V>
+    {
+        public System.Action<V> setter;
+        public System.Func<V> getter;
+
+        public override void Evaluate(object target, float t)
+        {
+            
+        }
     }
 
     public partial class ZTweener

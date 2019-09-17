@@ -103,9 +103,9 @@ namespace ZFrame.UGUI
             return value;
         }
 
-        public ZTweener Tween(object from, object to, float duration)
+        public object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
 
             if (to is float) {
                 tw = ZTween.Tween(this, Getter, Setter, (float)to, duration);

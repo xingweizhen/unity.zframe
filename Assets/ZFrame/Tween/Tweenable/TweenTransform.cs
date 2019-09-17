@@ -20,9 +20,9 @@ namespace ZFrame.Tween
             return m_Time;
         }
 
-        public override ZTweener Tween(object from, object to, float duration)
+        public override object Tween(object from, object to, float duration)
         {
-            ZTweener tw = null;
+            object tw = null;
             m_To = to as Transform;
             if (m_To) {
                 tw = this.Tween(Getter, Setter, duration, duration);

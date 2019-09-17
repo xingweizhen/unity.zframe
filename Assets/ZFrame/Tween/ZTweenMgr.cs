@@ -15,21 +15,26 @@ namespace ZFrame.Tween
                 return m_Inst;
             }
         }
-        
+
         private Stack<ZTweener> m_Pool = new Stack<ZTweener>();
         private List<ZTweener> m_Tweens = new List<ZTweener>();
 
         public ZTweener Begin(object target, TweenGetAndSet gs, TweenParameter parameter)
         {
-            var tweener = m_Pool.Count > 0 ? m_Pool.Pop() : new ZTweener();            
+            var tweener = m_Pool.Count > 0 ? m_Pool.Pop() : new ZTweener();
             tweener.Init(target, gs, parameter);
             m_Tweens.Add(tweener);
             return tweener;
         }
 
+        public int Stop(object tarOrTag, bool complete)
+        {
+            return 0;
+        }
+
         private void UpdateValue(float t, UpdateType updateType)
         {
-            for (int i = m_Tweens.Count - 1; i >= 0; --i) { 
+            for (int i = m_Tweens.Count - 1; i >= 0; --i) {
                 if (m_Tweens[i].UpdateValue(updateType)) {
                     m_Pool.Push(m_Tweens[i]);
                     m_Tweens.RemoveAt(i);

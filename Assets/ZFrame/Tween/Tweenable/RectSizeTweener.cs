@@ -6,7 +6,7 @@ namespace ZFrame.Tween
     [RequireComponent(typeof(RectTransform))]
     public class RectSizeTweener : BaseTweener, ITweenable<Vector2>
     {
-        public override ZTweener Tween(object from, object to, float duration)
+        public override object Tween(object from, object to, float duration)
         {
             if (to is Vector2) {
                 if (from is Vector2) {
@@ -19,7 +19,7 @@ namespace ZFrame.Tween
             return null;
         }
 
-        public ZTweener Tween(Vector2 to, float duration)
+        public object Tween(Vector2 to, float duration)
         {
             var trans = transform as RectTransform;
             if (trans == null) return null;
@@ -27,7 +27,7 @@ namespace ZFrame.Tween
             return trans.TweenSize(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Vector2 from, Vector2 to, float duration)
+        public object Tween(Vector2 from, Vector2 to, float duration)
         {
             var trans = transform as RectTransform;
             if (trans == null) return null;

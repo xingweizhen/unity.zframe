@@ -59,8 +59,8 @@ namespace ZFrame.UGUI
         public virtual LoopType loopType { get { return LoopType.Restart; }  }
         public abstract float duration { get; }
 
-        protected ZTweener m_Tweener;
-        public ZTweener tweener { get { return m_Tweener; } }
+        protected object m_Tweener;
+        public object tweener { get { return m_Tweener; } }
 
         public float lifetime {
             get {
@@ -71,7 +71,7 @@ namespace ZFrame.UGUI
 
         protected abstract void Restart();
         protected abstract void SetRestart(bool forward);
-        protected abstract ZTweener AnimateFade(bool forward);
+        protected abstract object AnimateFade(bool forward);
 
         public bool DOFade(bool reset, bool forward)
         {

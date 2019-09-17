@@ -1329,7 +1329,7 @@ namespace ZFrame.Lua
             return null;
         }
 
-        private static ZTweener ToTweener<T>(this ILuaState lua, object tweenObj,
+        private static object ToTweener<T>(this ILuaState lua, object tweenObj,
             I2V.Index2Value<T> indexTo, int fromIdx, int toIdx, float duration)
         {
             var twaTmpl = tweenObj as ITweenable<T>;
@@ -1355,7 +1355,7 @@ namespace ZFrame.Lua
                 // TweenGroup
                 var go = lua.ToGameObject(1);
                 if (go && go.activeInHierarchy) {
-                    ZTween.Stop(go);
+                    ZTween.Finish(go);
 
                     var groupId = lua.ToInteger(2);                    
                     TweenGroup twGrp = null;
@@ -1389,7 +1389,7 @@ namespace ZFrame.Lua
             var tweenType = lua.ToAnyObject(1);
             var tweenObj = lua.ToUnityObject(2);
 
-            ZTweener tw = null;
+            object tw = null;
             float duration = lua.GetNumber(5, "duration", 0f);
 
             // First try no-boxing process
@@ -1445,11 +1445,9 @@ namespace ZFrame.Lua
                 bool ignoreTimescale = lua.GetBoolean(5, "ignoreTimescale", true);
                 float timeScale = lua.GetNumber(5, "timeScale", 1f);
 
-                LuaFunction onStart = lua.GetFunction(5, "start");
-                LuaFunction onUpdate = lua.GetFunction(5, "update");
+                LuaFunction onStart = lua.GetFunction(5, "start");                LuaFunction onUpdate = lua.GetFunction(5, "update");
                 LuaFunction onComplete = lua.GetFunction(5, "complete");
-
-                tw.timeScale = timeScale;
+                tw.SetTimeScale(timeScale);
                 tw.EaseBy(ease).DelayFor(delay)
                     .LoopFor(loops, loopType)
                     .SetUpdate(updateType, ignoreTimescale);
@@ -1512,7 +1510,7 @@ namespace ZFrame.Lua
             if (go) {
                 var tweens = ListPool<Component>.Get();
                 go.GetComponents(typeof(ITweenable), tweens);
-                foreach (var tw in tweens) ZTween.Stop(tw);
+                foreach (var tw in tweens) ZTween.Finish(tw);
                 ListPool<Component>.Release(tweens);
             }
 
@@ -1527,7 +1525,7 @@ namespace ZFrame.Lua
         {
             var obj = lua.ToAnyObject(1);
             var complete = lua.OptBoolean(2, false);
-            ZTween.Stop(obj, complete);
+            ZTween.Finish(obj, complete);
             return 0;
         }
 
@@ -1538,7 +1536,7 @@ namespace ZFrame.Lua
             if (go) {
                 var tweens = ListPool<Component>.Get();
                 go.GetComponents(typeof(ITweenable), tweens);
-                foreach (var tw in tweens) ZTween.Stop(tw, true);
+                foreach (var tw in tweens) ZTween.Finish(tw, true);
                 ListPool<Component>.Release(tweens);
             }
 

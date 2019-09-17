@@ -7,7 +7,7 @@ namespace ZFrame.Tween
     [RequireComponent(typeof(CanvasGroup))]
     public class CanvasAlphaTweener : BaseTweener, ITweenable<float>
     {
-        public override ZTweener Tween(object from, object to, float duration)
+        public override object Tween(object from, object to, float duration)
         {
             var cvGrp = gameObject.GetComponent<CanvasGroup>();
             var alpha = (float)to;
@@ -20,13 +20,13 @@ namespace ZFrame.Tween
 			return tw;
         }
 
-        public ZTweener Tween(float to, float duration)
+        public object Tween(float to, float duration)
         {
             var cvGrp = gameObject.GetComponent<CanvasGroup>();
             return cvGrp.TweenAlpha(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(float from, float to, float duration)
+        public object Tween(float from, float to, float duration)
         {
             var cvGrp = gameObject.GetComponent<CanvasGroup>();
             return cvGrp.TweenAlpha(from, to, duration).SetTag(this);

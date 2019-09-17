@@ -7,7 +7,7 @@ namespace ZFrame.Tween
     [RequireComponent(typeof(RectTransform))]
     public class RectAnchoredPosTweener : BaseTweener, ITweenable<Vector3>
     {
-        public override ZTweener Tween(object from, object to, float duration)
+        public override object Tween(object from, object to, float duration)
         {
             if (to is Vector3) {
                 if (from is Vector3) {
@@ -20,7 +20,7 @@ namespace ZFrame.Tween
             return null;
         }
 
-        public ZTweener Tween(Vector3 to, float duration)
+        public object Tween(Vector3 to, float duration)
         {
             var trans = transform as RectTransform;
             if (trans == null) return null;
@@ -28,7 +28,7 @@ namespace ZFrame.Tween
             return trans.TweenAnchorPos(to, duration).SetTag(this);
         }
 
-        public ZTweener Tween(Vector3 from, Vector3 to, float duration)
+        public object Tween(Vector3 from, Vector3 to, float duration)
         {
             var trans = transform as RectTransform;
             if (trans == null) return null;
