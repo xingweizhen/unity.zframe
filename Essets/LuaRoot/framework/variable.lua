@@ -87,23 +87,19 @@ do
     _G.cjson = dofile("framework/tinyjson.lua")
 
     local Application = _G.UE.Application
-
     local platform = Application.platform.name
     -- 环境
-    _G.ENV = setmetatable({
-        -- 平台名
-        unity_platform = platform,
-        app_data_path = Application.dataPath,
-
-        app_persistentdata_path = "",
-        app_streamingassets_path = "",
-        using_assetbundle = false,
-
-        debug = platform == "OSXEditor"
+    local ENV = _G.ENV
+    ENV.unity_platform = platform
+    ENV.app_data_path = Application.dataPath
+    ENV.debug = platform == "OSXEditor"
                 or platform == "OSXPlayer"
                 or platform == "WindowsEditor"
-                or platform == "WindowsPlayer",
-    }, _G.MT.ReadOnly)
+                or platform == "WindowsPlayer"
+                or platform == "LinuxEditor"
+                or platform == "LinuxPlayer"
+
+    setmetatable(ENV, _G.MT.ReadOnly)
 
     -- 常量数值表
     _G.CVar = {}
