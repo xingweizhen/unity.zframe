@@ -13,7 +13,7 @@ local function awake()
     print ("<color=yellow>lua awake</color>")
 end
 
-local function start()
+local function start()    
     -- 读用户配置
     local UserSettings = {}
     local settingRoot = ENV.debug and "" or ENV.app_persistentdata_path .. "/"
@@ -32,6 +32,7 @@ local function start()
 
     rawset(_G, "UserSettings", UserSettings)
 
+    -- 执行游戏初始化逻辑
     dofile("game/init")
 end
 
