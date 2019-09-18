@@ -193,7 +193,7 @@ namespace ZFrame.UGUI
         {
             object tw = null;
             if (to is Vector2) {
-                tw = this.Tween(GetNormalizedPosition, SetNormalizedPosition, (Vector2)to, duration);
+                tw = this.TweenAny(GetNormalizedPosition, SetNormalizedPosition, (Vector2)from, (Vector2)to, duration);
                 if (from is Vector2) {
                     tw.StartFrom((Vector2)from);
                 }
@@ -208,10 +208,10 @@ namespace ZFrame.UGUI
 
             if (vertical) {
                 var v2To = new Vector2(0, to);
-                tw = this.Tween(GetNormalizedPosition, SetNormalizedPosition, v2To, duration);
+                tw = this.TweenAny(GetNormalizedPosition, SetNormalizedPosition, normalizedPosition, v2To, duration);
             } else if (horizontal) {
                 var v2To = new Vector2(to, 0);
-                tw = this.Tween(GetNormalizedPosition, SetNormalizedPosition, v2To, duration);
+                tw = this.TweenAny(GetNormalizedPosition, SetNormalizedPosition, normalizedPosition, v2To, duration);
             }
 
             if (tw != null) tw.SetTag(this);

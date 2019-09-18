@@ -35,7 +35,7 @@ namespace ZFrame.Tween
         public abstract void Evaluate(object target, float t);
     }
 
-    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S :  TweenGetAndSet<S, T, V> where T : Object
+    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S :  TweenGetAndSet<S, T, V>
     {
         protected TweenGetAndSet() { }
 
@@ -157,14 +157,49 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UserDefineGetAndSet<V> : TweenGetAndSet<UserDefineGetAndSet<V>, Object, V>
+    public abstract class UserDefineGetAndSet<V> : TweenGetAndSet<UserDefineGetAndSet<V>, object, V>
     {
         public System.Action<V> setter;
         public System.Func<V> getter;
+    }
 
+    public sealed class UserDefineGetAndSetFloat : UserDefineGetAndSet<float>
+    {
         public override void Evaluate(object target, float t)
         {
-            
+            setter.Invoke(Mathf.LerpUnclamped(from, to, t));
+        }
+    }
+
+    public sealed class UserDefineGetAndSetVector2 : UserDefineGetAndSet<Vector2>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            setter.Invoke(Vector2.LerpUnclamped(from, to, t));
+        }
+    }
+
+    public sealed class UserDefineGetAndSetVector3 : UserDefineGetAndSet<Vector3>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            setter.Invoke(Vector3.LerpUnclamped(from, to, t));
+        }
+    }
+
+    public sealed class UserDefineGetAndSetVector4 : UserDefineGetAndSet<Vector4>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            setter.Invoke(Vector4.LerpUnclamped(from, to, t));
+        }
+    }
+
+    public sealed class UserDefineGetAndSetColor : UserDefineGetAndSet<Color>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            setter.Invoke(Color.LerpUnclamped(from, to, t));
         }
     }
 

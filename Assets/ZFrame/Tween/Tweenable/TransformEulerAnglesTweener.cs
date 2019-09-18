@@ -33,10 +33,10 @@ namespace ZFrame.Tween
             var trans = transform;
             switch (space) {
                 case Space.Self:
-                    tw = this.Tween(LocalGetter, LocalSetter, (Vector3)to, duration);
+                    tw = this.TweenAny(LocalGetter, LocalSetter, (Vector3)from, (Vector3)to, duration);
                     break;
                 case Space.World:
-                    tw = this.Tween(WorldGetter, WorldSetter, (Vector3)to, duration);
+                    tw = this.TweenAny(WorldGetter, WorldSetter, (Vector3)from, (Vector3)to, duration);
                     break;
             }
             if (tw != null) {
@@ -55,9 +55,9 @@ namespace ZFrame.Tween
         {
             switch (space) {
                 case Space.Self:
-                    return this.Tween(LocalGetter, LocalSetter, to, duration).SetTag(this);
+                    return this.TweenAny(LocalGetter, LocalSetter, transform.localEulerAngles, to, duration).SetTag(this);
                 case Space.World:
-                    return this.Tween(WorldGetter, WorldSetter, to, duration).SetTag(this);
+                    return this.TweenAny(WorldGetter, WorldSetter, transform.eulerAngles, to, duration).SetTag(this);
             }
             return null;
         }

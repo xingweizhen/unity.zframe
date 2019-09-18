@@ -47,7 +47,7 @@ namespace ZFrame.Tween
                 }
 
                 if (m_Lifetime > 0) {
-                    ZTween.Tween(this, Get, Set, 0f, m_Lifetime)
+                    ZTween.TweenAny(this, Get, Set, 1f, 0f, m_Lifetime)
                         .SetUpdate(m_UpdateType, m_IgnoreTimescale)
                         .SetTag(gameObject)
                         .CompleteWith(StopTween);

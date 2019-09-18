@@ -6,7 +6,7 @@ namespace ZFrame.UGUI
 {
 	using Tween;
 
-    public sealed class ColorGroup : MonoBehavior, ITweenable
+    public sealed class ColorGroup : MonoBehavior, ITweenable, ITweenable<Color>
     {
         [SerializeField]
         private Color m_Color = Color.white;
@@ -39,13 +39,27 @@ namespace ZFrame.UGUI
         {
             object tw = null;
             if (to is Color) {
-                tw = this.Tween(ColorGetter, ColorSetter, (Color)to, 0f);
+                tw = this.TweenAny(ColorGetter, ColorSetter, (Color)from, (Color)to, 0f);
                 if (from is Color) {
                     color = (Color)from;
 					tw.StartFrom(color);
                 }
             }
 
+            if (tw != null) tw.SetTag(this);
+            return tw;
+        }
+
+        public object Tween(Color to, float duration)
+        {
+            var tw = this.TweenAny(ColorGetter, ColorSetter, m_Color, to, duration);
+            if (tw != null) tw.SetTag(this);
+            return tw;
+        }
+
+        public object Tween(Color from, Color to, float duration)
+        {
+            var tw = this.TweenAny(ColorGetter, ColorSetter, from, to, duration);
             if (tw != null) tw.SetTag(this);
             return tw;
         }

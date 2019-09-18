@@ -25,7 +25,7 @@ namespace ZFrame.Tween
             object tw = null;
             m_To = to as Transform;
             if (m_To) {
-                tw = this.Tween(Getter, Setter, duration, duration);
+                tw = this.TweenAny(Getter, Setter, (float)from, (float)to, duration);
                 m_Time = 0f;
                 m_Dura = duration;
                 if (from is Vector3) {

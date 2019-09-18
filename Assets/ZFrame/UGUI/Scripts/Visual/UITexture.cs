@@ -7,7 +7,7 @@ namespace ZFrame.UGUI
     using Asset;
     using Tween;
 
-    public class UITexture : RawImage, ITweenable
+    public class UITexture : RawImage, ITweenable, ITweenable<Vector2>
     {
         public static Texture LoadTexture(string path, bool warnIfMissing)
         {
@@ -218,7 +218,7 @@ namespace ZFrame.UGUI
                     tw.StartFrom(color);
                 }
             } else if (to is Vector2) {
-                tw = this.Tween(GetUVOffset, SetUVOffset, (Vector2)to, duration);
+                tw = this.TweenAny(GetUVOffset, SetUVOffset, (Vector2)from, (Vector2)to, duration);
                 if (from is Vector2) {
                     tw.StartFrom((Vector2)from);
                 }
@@ -237,6 +237,16 @@ namespace ZFrame.UGUI
                 InitTexture();
             }
             ImageTypeChanged();
+        }
+
+        public object Tween(Vector2 to, float duration)
+        {
+            return this.TweenAny(GetUVOffset, SetUVOffset, uvRect.position, to, duration).SetTag(this);
+        }
+
+        public object Tween(Vector2 from, Vector2 to, float duration)
+        {
+            return this.TweenAny(GetUVOffset, SetUVOffset, from, to, duration).SetTag(this);
         }
 #endif
 

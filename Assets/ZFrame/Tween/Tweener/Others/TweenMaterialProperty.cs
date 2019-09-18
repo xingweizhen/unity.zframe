@@ -107,13 +107,11 @@ namespace ZFrame.Tween
                 switch (m_PropertyType) {
                     case PropertyType.Float:
                     case PropertyType.Range:
-                        SetFloat(m_From.x);
-                        return target.Tween(GetFloat, SetFloat, m_To.x, duration);
+                        return target.TweenAny(GetFloat, SetFloat, m_From.x, m_To.x, duration);
                     case PropertyType.Color:
                     case PropertyType.Vector:
                     case PropertyType.TexEnv:
-                        SetVector(m_From);
-                        return target.Tween(GetVector, SetVector, m_To, duration);
+                        return target.TweenAny(GetVector, SetVector, m_From, m_To, duration);
                 }
             }
 

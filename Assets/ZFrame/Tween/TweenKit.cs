@@ -36,16 +36,26 @@ namespace ZFrame.Tween
         object TweenFillAmount(Image self, float from, float to, float duration);
         object TweenString(Text self, string from, string to, float duration);
         object TweenMaterialProperty(Material self, Vector2 from, Vector2 to, float duration);
-        object TweenAnything<S, T, V>(T self, TweenGetAndSet<S, T, V> gs, float duration) where S : TweenGetAndSet<S, T, V> where T : Object;
+        object TweenAnything<S, T, V>(T self, TweenGetAndSet<S, T, V> gs, float duration) where S : TweenGetAndSet<S, T, V>;
     }
 
     internal class TweenKit : ITweenKit
     {
+        void ITweenKit.Init()
+        {
+
+        }
 
         bool ITweenKit.IsTweening(object self)
         {
             return ((ZTweener)self).IsTweening();
         }
+
+        int ITweenKit.Finish(object tarOrTag, bool complete)
+        {
+            return ZTweenMgr.Instance.Stop(tarOrTag, complete);
+        }
+
 
         object ITweenKit.SetTag(object self, object tag)
         {
@@ -106,17 +116,7 @@ namespace ZFrame.Tween
         {
             return ((ZTweener)self).Stop(complete);
         }
-
-        void ITweenKit.Init()
-        {
-            
-        }
-
-        int ITweenKit.Finish(object tarOrTag, bool complete)
-        {
-            return ZTweenMgr.Instance.Stop(tarOrTag, complete);
-        }
-
+        
         object ITweenKit.TweenPosition(Transform self, Vector3 from, Vector3 to, float duration, Space space)
         {
             var gs = TransformPositionGetAndSet.Get(from, to);

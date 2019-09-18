@@ -902,35 +902,43 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween T
-        public static object Tween<T>(this object self, System.Func<T> getter, System.Action<T> setter, T to, float duration)
+        public static object TweenAny(this object self, System.Func<float> getter, System.Action<float> setter, float from, float to, float duration)
         {
-            throw new System.NotImplementedException();
+            var gs = UserDefineGetAndSetFloat.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return m_Kit.TweenAnything(self, gs, duration);
         }
 
-        //public static ZTweener Tween(this object self, System.Func<float> getter, System.Action<float> setter, float to, float duration)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
+        public static object TweenAny(this object self, System.Func<Vector2> getter, System.Action<Vector2> setter, Vector2 from, Vector2 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector2.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return m_Kit.TweenAnything(self, gs, duration);
+        }
 
-        //public static ZTweener Tween(this object self, System.Func<int> getter, System.Action<int> setter, int to, float duration)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
-        //public static ZTweener Tween(this object self, System.Func<Vector2> getter, System.Action<Vector2> setter, Vector2 to, float duration)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
-        //public static ZTweener Tween(this object self, System.Func<Vector3> getter, System.Action<Vector3> setter, Vector3 to, float duration)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
-        //public static ZTweener Tween(this object self, System.Func<Color> getter, System.Action<Color> setter, Color to, float duration)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
+        public static object TweenAny(this object self, System.Func<Vector3> getter, System.Action<Vector3> setter, Vector3 from, Vector3 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector3.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return m_Kit.TweenAnything(self, gs, duration);
+        }
+        public static object TweenAny(this object self, System.Func<Vector4> getter, System.Action<Vector4> setter, Vector4 from, Vector4 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector4.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return m_Kit.TweenAnything(self, gs, duration);
+        }
+        public static object TweenAny(this object self, System.Func<Color> getter, System.Action<Color> setter, Color from, Color to, float duration)
+        {
+            var gs = UserDefineGetAndSetColor.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return m_Kit.TweenAnything(self, gs, duration);
+        }
 
         #endregion
 

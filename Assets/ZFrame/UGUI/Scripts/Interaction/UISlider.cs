@@ -9,7 +9,7 @@ namespace ZFrame.UGUI
 {
     using Tween;
 
-    public class UISlider : Slider, IStateTransTarget, IEventSender, ITweenable
+    public class UISlider : Slider, IStateTransTarget, IEventSender, ITweenable, ITweenable<float>
     {
         public float minLmt = 0, maxLmt = 1;
         public bool antiProgress;
@@ -102,23 +102,7 @@ namespace ZFrame.UGUI
         {
             return value;
         }
-
-        public object Tween(object from, object to, float duration)
-        {
-            object tw = null;
-
-            if (to is float) {
-                tw = ZTween.Tween(this, Getter, Setter, (float)to, duration);
-                if (from != null) {
-                    value = (float)from;
-                    tw.StartFrom(value);
-                }
-            }
-
-            if (tw != null) tw.SetTag(this);
-            return tw;
-        }
-
+        
         private void UpdateRadialHandle(float value)
         {
             if (m_FillImg && m_RadialHandle) {
@@ -161,6 +145,36 @@ namespace ZFrame.UGUI
         {
             base.DoStateTransition(state, instant);
             this.TryStateTransition((SelectingState)state, instant);
+        }
+
+        public object Tween(object from, object to, float duration)
+        {
+            object tw = null;
+
+            if (to is float) {
+                tw = ZTween.TweenAny(this, Getter, Setter, (float)from, (float)to, duration);
+                if (from != null) {
+                    value = (float)from;
+                    tw.StartFrom(value);
+                }
+            }
+
+            if (tw != null) tw.SetTag(this);
+            return tw;
+        }
+
+        public object Tween(float to, float duration)
+        {
+            var tw = this.TweenAny(Getter, Setter, value, to, duration);
+            if (tw != null) tw.SetTag(this);
+            return tw;
+        }
+
+        public object Tween(float from, float to, float duration)
+        {
+            var tw = this.TweenAny(Getter, Setter, from, to, duration);
+            if (tw != null) tw.SetTag(this);
+            return tw;
         }
     }
 }
