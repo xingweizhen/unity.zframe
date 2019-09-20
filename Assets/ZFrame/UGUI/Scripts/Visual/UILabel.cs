@@ -89,8 +89,19 @@ namespace ZFrame.UGUI
         private string m_FontPath;
 
         [NamedProperty("Link Text")]
-        public bool supportLinkText;
-        
+        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("supportLinkText")]
+        private bool m_SupportLinkText;
+
+        public bool supportLinkText {
+            get { return m_SupportLinkText; }
+            set {
+                if (m_SupportLinkText != value) {
+                    m_SupportLinkText = value;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
         [SerializeField]
         private bool m_Localized;
         public bool localized { get { return m_Localized; } set { m_Localized = value; } }
@@ -202,7 +213,7 @@ namespace ZFrame.UGUI
         public LinkInfo FindLink(Vector3 screenPos, Camera cam)
         {
             Vector2 point;
-            if (supportLinkText && RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
+            if (m_SupportLinkText && RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
                 for (int i = 0; i < m_Links.Count; ++i) {
                     var link = m_Links[i];
                     var boxes = link.boxes;
@@ -265,7 +276,7 @@ namespace ZFrame.UGUI
         {
             m_Links.Clear();
             m_GenText = text;
-            if (supportRichText && supportLinkText) {
+            if (supportRichText && m_SupportLinkText) {
                 LinkBuilder.Length = 0;
                 var startIdx = 0;
                 var matches = LinkRegex.Matches(text);
