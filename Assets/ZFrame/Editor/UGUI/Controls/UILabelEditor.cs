@@ -16,7 +16,7 @@ namespace ZFrame.Editors
         //private static List<string> m_Results = new List<string>();
         private List<string> m_AutoKeys = new List<string>();
 
-        private SerializedProperty m_Localized, m_Ellipsis, m_RawText, m_Text, m_NonBreakingSpace, m_SupportLinkText;
+        private SerializedProperty m_Localized, m_Ellipsis, m_RawText, m_Text, m_NonBreakingSpace, m_LinkStyle;
         private SerializedProperty m_FontPath;
 
         protected override void OnEnable()
@@ -34,7 +34,7 @@ namespace ZFrame.Editors
             m_Text = serializedObject.FindProperty("m_Text");
             m_FontPath = serializedObject.FindProperty("m_FontPath");
             m_NonBreakingSpace = serializedObject.FindProperty("m_NonBreakingSpace");
-            m_SupportLinkText = serializedObject.FindProperty("m_SupportLinkText");
+            m_LinkStyle = serializedObject.FindProperty("m_LinkStyle");
         }
 
         public override void OnInspectorGUI()
@@ -60,7 +60,7 @@ namespace ZFrame.Editors
                 string.IsNullOrEmpty(m_FontPath.stringValue) ? "<NOT AssetBundle>" : m_FontPath.stringValue);
             EditorGUILayout.PropertyField(m_NonBreakingSpace);
             EditorGUILayout.PropertyField(m_Ellipsis);
-            EditorGUILayout.PropertyField(m_SupportLinkText);
+            EditorGUILayout.PropertyField(m_LinkStyle);
             EditorGUI.indentLevel--;
 
             EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
