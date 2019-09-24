@@ -1,9 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ZFrame.Tween
 {
+    public delegate T TweenGetValue<out T>();
+    public delegate void TweenSetValue<in T>(T value);
+
+#if !ZFRAME_USE_THIRD_PART_TWEEN
     [System.Serializable]
     public struct TweenParameter
     {
@@ -14,6 +19,12 @@ namespace ZFrame.Tween
         public LoopType loopType;
         public UpdateType updateType;
         public bool ignoreTimescale;
+
+        public TweenParameter(float duration)
+        {
+            this = Default;
+            this.duration = duration;
+        }
 
         public static readonly TweenParameter Default = new TweenParameter() {
             delay = 0, duration = 1,
@@ -35,7 +46,7 @@ namespace ZFrame.Tween
         public abstract void Evaluate(object target, float t);
     }
 
-    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S :  TweenGetAndSet<S, T, V>
+    public abstract class TweenGetAndSet<S, T, V> : TweenGetAndSet where S : TweenGetAndSet<S, T, V>, new()
     {
         protected TweenGetAndSet() { }
 
@@ -47,10 +58,7 @@ namespace ZFrame.Tween
 
         public static S Get(V from, V to)
         {
-            var obj = (S)System.Activator.CreateInstance(typeof(S));
-            obj.from = from;
-            obj.to = to;
-            return obj;
+            return new S { from = from, to = to };
         }
     }
 
@@ -70,6 +78,25 @@ namespace ZFrame.Tween
                     ((Transform)target).position = value;
                     break;
             }            
+        }
+    }
+
+    public sealed class TransformEulerAnglesGetAndSet : TweenGetAndSet<TransformEulerAnglesGetAndSet, Transform, Vector3>
+    {
+        public Space space;
+
+        public override void Evaluate(object target, float t)
+        {
+            //var value = from + (to - from) * t;
+            var value = Vector3.LerpUnclamped(from, to, t);
+            switch (space) {
+                case Space.Self:
+                    ((Transform)target).localEulerAngles = value;
+                    break;
+                case Space.World:
+                    ((Transform)target).eulerAngles = value;
+                    break;
+            }
         }
     }
 
@@ -128,42 +155,88 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UIGraphicAlphaGetAndSet : TweenGetAndSet<UIGraphicAlphaGetAndSet, UnityEngine.UI.Graphic, float>
+    public sealed class UIGraphicAlphaGetAndSet : TweenGetAndSet<UIGraphicAlphaGetAndSet, Graphic, float>
     {
         public override void Evaluate(object target, float t)
         {
             var value = Mathf.LerpUnclamped(from, to, t);
-            var color = ((UnityEngine.UI.Graphic)target).color;
+            var color = ((Graphic)target).color;
             color.a = value;
-            ((UnityEngine.UI.Graphic)target).color = color;
+            ((Graphic)target).color = color;
         }
     }
 
-    public sealed class UIGraphicColorGetAndSet : TweenGetAndSet<UIGraphicColorGetAndSet, UnityEngine.UI.Graphic, Color>
+    public sealed class UIGraphicColorGetAndSet : TweenGetAndSet<UIGraphicColorGetAndSet, Graphic, Color>
     {
         public override void Evaluate(object target, float t)
         {
             var value = Color.LerpUnclamped(from, to, t);
-            ((UnityEngine.UI.Graphic)target).color = value;
+            ((Graphic)target).color = value;
         }
     }
 
-    public sealed class UIImageFillAmountGetAndSet : TweenGetAndSet<UIImageFillAmountGetAndSet, UnityEngine.UI.Image, float>
+    public sealed class UIImageFillAmountGetAndSet : TweenGetAndSet<UIImageFillAmountGetAndSet, Image, float>
     {
         public override void Evaluate(object target, float t)
         {
             var value = Mathf.LerpUnclamped(from, to, t);
-            ((UnityEngine.UI.Image)target).fillAmount = value;
+            ((Image)target).fillAmount = value;
         }
     }
 
-    public abstract class UserDefineGetAndSet<V> : TweenGetAndSet<UserDefineGetAndSet<V>, object, V>
+    public abstract class MaterialPropertyGetAndSet<S, V> : TweenGetAndSet<S, Renderer, V> where S : TweenGetAndSet<S, Renderer, V>, new()
     {
-        public System.Action<V> setter;
-        public System.Func<V> getter;
+        protected static MaterialPropertyBlock s_Block = new MaterialPropertyBlock();
+        protected int m_PropId;
+        public void SetPropertyName(string propertyName)
+        {
+            m_PropId = Shader.PropertyToID(propertyName);
+        }
     }
 
-    public sealed class UserDefineGetAndSetFloat : UserDefineGetAndSet<float>
+    public sealed class MaterialPropertyGetAndSetFloat : MaterialPropertyGetAndSet<MaterialPropertyGetAndSetFloat, float>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Mathf.LerpUnclamped(from, to, t);
+            var rdr = (Renderer)target;
+            rdr.GetPropertyBlock(s_Block);
+            s_Block.SetFloat(m_PropId, value);
+            rdr.SetPropertyBlock(s_Block);
+        }
+    }
+
+    public sealed class MaterialPropertyGetAndSetVector : MaterialPropertyGetAndSet<MaterialPropertyGetAndSetVector, Vector4>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Vector4.LerpUnclamped(from, to, t);
+            var rdr = (Renderer)target;
+            rdr.GetPropertyBlock(s_Block);
+            s_Block.SetVector(m_PropId, value);
+            rdr.SetPropertyBlock(s_Block);
+        }
+    }
+
+    public sealed class MaterialPropertyGetAndSetColor : MaterialPropertyGetAndSet<MaterialPropertyGetAndSetColor, Color>
+    {
+        public override void Evaluate(object target, float t)
+        {
+            var value = Color.LerpUnclamped(from, to, t);
+            var rdr = (Renderer)target;
+            rdr.GetPropertyBlock(s_Block);
+            s_Block.SetColor(m_PropId, value);
+            rdr.SetPropertyBlock(s_Block);
+        }
+    }
+
+    public abstract class UserDefineGetAndSet<S, V> : TweenGetAndSet<S, object, V> where S : TweenGetAndSet<S, object, V>, new()
+    {
+        public TweenSetValue<V> setter;
+        public TweenGetValue<V> getter;
+    }
+
+    public sealed class UserDefineGetAndSetFloat : UserDefineGetAndSet<UserDefineGetAndSetFloat, float>
     {
         public override void Evaluate(object target, float t)
         {
@@ -171,7 +244,7 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UserDefineGetAndSetVector2 : UserDefineGetAndSet<Vector2>
+    public sealed class UserDefineGetAndSetVector2 : UserDefineGetAndSet<UserDefineGetAndSetVector2, Vector2>
     {
         public override void Evaluate(object target, float t)
         {
@@ -179,7 +252,7 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UserDefineGetAndSetVector3 : UserDefineGetAndSet<Vector3>
+    public sealed class UserDefineGetAndSetVector3 : UserDefineGetAndSet<UserDefineGetAndSetVector3, Vector3>
     {
         public override void Evaluate(object target, float t)
         {
@@ -187,7 +260,7 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UserDefineGetAndSetVector4 : UserDefineGetAndSet<Vector4>
+    public sealed class UserDefineGetAndSetVector4 : UserDefineGetAndSet<UserDefineGetAndSetVector4, Vector4>
     {
         public override void Evaluate(object target, float t)
         {
@@ -195,7 +268,7 @@ namespace ZFrame.Tween
         }
     }
 
-    public sealed class UserDefineGetAndSetColor : UserDefineGetAndSet<Color>
+    public sealed class UserDefineGetAndSetColor : UserDefineGetAndSet<UserDefineGetAndSetColor, Color>
     {
         public override void Evaluate(object target, float t)
         {
@@ -205,10 +278,11 @@ namespace ZFrame.Tween
 
     public partial class ZTweener
     {
+        public bool backward;
+
         private TweenGetAndSet m_Accessor;
         private TweenParameter m_Parameter;
-        private float m_Time;
-        private bool m_Invert;
+        private float m_Time;        
         private bool m_Started;
 
         private CallbackOnUpdate m_OnStart, m_OnUpdate;
@@ -218,14 +292,15 @@ namespace ZFrame.Tween
         {
             this.target = target;
             m_Accessor = gs;
-            m_Parameter = param;
-            m_Time = param.ignoreTimescale ? Time.unscaledTime : Time.time;
-            m_Time += param.delay;
+            m_Parameter = param;            
             m_Started = false;
         }
 
         public void Recycle()
         {
+            target = null;
+            tag = null;
+            m_Accessor = null;
             m_OnStart = null;
             m_OnUpdate = null;
             m_OnComplete = null;
@@ -235,6 +310,14 @@ namespace ZFrame.Tween
         {
             if (m_Parameter.updateType != updateType) return false;
 
+            if (!m_Started) {
+                m_Time = m_Parameter.ignoreTimescale ? Time.unscaledTime : Time.time;
+                m_Time += m_Parameter.delay;
+
+                m_Started = true;
+                if (m_OnStart != null) m_OnStart.Invoke(this);
+            }
+
             var time = m_Parameter.ignoreTimescale ? Time.unscaledTime : Time.time;
             var pass = time - m_Time;
             if (pass < 0) return false;
@@ -242,11 +325,11 @@ namespace ZFrame.Tween
             pass /= m_Parameter.duration;
             var loop = (int)pass;
             if (loop > 0) {
-                pass = m_Invert ? 0 : 1;
+                pass = backward ? 0 : 1;
                 m_Time = time;
 
                 switch (m_Parameter.loopType) {
-                    case LoopType.Yoyo: m_Invert = !m_Invert;break;
+                    case LoopType.Yoyo: backward = !backward;break;
                     case LoopType.Incremental: /* TODO */ break;
                 }
 
@@ -256,12 +339,7 @@ namespace ZFrame.Tween
                 }
             } else {
                 pass -= loop;
-                if (m_Invert) pass = 1 - pass;
-            }
-
-            if (!m_Started) {
-                m_Started = true;
-                if (m_OnStart != null) m_OnStart.Invoke(this);
+                if (backward) pass = 1 - pass;
             }
 
             pass = EaseAlgorithm[(int)m_Parameter.ease](0, 1, pass);
@@ -276,4 +354,211 @@ namespace ZFrame.Tween
             return false;
         }
     }
+
+    internal class TweenKit : ITweenKit
+    {
+        void ITweenKit.Init()
+        {
+
+        }
+
+        bool ITweenKit.IsTweening(object self)
+        {
+            return ((ZTweener)self).IsTweening();
+        }
+
+        int ITweenKit.Finish(object tarOrTag, bool complete)
+        {
+            return ZTweenMgr.Instance.Stop(tarOrTag, complete);
+        }
+
+        object ITweenKit.PlayForward(object self, bool forward)
+        {
+            ((ZTweener)self).backward = !forward;
+            return self;
+        }
+
+        object ITweenKit.SetTag(object self, object tag)
+        {
+            return ((ZTweener)self).SetTag(tag);
+        }
+
+        object ITweenKit.SetTimeScale(object self, float timeScale)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        object ITweenKit.SetUpdate(object self, UpdateType updateType, bool ignoreTimeScale)
+        {
+            return ((ZTweener)self).SetUpdate(updateType, ignoreTimeScale);
+        }
+
+        object ITweenKit.DelayFor(object self, float time)
+        {
+            return ((ZTweener)self).DelayFor(time);
+        }
+
+        object ITweenKit.LoopFor(object self, int loops, LoopType loopType)
+        {
+            return ((ZTweener)self).LoopFor(loops, loopType);
+        }
+
+        object ITweenKit.EaseBy(object self, Ease ease)
+        {
+            return ((ZTweener)self).EaseBy(ease);
+        }
+
+        object ITweenKit.StartFrom(object self, object from)
+        {
+            return ((ZTweener)self).StartFrom(from);
+        }
+
+        object ITweenKit.EndAt(object self, object at)
+        {
+            return ((ZTweener)self).EndAt(at);
+        }
+
+        object ITweenKit.StartWith(object self, CallbackOnUpdate onStart)
+        {
+            return ((ZTweener)self).StartWith(onStart);
+        }
+
+        object ITweenKit.UpdateWith(object self, CallbackOnUpdate onUpdate)
+        {
+            return ((ZTweener)self).UpdateWith(onUpdate);
+        }
+
+        object ITweenKit.CompleteWith(object self, CallbackOnComplete onComplete)
+        {
+            return ((ZTweener)self).CompleteWith(onComplete);
+        }
+
+        object ITweenKit.Stop(object self, bool complete)
+        {
+            return ((ZTweener)self).Stop(complete);
+        }
+
+        object ITweenKit.TweenPosition(Transform self, Vector3 from, Vector3 to, float duration, Space space)
+        {
+            var gs = TransformPositionGetAndSet.Get(from, to);
+            gs.space = space;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenEulerAngles(Transform self, Vector3 from, Vector3 to, float duration, Space space)
+        {
+            var gs = TransformEulerAnglesGetAndSet.Get(from, to);
+            gs.space = space;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenRotation(Transform self, Vector3 from, Vector3 to, float duration, Space space, RotateMode mode)
+        {
+            var gs = TransformRotationGetAndSet.Get(Quaternion.Euler(from), Quaternion.Euler(to));
+            gs.space = space;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenScaling(Transform self, Vector3 from, Vector3 to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, TransformScaleGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAnchoredPosition(RectTransform self, Vector3 from, Vector3 to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, RectTransformAnchoredPosGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenSizeDelta(RectTransform self, Vector2 from, Vector2 to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, RectTransformSizeDeltaGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAlpha(CanvasGroup self, float from, float to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, CanvasGroupAlphaGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAlpha(Graphic self, float from, float to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, UIGraphicAlphaGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenColor(Graphic self, Color from, Color to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, UIGraphicColorGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenRange(Image self, float from, float to, float duration)
+        {
+            return ZTweenMgr.Instance.Begin(self, UIImageFillAmountGetAndSet.Get(from, to), new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenString(Text self, string from, string to, float duration)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        object ITweenKit.TweenAny(object self, TweenGetValue<float> getter, TweenSetValue<float> setter, float from, float to, float duration)
+        {
+            var gs = UserDefineGetAndSetFloat.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAny(object self, TweenGetValue<Vector2> getter, TweenSetValue<Vector2> setter, Vector2 from, Vector2 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector2.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAny(object self, TweenGetValue<Vector3> getter, TweenSetValue<Vector3> setter, Vector3 from, Vector3 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector3.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAny(object self, TweenGetValue<Vector4> getter, TweenSetValue<Vector4> setter, Vector4 from, Vector4 to, float duration)
+        {
+            var gs = UserDefineGetAndSetVector4.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenAny(object self, TweenGetValue<Color> getter, TweenSetValue<Color> setter, Color from, Color to, float duration)
+        {
+            var gs = UserDefineGetAndSetColor.Get(from, to);
+            gs.setter = setter;
+            gs.getter = getter;
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenRange(Renderer self, float from, float to, float duration, string propertyName)
+        {
+            var gs = MaterialPropertyGetAndSetFloat.Get(from, to);
+            gs.SetPropertyName(propertyName);
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenVector(Renderer self, Vector4 from, Vector4 to, float duration, string propertyName)
+        {
+            var gs = MaterialPropertyGetAndSetVector.Get(from, to);
+            gs.SetPropertyName(propertyName);
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+
+        object ITweenKit.TweenColor(Renderer self, Color from, Color to, float duration, string propertyName)
+        {
+            var gs = MaterialPropertyGetAndSetColor.Get(from, to);
+            gs.SetPropertyName(propertyName);
+            return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
+        }
+    }
+#endif
 }

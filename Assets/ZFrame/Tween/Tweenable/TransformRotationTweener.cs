@@ -24,9 +24,9 @@ namespace ZFrame.Tween
         {
             switch (space) {
                 case Space.Self:
-                    return transform.TweenLocalRotation(to, duration).SetTag(this);
+                    return transform.TweenLocalEulerAngles(to, duration).SetTag(this);
                 case Space.World:
-                    return transform.TweenRotation(to, duration).SetTag(this);
+                    return transform.TweenEulerAngles(to, duration).SetTag(this);
             }
 
             return null;
@@ -36,9 +36,9 @@ namespace ZFrame.Tween
         {
             switch (space) {
                 case Space.Self:
-                    return transform.TweenLocalRotation(from, to, duration).SetTag(this);
+                    return transform.TweenLocalEulerAngles(from, to, duration).SetTag(this);
                 case Space.World:
-                    return transform.TweenRotation(from, to, duration).SetTag(this);
+                    return transform.TweenEulerAngles(from, to, duration).SetTag(this);
             }
 
             return null;

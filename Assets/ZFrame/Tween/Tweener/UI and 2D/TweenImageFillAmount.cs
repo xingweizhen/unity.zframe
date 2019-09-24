@@ -16,7 +16,7 @@ namespace ZFrame.Tween
 
         protected override object StartTween(bool reset, bool forward)
         {
-            return target ? target.TweenFill(m_From, m_To, duration) : null;
+            return target ? target.TweenFill(m_From, m_To, duration).PlayForward(forward) : null;
         }
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TweenImageFillAmount))]

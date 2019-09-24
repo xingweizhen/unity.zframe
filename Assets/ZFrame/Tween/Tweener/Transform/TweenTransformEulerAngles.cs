@@ -16,10 +16,10 @@ namespace ZFrame.Tween
         protected override object StartTween(bool reset, bool forward)
         {
             if (m_Space == Space.World) {
-                return target ? target.TweenRotation(m_From, m_To, duration) : null;
+                return target ? target.TweenEulerAngles(m_From, m_To, duration).PlayForward(forward) : null;
             }
 
-            return target ? target.TweenLocalRotation(m_From, m_To, duration) : null;
+            return target ? target.TweenLocalEulerAngles(m_From, m_To, duration).PlayForward(forward) : null;
         }
 
 #if UNITY_EDITOR

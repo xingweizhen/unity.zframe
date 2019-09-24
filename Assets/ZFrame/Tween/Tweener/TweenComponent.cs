@@ -19,14 +19,6 @@ namespace ZFrame.Tween
 
         [SerializeField] protected V m_From, m_To;
 
-        protected virtual void OnEnable()
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying) return;
-#endif
-            if (tweenAutomatically) DoTween(true, true);
-        }
-
         protected abstract object StartTween(bool reset, bool forward);
 
         /// <summary>

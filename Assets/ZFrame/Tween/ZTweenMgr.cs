@@ -36,6 +36,7 @@ namespace ZFrame.Tween
         {
             for (int i = m_Tweens.Count - 1; i >= 0; --i) {
                 if (m_Tweens[i].UpdateValue(updateType)) {
+                    m_Tweens[i].Recycle();
                     m_Pool.Push(m_Tweens[i]);
                     m_Tweens.RemoveAt(i);
                 }

@@ -51,6 +51,21 @@ namespace ZFrame.Tween
         }
         
         public bool tweenAutomatically = true;
+        
+        protected virtual void OnEnable()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return;
+#endif
+            if (!FindGroup() && tweenAutomatically) DoTween(true, true);
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (!FindGroup() && m_Tweener != null) {
+                m_Tweener.Stop();
+            }
+        }
 
         public abstract bool DoTween(bool reset, bool forward);
         
@@ -102,7 +117,7 @@ namespace ZFrame.Tween
             {
                 TweenMenuAttribute attr = null;
                 System.Type selfType = target.GetType();
-                TweenGroup.Editor.allTypes.TryGetValue(selfType, out attr);
+                TweenGroup.SelfEditor.allTypes.TryGetValue(selfType, out attr);
                 return attr != null ? attr.name : selfType.Name;
             }
 
@@ -156,7 +171,7 @@ namespace ZFrame.Tween
                     rect.xMin += EditorGUIUtility.singleLineHeight * 2;
                     rect.xMax -= EditorGUIUtility.singleLineHeight * 2;
                     var rtBar = rect;
-                    EditorGUI.DrawRect(rtBar, TweenGroup.Editor.progressBgInvalid);
+                    EditorGUI.DrawRect(rtBar, TweenGroup.SelfEditor.progressBgInvalid);
 
                     float delay = self.delay, duration = self.lifetime - self.delay, maxDura = self.duration;
                     var group = self.FindGroup();
@@ -175,7 +190,7 @@ namespace ZFrame.Tween
 
                         rtBar.xMin += rect.width * (delay / maxDura);
                         rtBar.width = rect.width * (duration / maxDura);
-                        EditorGUI.DrawRect(rtBar, TweenGroup.Editor.progressBgValid);
+                        EditorGUI.DrawRect(rtBar, TweenGroup.SelfEditor.progressBgValid);
                     }
 
                     GUILayout.Space(2);

@@ -15,7 +15,7 @@ namespace ZFrame.Tween
 
         protected override object StartTween(bool reset, bool forward)
         {
-            return target ? target.TweenScaling(m_From, m_To, duration) : null;
+            return target ? target.TweenScaling(m_From, m_To, duration).PlayForward(forward) : null;
         }
 
 #if UNITY_EDITOR

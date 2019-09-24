@@ -29,7 +29,7 @@ namespace ZFrame.UGUI
             var info = m_Label.FindLink(Input.mousePosition, cam);
             if (string.IsNullOrEmpty(info.linkId)) return false;
 
-            return base.Execute(id, data);
+            return base.Execute(id, info.linkId);
         }
     }
 }

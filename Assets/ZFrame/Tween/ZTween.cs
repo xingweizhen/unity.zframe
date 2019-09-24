@@ -634,7 +634,9 @@ namespace ZFrame.Tween
         private static ITweenKit __Kit;
         private static ITweenKit m_Kit {
             get {
+#if !ZFRAME_USE_THIRD_PART_TWEEN
                 if (__Kit == null) __Kit = new TweenKit();
+#endif
                 return __Kit;
             }
         }
@@ -651,9 +653,15 @@ namespace ZFrame.Tween
             return m_Kit.IsTweening(self);
         }
         
+
         public static object SetTag(this object self, object tag)
         {
             return m_Kit.SetTag(self, tag);
+        }
+
+        public static object PlayForward(this object self, bool forward)
+        {
+            return m_Kit.PlayForward(self, forward);
         }
 
         public static object SetTimeScale(this object self, float timeScale)
@@ -764,12 +772,12 @@ namespace ZFrame.Tween
         #region Tween FillAmount
         public static object TweenFill(this Image self, float to, float duration)
         {
-            return m_Kit.TweenFillAmount(self, self.fillAmount, to, duration);
+            return m_Kit.TweenRange(self, self.fillAmount, to, duration);
         }
 
         public static object TweenFill(this Image self, float from, float to, float duration)
         {
-            return m_Kit.TweenFillAmount(self, from, to, duration);
+            return m_Kit.TweenRange(self, from, to, duration);
         }
         #endregion
 
@@ -858,26 +866,26 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween Rotation
-        public static object TweenRotation(this Transform self, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
+        public static object TweenEulerAngles(this Transform self, Vector3 to, float duration)
         {
-            return m_Kit.TweenRotation(self, self.eulerAngles, to, duration, Space.World, mode);
+            return m_Kit.TweenEulerAngles(self, self.eulerAngles, to, duration, Space.World);
         }
 
-        public static object TweenRotation(this Transform self, Vector3 from, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
+        public static object TweenEulerAngles(this Transform self, Vector3 from, Vector3 to, float duration)
         {
-            return m_Kit.TweenRotation(self, from, to, duration, Space.World, mode);
+            return m_Kit.TweenEulerAngles(self, from, to, duration, Space.World);
         }
         #endregion
 
         #region Tween LocalRotation
-        public static object TweenLocalRotation(this Transform self, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
+        public static object TweenLocalEulerAngles(this Transform self, Vector3 to, float duration)
         {
-            return m_Kit.TweenRotation(self, self.localEulerAngles, to, duration, Space.Self, mode);
+            return m_Kit.TweenEulerAngles(self, self.localEulerAngles, to, duration, Space.Self);
         }
 
-        public static object TweenLocalRotation(this Transform self, Vector3 from, Vector3 to, float duration, RotateMode mode = RotateMode.Fast)
+        public static object TweenLocalEulerAngles(this Transform self, Vector3 from, Vector3 to, float duration)
         {
-            return m_Kit.TweenRotation(self, from, to, duration, Space.Self, mode);
+            return m_Kit.TweenEulerAngles(self, from, to, duration, Space.Self);
         }
         #endregion
 
@@ -902,42 +910,27 @@ namespace ZFrame.Tween
         #endregion
 
         #region Tween T
-        public static object TweenAny(this object self, System.Func<float> getter, System.Action<float> setter, float from, float to, float duration)
+        public static object TweenAny(this object self, TweenGetValue<float> getter, TweenSetValue<float> setter, float from, float to, float duration)
         {
-            var gs = UserDefineGetAndSetFloat.Get(from, to);
-            gs.setter = setter;
-            gs.getter = getter;
-            return m_Kit.TweenAnything(self, gs, duration);
+            return m_Kit.TweenAny(self, getter, setter, from, to, duration);
         }
 
-        public static object TweenAny(this object self, System.Func<Vector2> getter, System.Action<Vector2> setter, Vector2 from, Vector2 to, float duration)
+        public static object TweenAny(this object self, TweenGetValue<Vector2> getter, TweenSetValue<Vector2> setter, Vector2 from, Vector2 to, float duration)
         {
-            var gs = UserDefineGetAndSetVector2.Get(from, to);
-            gs.setter = setter;
-            gs.getter = getter;
-            return m_Kit.TweenAnything(self, gs, duration);
+            return m_Kit.TweenAny(self, getter, setter, from, to, duration);
         }
 
-        public static object TweenAny(this object self, System.Func<Vector3> getter, System.Action<Vector3> setter, Vector3 from, Vector3 to, float duration)
+        public static object TweenAny(this object self, TweenGetValue<Vector3> getter, TweenSetValue<Vector3> setter, Vector3 from, Vector3 to, float duration)
         {
-            var gs = UserDefineGetAndSetVector3.Get(from, to);
-            gs.setter = setter;
-            gs.getter = getter;
-            return m_Kit.TweenAnything(self, gs, duration);
+            return m_Kit.TweenAny(self, getter, setter, from, to, duration);
         }
-        public static object TweenAny(this object self, System.Func<Vector4> getter, System.Action<Vector4> setter, Vector4 from, Vector4 to, float duration)
+        public static object TweenAny(this object self, TweenGetValue<Vector4> getter, TweenSetValue<Vector4> setter, Vector4 from, Vector4 to, float duration)
         {
-            var gs = UserDefineGetAndSetVector4.Get(from, to);
-            gs.setter = setter;
-            gs.getter = getter;
-            return m_Kit.TweenAnything(self, gs, duration);
+            return m_Kit.TweenAny(self, getter, setter, from, to, duration);
         }
-        public static object TweenAny(this object self, System.Func<Color> getter, System.Action<Color> setter, Color from, Color to, float duration)
+        public static object TweenAny(this object self, TweenGetValue<Color> getter, TweenSetValue<Color> setter, Color from, Color to, float duration)
         {
-            var gs = UserDefineGetAndSetColor.Get(from, to);
-            gs.setter = setter;
-            gs.getter = getter;
-            return m_Kit.TweenAnything(self, gs, duration);
+            return m_Kit.TweenAny(self, getter, setter, from, to, duration);
         }
 
         #endregion

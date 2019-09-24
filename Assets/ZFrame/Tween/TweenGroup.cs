@@ -59,7 +59,8 @@ namespace ZFrame.Tween
         {
             if (m_Tweens != null) {
                 for (var i = 0; i < m_Tweens.Count; ++i) {
-                    ZTween.Finish(m_Tweens[i]);
+                    if (m_Tweens[i].tweener != null)
+                        m_Tweens[i].tweener.Stop();
                 }
             }
         }
@@ -69,12 +70,12 @@ namespace ZFrame.Tween
             return m_Tweens.Contains(tween);
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             if (tweenAutomatically) DoTween(true);
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             StopTween();
         }
@@ -109,9 +110,9 @@ namespace ZFrame.Tween
         }
 
 #if UNITY_EDITOR
-        [CustomEditor(typeof(TweenGroup))]
+        [CustomEditor(typeof(TweenGroup), true)]
         [CanEditMultipleObjects]
-        internal class Editor : UnityEditor.Editor
+        internal class SelfEditor : Editor
         {
             internal static Color progressBgInvalid  = new Color(0, 0, 0, 0.6f); 
             internal static Color progressBgValid = new Color(0, 1, 0.2f, 0.5f); 
@@ -139,7 +140,7 @@ namespace ZFrame.Tween
                 }
             }
 
-            private List<UnityEditor.Editor> editors = new List<UnityEditor.Editor>();
+            private List<Editor> editors = new List<Editor>();
 
             private void AddTweenMenu(object udata)
             {
@@ -171,7 +172,7 @@ namespace ZFrame.Tween
                 _Menu.DropDown(rect);
             }
 
-            private void OnEnable()
+            protected virtual void OnEnable()
             {
                 _Menu = null;
 
@@ -181,9 +182,14 @@ namespace ZFrame.Tween
                 }
             }
 
+            protected virtual void PropertiesGUI()
+            {
+                DrawDefaultInspector();
+            }
+
             public override void OnInspectorGUI()
             {
-                base.OnInspectorGUI();
+                PropertiesGUI();
 
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 var self = target as TweenGroup;

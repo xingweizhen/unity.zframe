@@ -7,14 +7,7 @@ public class LogMgr : MonoSingleton<LogMgr>
 {
     public const string DEBUG = "XWZ_DEBUG";
 
-    const string PROMPT = "{0} {1}";   
-
     public LogLevel setLevel = LogLevel.D;
-#if UNITY_EDITOR || UNITY_STANDALONE || DEVELOPMENT_BUILD
-    private static LogLevel m_Level = LogLevel.D;
-#else
-    private static LogLevel m_Level = LogLevel.E;
-#endif
 
     public static LogLevel logLevel { get { return ZFrame.Log.level; } private set { ZFrame.Log.level = value; } }
 
@@ -44,7 +37,7 @@ public class LogMgr : MonoSingleton<LogMgr>
 
     public void SetLevel(LogLevel level)
     {
-        m_Level = level;
+        logLevel = level;
         setLevel = level;        
     }
 

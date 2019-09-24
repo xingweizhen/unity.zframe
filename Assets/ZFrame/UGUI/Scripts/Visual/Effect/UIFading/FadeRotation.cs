@@ -29,7 +29,7 @@ namespace ZFrame.UGUI
             var tweenTar = forward ? destina : source;
 
             var trans = target.GetComponent<Transform>();
-            return trans.TweenLocalRotation((Vector3)tweenTar, duration, rotateMode);
+            return trans.TweenLocalEulerAngles((Vector3)tweenTar, duration);
 		}
 	}
 }
