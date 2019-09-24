@@ -41,7 +41,7 @@ namespace ZFrame.Editors
             }
 
             if (EditorGUI.EndChangeCheck()) {                
-                property.stringValue = EditorUtil.ObjectToAssetPath(asset, assetRef.bundleOnly);
+                property.stringValue = EditorUtil.ObjectToAssetPath(asset, assetRef.mode);
             }
         }
     }

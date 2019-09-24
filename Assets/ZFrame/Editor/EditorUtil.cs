@@ -19,7 +19,7 @@ namespace ZFrame
             EditorGUI.BeginChangeCheck();
             var obj = EditorGUILayout.ObjectField(AssetPathToObject(assetPath, objType), objType, false, options);
             if (EditorGUI.EndChangeCheck()) {
-                assetPath = ObjectToAssetPath(obj, false);
+                assetPath = ObjectToAssetPath(obj, 0);
             }
 
             EditorGUILayout.EndHorizontal();
@@ -28,14 +28,14 @@ namespace ZFrame
 
         public static Object AssetPathToObject(string assetPath, System.Type type)
         {
-            var atlasRoot = UGUITools.settings.atlasRoot;
-            if (!string.IsNullOrEmpty(assetPath)) {
+            if (!string.IsNullOrEmpty(assetPath)) {			
+                var atlasRoot = UGUITools.settings.atlasRoot;
                 if (assetPath.OrdinalIgnoreCaseStartsWith(atlasRoot)) {
                     if (type != typeof(SpriteAtlas) && assetPath[assetPath.Length - 1] != '/') {
                         var spritePath = assetPath.Substring(atlasRoot.Length);
                         return UISprite.LoadSprite(spritePath, null);
                     }
-                }
+                }				
 
                 return Asset.AssetLoader.EditorLoadAsset(type, assetPath);
             }
@@ -43,30 +43,30 @@ namespace ZFrame
             return null;
         }
 
-        public static string ObjectToAssetPath(Object obj, bool bundleOnly)
+        public static string ObjectToAssetPath(Object obj, int mode)
         {
             if (obj != null) {
-                var atlasRoot = UGUITools.settings.atlasRoot;
-
                 var path = AssetDatabase.GetAssetPath(obj);
                 var ai = AssetImporter.GetAtPath(path);
                 if (!string.IsNullOrEmpty(ai.assetBundleName)) {
-                    return bundleOnly
-                        ? ai.assetBundleName + '/'
-                        : string.Concat(ai.assetBundleName, "/", obj.name);
+                    switch (mode) {
+                        case 0: return string.Concat(ai.assetBundleName, "/", obj.name);
+                        case 1: return ai.assetBundleName + '/';
+                        case 2: return ai.assetBundleName;
+                    }
                 }
-
+				
+                var atlasRoot = UGUITools.settings.atlasRoot;
                 var sprite = obj as Sprite;
                 string atlasPath = null, atlasName = null, spriteName = null;
                 if (sprite != null) {
                     atlasPath = UISpriteEditor.GetSpriteAssetRef(sprite, out atlasName, out spriteName);
                 }
-
-                if (!string.IsNullOrEmpty(atlasPath)) {
-                    return bundleOnly
-                        ? string.Format("{0}{1}/", atlasRoot, atlasName)
-                        : string.Format("{0}{1}/{2}", atlasRoot, atlasName, spriteName);
-                }
+                 switch (mode) {
+                        case 0: return string.Format("{0}{1}/{2}", atlasRoot, atlasName, spriteName);
+                        case 1: return string.Format("{0}{1}/", atlasRoot, atlasName);
+                        case 2: return atlasRoot + atlasName;
+                    }
             }
 
             return null;

@@ -38,10 +38,16 @@ public class EnumFlagsValueAttribute : PropertyAttribute
 public class AssetRefAttribute : NamedPropertyAttribute
 {
     public System.Type type { get; private set; }
+    public int mode { get; private set; }
     /// <summary>
     /// 仅保存包名，不包括资源名
     /// </summary>
-    public bool bundleOnly;
+    public bool bundleOnly { set { mode = value ? 1 : 0; } get { return mode > 0; } }
+    /// <summary>
+    /// 仅保存包名的情况下，以名字模式保存（结尾不带/）
+    /// </summary>
+    public bool nameOnly { set { mode = value ? 2 : 0; } get { return mode > 1; } }
+
     public AssetRefAttribute(string name = null, System.Type type = null) : base(name)
     {
         this.type = type ?? typeof(Object);

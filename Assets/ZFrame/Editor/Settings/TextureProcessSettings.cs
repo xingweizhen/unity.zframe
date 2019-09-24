@@ -48,7 +48,7 @@ namespace ZFrame.Settings
                 if (m_Disable) return;
 
                 if (ContainsAsset(folders, ti.assetPath)) {
-                    if (ContainsFlag(flags, (int)Prop.MaxTextureSize)) ti.maxTextureSize = MaxTextureSize;
+                    if (ContainsFlag(flags, (int)Prop.MaxTextureSize) && ti.maxTextureSize > MaxTextureSize) ti.maxTextureSize = MaxTextureSize;
                     if (ContainsFlag(flags, (int)Prop.CompressionQuality)) ti.compressionQuality = CompressionQuality;
                     if (ContainsFlag(flags, (int)Prop.CrunchedCompression)) ti.crunchedCompression = CrunchedCompression;
                     if (ContainsFlag(flags, (int)Prop.TextureCompression)) ti.textureCompression = TextureCompression;
