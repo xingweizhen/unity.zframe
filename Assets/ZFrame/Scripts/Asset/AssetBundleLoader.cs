@@ -71,7 +71,7 @@ namespace ZFrame.Asset
         public static string bundleRootPath {
             get {
                 if (m_bundleRoot == null) {
-                    m_bundleRoot = CombinePath(persistentDataPath, ASSETBUNDLE_FOLDER);
+                    m_bundleRoot = CombinePath(persistentDataPath, AssetLoaderSettings.Instance.assetBundleFolder);
                 }
                 return m_bundleRoot;
             }
@@ -327,7 +327,8 @@ namespace ZFrame.Asset
             var deps = GetDependencies(bundleName);
             if (deps != null) {
                 foreach (var abName in deps) {
-                    base.AddBundleToPreload(abName, abName + "/", LoadMethod.Default);
+                    if (!string.IsNullOrEmpty(abName))
+                        base.AddBundleToPreload(abName, abName + "/", LoadMethod.Default);
                 }
             }
             base.AddBundleToPreload(bundleName, assetPath, method);
@@ -370,7 +371,12 @@ namespace ZFrame.Asset
             var deps = GetDependencies(bundleName);
             if (deps != null) {
                 foreach (var abName in deps) {
-                    LoadBundleFromFile(abName, LoadMethod.Default);
+                    if (!string.IsNullOrEmpty(abName)) {
+                        var subTask = GetLoadingTask(BundleType.AssetBundle, abName, string.Empty, LoadMethod.Default,
+                                null, null, null, null);
+                        LoadBundleFromFile(subTask.bundleName, subTask.method);
+                        AsyncLoadingTask.Release(subTask);
+                    }
                 }
             }
 

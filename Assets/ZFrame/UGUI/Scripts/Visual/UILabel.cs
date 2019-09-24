@@ -31,6 +31,8 @@ namespace ZFrame.UGUI
         
         private static readonly Dictionary<string, Font> LoadedFonts = new Dictionary<string, Font>();
 
+        public enum LinkStyle { None, Normal, Underline };
+
         private static Font GetFont(string fontPath)
         {
             Font ret = null;
@@ -88,9 +90,19 @@ namespace ZFrame.UGUI
         [SerializeField]
         private string m_FontPath;
 
-        [NamedProperty("Link Text")]
-        public bool supportLinkText;
-        
+        [SerializeField, NamedProperty("HyperLink Style")]
+        private LinkStyle m_LinkStyle;
+
+        public LinkStyle linkStyle {
+            get { return m_LinkStyle; }
+            set {
+                if (m_LinkStyle != value) {
+                    m_LinkStyle = value;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
         [SerializeField]
         private bool m_Localized;
         public bool localized { get { return m_Localized; } set { m_Localized = value; } }
@@ -202,7 +214,7 @@ namespace ZFrame.UGUI
         public LinkInfo FindLink(Vector3 screenPos, Camera cam)
         {
             Vector2 point;
-            if (supportLinkText && RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
+            if (m_LinkStyle > LinkStyle.None && RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPos, cam, out point)) {
                 for (int i = 0; i < m_Links.Count; ++i) {
                     var link = m_Links[i];
                     var boxes = link.boxes;
@@ -265,7 +277,7 @@ namespace ZFrame.UGUI
         {
             m_Links.Clear();
             m_GenText = text;
-            if (supportRichText && supportLinkText) {
+            if (supportRichText && m_LinkStyle > LinkStyle.None) {
                 LinkBuilder.Length = 0;
                 var startIdx = 0;
                 var matches = LinkRegex.Matches(text);
@@ -298,9 +310,54 @@ namespace ZFrame.UGUI
                 }
             }
         }
+        
+        private void AddPartOfUnderLine(VertexHelper toFill, Rect rect, Color color, Vector2 uvtl, Vector2 uvtr, Vector2 uvbr, Vector2 uvbl)
+        {
+            var zOff = 0f;
+            float posXMin = rect.xMin, posXMax = rect.xMax, posYMin = rect.yMin, posYMax = rect.yMax;
+
+            m_TempVerts[0] = UIVertex.simpleVert;
+            m_TempVerts[0].color = color;
+            m_TempVerts[0].uv0 = uvtl;
+            m_TempVerts[0].position = new Vector3(posXMin, posYMax, zOff);
+
+            m_TempVerts[1] = m_TempVerts[0];
+            m_TempVerts[1].uv0 = uvtr;
+            m_TempVerts[1].position = new Vector3(posXMax, posYMax, zOff);
+
+            m_TempVerts[2] = m_TempVerts[0];
+            m_TempVerts[2].uv0 = uvbr;
+            m_TempVerts[2].position = new Vector3(posXMax, posYMin, zOff);
+
+            m_TempVerts[3] = m_TempVerts[0];
+            m_TempVerts[3].uv0 = uvbl;
+            m_TempVerts[3].position = new Vector3(posXMin, posYMin, zOff);
+
+            toFill.AddUIVertexQuad(m_TempVerts);
+        }
+
+        protected void AddUnderLine(VertexHelper toFill, Rect rect, Color color, ref CharacterInfo u)
+        {
+            Vector2 uvTopLeft = u.uvTopLeft, uvTopRight = u.uvTopRight, uvBottomRight = u.uvBottomRight, uvBottomLeft = u.uvBottomLeft;
+            var thickness = fontSize * 0.2f;
+
+            var uvEdge = (uvTopRight.y - uvTopLeft.y) / 3f;
+            uvTopLeft.y += uvEdge;
+            uvTopRight.y -= uvEdge;
+            AddPartOfUnderLine(toFill, new Rect(rect.position, new Vector2(rect.width, thickness)),
+                color, uvTopLeft, uvTopRight, uvBottomRight, uvBottomLeft);
+        }
 
         protected void GenLinkBounds(VertexHelper toFill)
         {
+            if (m_Links.Count == 0) return;
+
+            if (font.dynamic) {
+                font.RequestCharactersInTexture("_", fontSize);
+            }
+            CharacterInfo charInf;
+            font.GetCharacterInfo('_', out charInf, fontSize);
+
             var maxVertCount = toFill.currentVertCount;
 
             for (int i = 0; i < m_Links.Count; ++i) {
@@ -312,21 +369,34 @@ namespace ZFrame.UGUI
 
                 UIVertex vert = UIVertex.simpleVert;
                 toFill.PopulateUIVertex(ref vert, startIdx);
+                var color = vert.color;
                 var bounds = new Bounds(vert.position, Vector3.zero);
 
+                var lastX = vert.position.x;
                 for (int j = startIdx + 1; j < Mathf.Min(maxVertCount, endIdx); ++j) {
                     toFill.PopulateUIVertex(ref vert, j);
                     var pos = vert.position;
-                    if (pos.x < bounds.min.x) {
+                    if (pos.x < lastX - 1) {
                         // 新增包围盒
-                        link.boxes.Add(new Rect(bounds.min, bounds.size));
+                        var boundsSize = bounds.size;
+                        if (boundsSize.x > 0 && boundsSize.y > 0) {
+                            link.boxes.Add(new Rect(bounds.min, bounds.size));
+                        }
                         bounds = new Bounds(pos, Vector3.zero);
                     } else {
                         // 扩展包围盒
-                        bounds.Encapsulate(pos); 
+                        bounds.Encapsulate(pos);
                     }
+                    if (j % 4 == 0) lastX = pos.x;
                 }
                 link.boxes.Add(new Rect(bounds.min, bounds.size));
+
+                if (m_LinkStyle == LinkStyle.Underline) {
+                    // 绘制下划线
+                    for (var j = 0; j < link.boxes.Count; ++j) {
+                        AddUnderLine(toFill, link.boxes[j], color, ref charInf);
+                    }
+                }
             }
         }
 

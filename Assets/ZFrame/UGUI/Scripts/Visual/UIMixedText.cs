@@ -67,7 +67,7 @@ namespace ZFrame.UGUI
                         rt.localPosition = Vector3.zero;
                         rt.localRotation = Quaternion.identity;
                         rt.localScale = Vector3.one;
-                        rt.anchorMin = new Vector2(0.5f, 1f);
+                        rt.anchorMin = new Vector2(0.5f, 0.5f);
                         rt.anchorMax = rt.anchorMin;
                     }
 
@@ -142,6 +142,8 @@ namespace ZFrame.UGUI
 
             m_DisableFontTextureRebuiltCallback = true;
             var maxVertCount = toFill.currentVertCount;
+            var offset = Vector2.Scale(rectTransform.rect.size, rectTransform.pivot - new Vector2(0.5f, 0.5f));
+            var offset3 = new Vector3(offset.x, offset.y, 0);
             for (var i = 0; i < m_ImgIndex.Count; ++i) {
                 var endIndex = m_ImgIndex[i];
                 if (endIndex < maxVertCount) {
@@ -151,11 +153,11 @@ namespace ZFrame.UGUI
 
                     var vert = UIVertex.simpleVert;
                     toFill.PopulateUIVertex(ref vert, endIndex);
-                    rt.anchoredPosition = vert.position;
+                    rt.anchoredPosition = vert.position + offset3;
                     rt.anchoredPosition += size / 2;
 
                     for (int j = endIndex - 3; j < endIndex; ++j) {
-                        toFill.SetUIVertex(UIVertex.simpleVert, j);
+                        toFill.SetUIVertex(vert, j);
                     }
                 }
             }
