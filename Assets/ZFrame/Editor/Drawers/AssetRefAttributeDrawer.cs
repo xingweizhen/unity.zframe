@@ -28,7 +28,9 @@ namespace ZFrame.Editors
             }
 
             position.height = EditorGUIUtility.singleLineHeight;
-            Object asset = EditorUtil.AssetPathToObject(property.stringValue, assetRef.type);
+            Object asset = EditorUtil.AssetPathToObject(
+                assetRef.mode == 2 ? property.stringValue + "/" : property.stringValue,
+                assetRef.type);
 
             EditorGUI.BeginChangeCheck();
             if (string.IsNullOrEmpty(label.text)) {
