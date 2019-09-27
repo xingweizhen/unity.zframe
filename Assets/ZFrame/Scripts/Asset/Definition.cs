@@ -37,6 +37,11 @@ namespace ZFrame.Asset
         /// If flags contains `Cache`，Call `Unload(false)` after AssetBundle is loaded.
         /// </summary>
         Unload = 1 << 2,
+
+        /// <summary>
+        /// The assetBundle should load first than others.
+        /// </summary>
+        FirstLoad = 1 << 3,
     }
 
     public enum LoadMethod

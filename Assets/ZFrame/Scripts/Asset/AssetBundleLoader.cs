@@ -451,7 +451,7 @@ namespace ZFrame.Asset
             if (deps != null) {
                 foreach (var abName in deps) {
                     AbstractAssetBundleRef abRef;
-                    if (!TryGetAssetBundle(abName, out abRef)) {
+                    if (!string.IsNullOrEmpty(abName) && !TryGetAssetBundle(abName, out abRef)) {
                         var subTask = GetLoadingTask(BundleType.AssetBundle, abName, string.Empty, LoadMethod.Default, 
                             null, null, null, null);
                         m_Tasking = subTask;
