@@ -91,6 +91,7 @@ namespace ZFrame.UGUI
             }
         }
 #endif
+        public static readonly List<UIVertex> TempVertList = new List<UIVertex>();
 
         const string P_GRAYSCALE = "_Grayscale";
         const string UI_GRAYSCALE = "UI_GRAYSCALE";
