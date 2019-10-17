@@ -148,9 +148,12 @@ namespace ZFrame.Asset
 
         private Pool<FileAssetRef> m_FileAssetPool = new Pool<FileAssetRef>(null, null);
         
-        protected Dictionary<string, AbstractAssetBundleRef> GetLoadedAssets(string path)
+        protected Dictionary<string, AbstractAssetBundleRef> GetLoadedAssets(ref string path)
         {
-            return path.Contains("file://") ? m_LoadedFileAssets : m_LoadedAssetBundles;
+            if (path.Contains("file://")) return m_LoadedFileAssets;
+
+            path = path.ToLower();
+            return m_LoadedAssetBundles;
         }
 
         /// <summary>
@@ -162,7 +165,7 @@ namespace ZFrame.Asset
 
             if (string.IsNullOrEmpty(assetbundleName)) return false;
 
-            var loadedAssets = GetLoadedAssets(assetbundleName);
+            var loadedAssets = GetLoadedAssets(ref assetbundleName);
             if (loadedAssets.TryGetValue(assetbundleName, out abRef)) {
                 abRef.lastLoaded = Time.realtimeSinceStartup;
                 return true;
@@ -197,7 +200,7 @@ namespace ZFrame.Asset
             if (bundle != null) {
                 bundle.lastLoaded = Time.realtimeSinceStartup;
                 Info("Ready: {0}", bundle);
-                var loadedAssets = GetLoadedAssets(abName);
+                var loadedAssets = GetLoadedAssets(ref abName);
                 if (!loadedAssets.ContainsKey(abName)) {
                     loadedAssets.Add(abName, bundle);
                 }
@@ -770,7 +773,11 @@ namespace ZFrame.Asset
             if (stat == BundleStat.Local) {
                 task.loadType = LoadType.Load;
                 Info("Enqueue: {0}", task);
-                m_OBOTasks.Add(task);
+                if (task.method.HasOp(AssetOp.FirstLoad)) {
+                    m_OBOTasks.Insert(0, task);
+                } else {
+                    m_OBOTasks.Add(task);
+                }
                 if (m_Multitasking != null) m_Multitasking.AddTask(task);
             } else if ((stat & BundleStat.Remote) != 0) {
                 if (AssetDownload.Instance) {

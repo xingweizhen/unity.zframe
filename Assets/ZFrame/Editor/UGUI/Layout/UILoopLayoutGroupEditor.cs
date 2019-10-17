@@ -90,7 +90,7 @@ namespace ZFrame.Editors
                 EditorGUILayout.Separator();
                 EditorGUILayout.LabelField(string.Format("Total/View Item: {0}/{1}", self.totalItem, self.nViewItem));
                 EditorGUILayout.LabelField(string.Format("Start/End Index: {0}/{1}", 
-                    self.startIndex, Mathf.Min(self.totalItem, self.startIndex + self.nViewItem)));
+                    self.startIndex, Mathf.Min(self.totalItem, self.startIndex + self.nViewItem - 1)));
                 EditorGUILayout.LabelField(string.Format("First Pos: {0}", self.firstPos));
                 EditorGUILayout.LabelField(string.Format("Last Pos: {0}", self.lastPos));
             } else if (paddingChanged) {

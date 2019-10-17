@@ -15,13 +15,13 @@ namespace ZFrame.UGUI
         protected override float GetScrollValue()
         {
             var anchoredPos = m_Scroll.content.anchoredPosition;
+            var value = anchoredPos.y;
             var anchoredOff = Vector2.zero;
-            if (rectTransform != m_Scroll.content)
-                anchoredOff = rectTransform.anchoredPosition;
-
-            var value = anchoredPos.y + anchoredOff.y;
-            if (m_Revert) {
-                value += m_Scroll.content.rect.height + rectTransform.rect.height;
+            if (rectTransform != m_Scroll.content) {
+                value += rectTransform.anchoredPosition.y;
+                if (m_Revert) value += m_Scroll.content.rect.height + rectTransform.rect.height;
+            } else {
+                value += rectTransform.rect.height * (1 - rectTransform.pivot.y);
             }
             return value;
         }
