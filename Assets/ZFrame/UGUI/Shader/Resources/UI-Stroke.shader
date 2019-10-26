@@ -145,6 +145,7 @@ Shader "UI/Stroke"
                 val.w += SampleAlpha(10, IN);
                 val.w += SampleAlpha(11, IN);
 
+                val.w = clamp(val.w, 0, 1);
                 color = (val * (IN.color.a - color.a)) + (color * color.a);
                 
                 #ifdef UNITY_UI_CLIP_RECT
