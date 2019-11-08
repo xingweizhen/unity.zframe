@@ -12,7 +12,9 @@ public static class WrapDefines
                 typeof(System.Type),
 
                 // Unity - Object
+#if !UNITY_2018_3_OR_NEWER
                 typeof(UnityEngine.WWW),
+#endif
                 typeof(UnityEngine.Object),
                 typeof(UnityEngine.Shader),
                 typeof(UnityEngine.Renderer),
@@ -109,7 +111,9 @@ public static class WrapDefines
 
     [BlackList]
     public static List<List<string>> BlackList = new List<List<string>>() {
-        
+
+        new List<string>() { "System.Type", "IsSZArray" },
+
         new List<string>() { "UnityEngine.MonoBehaviour", "runInEditMode" },
         new List<string>() { "UnityEngine.Texture", "imageContentsHash" },
         new List<string>() { "UnityEngine.UI.Graphic", "OnRebuildRequested" },
@@ -119,30 +123,30 @@ public static class WrapDefines
 
         new List<string>() { "ZFrame.UGUI.UIButton", "OnPointerClick", "UnityEngine.EventSystems.PointerEventData" },
         new List<string>() { "ZFrame.UGUI.UIButton", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
-        
+
         new List<string>() { "ZFrame.UGUI.UIToggle", "OnPointerClick", "UnityEngine.EventSystems.PointerEventData" },
         new List<string>() { "ZFrame.UGUI.UIToggle", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
-        
+
         new List<string>() { "ZFrame.UGUI.UIDropdown", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         new List<string>() { "ZFrame.UGUI.UIInput", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         new List<string>() { "ZFrame.UGUI.UIScrollView", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         new List<string>() { "ZFrame.UGUI.UISlider", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         new List<string>() { "ZFrame.UGUI.UILoopGrid", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
         new List<string>() { "ZFrame.UGUI.UIProgress", "SetEvent", "ZFrame.UGUI.TriggerType", "ZFrame.UGUI.UIEvent", "System.String" },
-        
+
         new List<string>() { "ZFrame.UGUI.UISprite", "Load", "System.String", "ZFrame.Asset.DelegateObjectLoaded", "System.Object" },
         new List<string>() { "ZFrame.UGUI.UISprite", "LoadAtlas", "System.String", "UnityEngine.Object" },
         new List<string>() { "ZFrame.UGUI.UISprite", "LoadSprite", "System.String", "UnityEngine.Object" },
-        
+
         new List<string>() { "ZFrame.UGUI.UISliding", "OnBeginDrag", "UnityEngine.EventSystems.PointerEventData" },
         new List<string>() { "ZFrame.UGUI.UISliding", "OnEndDrag", "UnityEngine.EventSystems.PointerEventData" },
         new List<string>() { "ZFrame.UGUI.UISliding", "OnDrag", "UnityEngine.EventSystems.PointerEventData" },
-        
+
         new List<string>() { "ZFrame.UGUI.UITransmissionClick", "OnPointerClick", "UnityEngine.EventSystems.PointerEventData" },
-        
+
         new List<string>() { "ZFrame.UGUI.UILabel", "LOC" },
         new List<string>() { "ZFrame.UGUI.UILabel", "rawText" },
-        
+
         new List<string>() { "ZFrame.Tween.ZTweener", "tween" },
     };
 }

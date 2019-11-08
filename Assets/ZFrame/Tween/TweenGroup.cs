@@ -43,7 +43,7 @@ namespace ZFrame.Tween
                 for (var i = 0; i < m_Tweens.Count; ++i) {
                     m_Tweens[i].updateType = m_UpdateType;
                     m_Tweens[i].ignoreTimescale = m_IgnoreTimescale;
-                    m_Tweens[i].DoTween(true, forward);
+                    m_Tweens[i].DoTween(forward);
                 }
 
                 if (m_Lifetime > 0) {

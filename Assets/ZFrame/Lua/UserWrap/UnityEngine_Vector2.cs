@@ -265,29 +265,6 @@ public static class UnityEngine_Vector2
     }
 
     [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-    static int ToString(ILuaState L)
-    {
-        int count = LuaDLL.lua_gettop(L);
-
-        if (count == 1) {
-            Vector2 obj = L.ToVector2(2);
-            string o = obj.ToString();
-            L.PushString(o);
-            return 1;
-        } else if (count == 2) {
-            Vector2 obj = L.ToVector2(2);
-            var arg0 = L.ToLuaString(2);
-            string o = obj.ToString(arg0);
-            L.PushString(o);
-            return 1;
-        } else {
-            LuaDLL.luaL_error(L, "invalid arguments to method: Vector2.ToString");
-        }
-
-        return 0;
-    }
-
-    [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
     static int Dot(ILuaState L)
     {
         L.ChkArgsCount(2);

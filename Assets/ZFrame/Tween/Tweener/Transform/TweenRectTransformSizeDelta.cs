@@ -7,15 +7,16 @@ namespace ZFrame.Tween
     [TweenMenu("Transform/SizeDelta", "RectTransform SizeDelta")]
     public sealed class TweenRectTransformSizeDelta : TweenVector2<RectTransform>
     {
-        public override void ResetStatus()
-        {
-            m_From = target ? target.sizeDelta : Vector2.zero;
-            m_To = m_From;
-        }
+        protected override Vector2 GetCurrentValue() {  return target ? target.sizeDelta : Vector2.zero; }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            return target ? target.TweenSize(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (reset) target.sizeDelta = m_From;
+                return target.TweenSize(m_To, duration).PlayForward(forward);
+            }
+
+            return null;
         }
 
 #if UNITY_EDITOR

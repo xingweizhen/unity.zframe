@@ -63,7 +63,7 @@ namespace ZFrame.Editors
         private static System.Type[] GetSettingsTypes()
         {
             return new[] {
-                    typeof(UGUI.UGUISettings), typeof(UGUIEditorSettings),
+                    typeof(UGUI.UGUISettings), typeof(UGUIEditorSettings), typeof(UGUI.Localization),
                     typeof(AssetLoaderSettings), typeof(AssetBundleSettings),
                     typeof(TextureProcessSettings), typeof(ModelProcessSettings), typeof(AudioProcessSettings),
                     typeof(ArtStandardChecker),

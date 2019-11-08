@@ -13,6 +13,12 @@ namespace ZFrame.Tween
     /// <typeparam name="T">目标类型</typeparam>
     public abstract class TweenVector3<T> : TweenComponent<T, Vector3> where T : Object
     {
+        public override void ResetStatus()
+        {
+            m_From = GetCurrentValue();
+            m_To = m_From;
+        }
+
 #if UNITY_EDITOR
         internal abstract class TweenValueEditor : TweenEditor
         {

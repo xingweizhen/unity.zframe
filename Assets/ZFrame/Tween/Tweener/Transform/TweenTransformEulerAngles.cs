@@ -7,19 +7,26 @@ namespace ZFrame.Tween
     [TweenMenu("Transform/EulerAngles", "Transform EulerAngles")]
     public class TweenTransformEulerAngles : TweenTransformProperty
     {
-        public override void ResetStatus()
+        protected override Vector3 GetCurrentValue()
         {
-            m_From = target ? m_Space  == Space.World ? target.eulerAngles : target.localEulerAngles : Vector3.zero;
-            m_To = m_From;
+            return target ?
+                m_Space == Space.World ? target.eulerAngles : target.localEulerAngles :
+                Vector3.zero;
         }
-
-        protected override object StartTween(bool reset, bool forward)
+        
+        protected override object StartTween(bool forward)
         {
-            if (m_Space == Space.World) {
-                return target ? target.TweenEulerAngles(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (m_Space == Space.World) {
+                    if (reset) target.eulerAngles = m_From;
+                    return target.TweenEulerAngles(m_To, duration).PlayForward(forward);
+                } else {
+                    if (reset) target.localEulerAngles = m_From;
+                    return target.TweenLocalEulerAngles(m_To, duration).PlayForward(forward);
+                }
             }
 
-            return target ? target.TweenLocalEulerAngles(m_From, m_To, duration).PlayForward(forward) : null;
+            return null;
         }
 
 #if UNITY_EDITOR

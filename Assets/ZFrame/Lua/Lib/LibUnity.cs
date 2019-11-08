@@ -337,6 +337,7 @@ namespace ZFrame.Lua
             } else {
                 child = lua.ToGameObject(2);
             }
+            if (child == null) LogMgr.W("ApplyParentAndChild: parent@1 = {0}, child@2 = NULL", parent);
         }
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]

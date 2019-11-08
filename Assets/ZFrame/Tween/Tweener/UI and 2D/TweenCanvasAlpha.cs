@@ -7,15 +7,15 @@ namespace ZFrame.Tween
     [TweenMenu("UI and 2D/Alpha(CanvasGroup)", "CanvasGroup Alpha")]
     public sealed class TweenCanvasAlpha : TweenFloat<CanvasGroup>
     {
-        public override void ResetStatus()
-        {
-            m_From = target ? target.alpha : 1;
-            m_To = 1 - m_From;
-        }
+        protected override float GetCurrentValue() { return target ? target.alpha : 1; }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            return target ? target.TweenAlpha(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (reset) target.alpha = m_From;
+                return target.TweenAlpha(m_To, duration).PlayForward(forward);
+            }
+            return null;
         }
 
 #if UNITY_EDITOR

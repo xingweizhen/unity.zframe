@@ -95,6 +95,7 @@ namespace ZFrame.Lua
             lua.SetDict("SetEventData", SetEventData);
 
             // Util
+            lua.SetDict("AddKeyCode", AddKeyCode);
             lua.SetDict("GetTogglesOn", GetTogglesOn);
             lua.SetDict("AllTogglesOff", AllTogglesOff);
             lua.SetDict("IsScreenPointInRect", IsScreenPointInRect);
@@ -1109,6 +1110,15 @@ namespace ZFrame.Lua
         #endregion
 
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
+        private static int AddKeyCode(ILuaState lua)
+        {
+            if (UIManager.Instance) {
+                UIManager.Instance.AddKeyCode((KeyCode)lua.ToEnumValue(1, KeyCode.None));
+            }
+            return 0;
+        }
+
+        [MonoPInvokeCallback(typeof(LuaCSFunction))]
         private static int GetTogglesOn(ILuaState lua)
         {
             var tglGrp = lua.ToComponent<ToggleGroup>(1);
@@ -1272,57 +1282,55 @@ namespace ZFrame.Lua
         //    return 0;
         //}
 
-        private static ITweenable ToTweenable(object tweenObject, object tweenType)
+        private static object ToTweener(ILuaState lua, GameObject go, object tweenType, int fromIdx, int toIdx, float duration)
         {
-            if (tweenType == null) return tweenObject as ITweenable;
-
-            var com = tweenObject as Component;
-            GameObject go = com != null ? com.gameObject : tweenObject as GameObject;
             if (go && go.activeInHierarchy) {
                 var tweenName = tweenType as string;
-                if (tweenName != null) {
-                    var tweenable = go.GetComponent(tweenName) as ITweenable;
-                    if (tweenable == null) {
-                        switch (tweenName) {
-                            case "AnchoredPos":
-                                tweenable = go.NeedComponent(typeof(RectAnchoredPosTweener)) as ITweenable;
-                                break;
-                            case "Position":
-                                tweenable = go.NeedComponent(typeof(TransformPositionTweener)) as ITweenable;
-                                ((TransformPositionTweener)tweenable).space = Space.Self;
-                                break;
-                            case "PositionW":
-                                tweenable = go.NeedComponent(typeof(TransformPositionTweener)) as ITweenable;
-                                ((TransformPositionTweener)tweenable).space = Space.World;
-                                break;
-                            case "Rotation":
-                                tweenable = go.NeedComponent(typeof(TransformRotationTweener)) as ITweenable;
-                                break;
-                            case "EulerAngles":
-                                tweenable = go.NeedComponent(typeof(TransformEulerAnglesTweener)) as ITweenable;
-                                break;
-                            case "Scale":
-                                tweenable = go.NeedComponent(typeof(TransformScaleTweener)) as ITweenable;
-                                break;
-                            case "Transform":
-                                tweenable = go.NeedComponent(typeof(TransformFollowTweener)) as ITweenable;
-                                break;
-                            case "Alpha":
-                                tweenable = go.NeedComponent(typeof(CanvasAlphaTweener)) as ITweenable;
-                                break;
-                            case "Size":
-                                tweenable = go.NeedComponent(typeof(RectSizeTweener)) as ITweenable;
-                                break;
-                            default: break;
+                if (tweenName == null) return null;
+
+                switch (tweenName) {
+                    case "AnchoredPos": {
+                            var twObj = go.transform as RectTransform;
+                            if (twObj == null) return null;
+                            return lua.IsNil(fromIdx) ?
+                                ZTween.TweenAnchorPos(twObj, lua.ToVector3(toIdx), duration) :
+                                ZTween.TweenAnchorPos(twObj, lua.ToVector3(fromIdx), lua.ToVector3(toIdx), duration);
                         }
-                    }
-
-                    return tweenable;
-                }
-
-                var tweenerType = tweenType as System.Type;
-                if (tweenerType != null) {
-                    return go.NeedComponent(tweenerType) as ITweenable;
+                    case "Position":
+                        return lua.IsNil(fromIdx) ?
+                            ZTween.TweenLocalPosition(go.transform, lua.ToVector3(toIdx), duration) :
+                            ZTween.TweenLocalPosition(go.transform, lua.ToVector3(fromIdx), lua.ToVector3(toIdx), duration);
+                    case "PositionW":
+                        return lua.IsNil(fromIdx) ?
+                            ZTween.TweenPosition(go.transform, lua.ToVector3(toIdx), duration) :
+                            ZTween.TweenPosition(go.transform, lua.ToVector3(fromIdx), lua.ToVector3(toIdx), duration);
+                    case "Rotation":
+                    case "EulerAngles":
+                        return lua.IsNil(fromIdx) ?
+                            ZTween.TweenLocalEulerAngles(go.transform, lua.ToVector3(toIdx), duration) :
+                            ZTween.TweenLocalEulerAngles(go.transform, lua.ToVector3(fromIdx), lua.ToVector3(toIdx), duration);
+                    case "Scale":
+                        return lua.IsNil(fromIdx) ?
+                            ZTween.TweenScaling(go.transform, lua.ToVector3(toIdx), duration) :
+                            ZTween.TweenScaling(go.transform, lua.ToVector3(fromIdx), lua.ToVector3(toIdx), duration);
+                    case "Transform":
+                        //tweenable = go.NeedComponent(typeof(TransformFollowTweener)) as ITweenable;
+                        break;
+                    case "Alpha": {
+                            var twObj = go.GetComponent(typeof(CanvasGroup)) as CanvasGroup;
+                            if (twObj == null) return null;
+                            return lua.IsNil(fromIdx) ?
+                               ZTween.TweenAlpha(twObj, lua.ToSingle(toIdx), duration) :
+                               ZTween.TweenAlpha(twObj, lua.ToSingle(fromIdx), lua.ToSingle(toIdx), duration);
+                        }
+                    case "Size": {
+                            var twObj = go.transform as RectTransform;
+                            if (twObj == null) return null;
+                            return lua.IsNil(fromIdx) ?
+                               ZTween.TweenSize(twObj, lua.ToVector2(toIdx), duration) :
+                               ZTween.TweenSize(twObj, lua.ToVector2(fromIdx), lua.ToVector2(toIdx), duration);
+                        }
+                    default: break;
                 }
             }
 
@@ -1426,20 +1434,21 @@ namespace ZFrame.Lua
                     break;
             }
 
-            // Fallback to boxing process... 
+            // Auto Launch Tweener
             if (tw == null) {
-                var tweenable = ToTweenable(tweenObj, tweenType);
-                if (tweenable == null) return 0;
+                var go = tweenObj as GameObject;
+                if (go == null) {
+                    var com = tweenObj as Component;
+                    go = com ? com.gameObject : null;
+                }
 
-                object to = lua.ToAnyObject(4);
-                object from = lua.ToAnyObject(3);
-                tw = tweenable.Tween(from, to, duration);
+                tw = ToTweener(lua, go, tweenType, 3, 4, duration);
             }
 
             if (tw != null) {
                 Ease ease = (Ease)lua.GetEnum(5, "ease", Ease.Linear);
                 float delay = lua.GetNumber(5, "delay", 0f);
-                int loops = (int)lua.GetNumber(5, "loops", 0);
+                int loops = (int)lua.GetNumber(5, "loops", 1);
                 LoopType loopType = (LoopType)lua.GetEnum(5, "loopType", LoopType.Restart);
                 UpdateType updateType = (UpdateType)lua.GetEnum(5, "updateType", UpdateType.Normal);
                 bool ignoreTimescale = lua.GetBoolean(5, "ignoreTimescale", true);

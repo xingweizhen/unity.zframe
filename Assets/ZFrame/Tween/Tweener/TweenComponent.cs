@@ -19,18 +19,19 @@ namespace ZFrame.Tween
 
         [SerializeField] protected V m_From, m_To;
 
-        protected abstract object StartTween(bool reset, bool forward);
+        protected abstract V GetCurrentValue();
+
+        protected abstract object StartTween(bool forward);
 
         /// <summary>
         /// 启动缓动动画
         /// </summary>
-        /// <param name="reset">是否从初始位置开始</param>
         /// <param name="forward">是否正向播放</param>
         /// <returns></returns>
-        public sealed override bool DoTween(bool reset, bool forward)
+        public sealed override bool DoTween(bool forward)
         {
             if (enabled) {
-                m_Tweener = StartTween(reset, forward);
+                m_Tweener = StartTween(forward);
                 if (m_Tweener != null) {
                     m_Tweener.DelayFor(delay).EaseBy(ease).LoopFor(loops, loopType)
                         .SetUpdate(updateType, ignoreTimescale).SetTag(gameObject);

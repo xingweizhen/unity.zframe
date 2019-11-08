@@ -11,7 +11,7 @@ namespace ZFrame.UGUI
     using Direction = Slider.Direction;
     using SliderEvent = Slider.SliderEvent;
 
-    public class UIProgress : UIBehaviour, IEventSender, ITweenable, ITweenable<float>, IEventSystemHandler
+    public class UIProgress : UIBehaviour, IEventSender, ITweenable, ITweenable<float>, IEventSystemHandler, ITickable
     {
         public readonly float minValue = 0f;
         public readonly float maxValue = 1f;
@@ -225,7 +225,13 @@ namespace ZFrame.UGUI
 
         protected override void OnEnable()
         {
+            TickManager.Add(this);
             UpdateHandle();
+        }
+
+        protected override void OnDisable()
+        {
+            TickManager.Remove(this);
         }
 
         public void InitValue(float input)
@@ -237,12 +243,11 @@ namespace ZFrame.UGUI
             m_Tween = -1;
         }
 
-
-        private void Update()
+        void ITickable.Tick(float deltaTime)
         {
             if (m_Tween < 0f) return;
 
-            m_Tween += Time.deltaTime * 2f;
+            m_Tween += deltaTime * 2f;
             if (m_Tween > 1f) m_Tween = 1f;
             var visual = CalcVisualValue(Mathf.Lerp(m_FadeValue, m_CurrValue, m_Tween));
             SetVisualImage(m_FadeBar, visual);
@@ -277,12 +282,14 @@ namespace ZFrame.UGUI
             }
         }
 
+        public bool ignoreTimeScale { get { return true; } }
+
         protected override void OnTransformParentChanged()
         {
             base.OnTransformParentChanged();
             __Wnd = null;
         }
-        
+
         //[NoToLua]
         public void SetEvent(TriggerType id, UIEvent eventName, string param)
         {
@@ -328,7 +335,7 @@ namespace ZFrame.UGUI
 
         public object Tween(float from, float to, float duration)
         {
-            object tw = this.TweenAny(Getter, Setter, from, to, duration);            
+            object tw = this.TweenAny(Getter, Setter, from, to, duration);
             return tw.SetTag(this);
         }
     }

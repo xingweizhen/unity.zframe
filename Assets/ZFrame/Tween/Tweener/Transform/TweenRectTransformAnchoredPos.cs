@@ -7,15 +7,16 @@ namespace ZFrame.Tween
     [TweenMenu("Transform/AnchoredPosition", "RectTransform AnchoredPosition")]
     public class TweenRectTransformAnchoredPos : TweenVector3<RectTransform>
     {
-        public override void ResetStatus()
-        {
-            m_From = target ? target.anchoredPosition3D : Vector3.zero;
-            m_To = m_From;
-        }
+        protected override Vector3 GetCurrentValue() { return target ? target.anchoredPosition3D : Vector3.zero; }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            return target ? target.TweenAnchorPos(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (reset) target.anchoredPosition3D = m_From;
+                return target.TweenAnchorPos(m_To, duration).PlayForward(forward);
+            }
+
+            return null;
         }
 
 #if UNITY_EDITOR

@@ -174,15 +174,18 @@ namespace ZFrame.UGUI
                 }
 #endif
                 if (LOC) {
-                    var txt = LOC.Get(getText);
-                    if (!string.IsNullOrEmpty(txt)) {
-                        getText = txt;
+                    if (string.IsNullOrEmpty(getText)) {
+                        return;
                     } else {
-                        if (Application.isPlaying) {
-                            LogMgr.W("本地化获取失败：{0}[{1}]@({2})",
-                                LOC.currentLang, getText, rectTransform.GetHierarchy(null));
+                        var txt = LOC.Get(getText);
+                        if (!string.IsNullOrEmpty(txt)) {
+                            getText = txt;
+                        } else {
+                            if (Application.isPlaying) {
+                                LogMgr.W("本地化获取失败：{0}[{1}]@({2})",
+                                    LOC.currentLang, getText, rectTransform.GetHierarchy(null));
+                            }
                         }
-                        if (string.IsNullOrEmpty(getText)) return;
                     }
                 }
             }
@@ -422,33 +425,38 @@ namespace ZFrame.UGUI
 
             // Apply the offset to the vertices
             IList<UIVertex> verts = cachedTextGenerator.verts;
-            float unitsPerPixel = 1 / pixelsPerUnit;
-            //Last 4 verts are always a new line... (\n)
-            int vertCount = verts.Count - 4;
-
-            Vector2 roundingOffset = new Vector2(verts[0].position.x, verts[0].position.y) * unitsPerPixel;
-            roundingOffset = PixelAdjustPoint(roundingOffset) - roundingOffset;
             toFill.Clear();
-            if (roundingOffset != Vector2.zero) {
-                for (int i = 0; i < vertCount; ++i) {
-                    int tempVertsIndex = i & 3;
-                    m_TempVerts[tempVertsIndex] = verts[i];
-                    m_TempVerts[tempVertsIndex].position *= unitsPerPixel;
-                    m_TempVerts[tempVertsIndex].position.x += roundingOffset.x;
-                    m_TempVerts[tempVertsIndex].position.y += roundingOffset.y;
-                    if (tempVertsIndex == 3)
-                        toFill.AddUIVertexQuad(m_TempVerts);
-                }
-            } else {
-                for (int i = 0; i < vertCount; ++i) {
-                    int tempVertsIndex = i & 3;
-                    m_TempVerts[tempVertsIndex] = verts[i];
-                    m_TempVerts[tempVertsIndex].position *= unitsPerPixel;
-                    if (tempVertsIndex == 3)
-                        toFill.AddUIVertexQuad(m_TempVerts);
+            if (verts.Count > 0) {
+                float unitsPerPixel = 1 / pixelsPerUnit;
+                //Last 4 verts are always a new line... (\n)
+#if UNITY_2018_3_OR_NEWER
+                int vertCount = verts.Count;
+#else
+                int vertCount = verts.Count - 4;
+#endif
+
+                Vector2 roundingOffset = new Vector2(verts[0].position.x, verts[0].position.y) * unitsPerPixel;
+                roundingOffset = PixelAdjustPoint(roundingOffset) - roundingOffset;                
+                if (roundingOffset != Vector2.zero) {
+                    for (int i = 0; i < vertCount; ++i) {
+                        int tempVertsIndex = i & 3;
+                        m_TempVerts[tempVertsIndex] = verts[i];
+                        m_TempVerts[tempVertsIndex].position *= unitsPerPixel;
+                        m_TempVerts[tempVertsIndex].position.x += roundingOffset.x;
+                        m_TempVerts[tempVertsIndex].position.y += roundingOffset.y;
+                        if (tempVertsIndex == 3)
+                            toFill.AddUIVertexQuad(m_TempVerts);
+                    }
+                } else {
+                    for (int i = 0; i < vertCount; ++i) {
+                        int tempVertsIndex = i & 3;
+                        m_TempVerts[tempVertsIndex] = verts[i];
+                        m_TempVerts[tempVertsIndex].position *= unitsPerPixel;
+                        if (tempVertsIndex == 3)
+                            toFill.AddUIVertexQuad(m_TempVerts);
+                    }
                 }
             }
-
             m_DisableFontTextureRebuiltCallback = false;
 
             GenLinkBounds(toFill);

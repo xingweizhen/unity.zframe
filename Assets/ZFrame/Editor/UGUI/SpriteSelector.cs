@@ -20,6 +20,8 @@ namespace ZFrame.Editors
         Callback m_Callback;
         float m_ClickTime = 0f;
 
+        private static Color m_SpriteColor = Color.white;
+
         /// <summary>
         /// Draw the custom wizard.
         /// </summary>
@@ -49,6 +51,8 @@ namespace ZFrame.Editors
 
                 GUILayout.Space(84f);
                 GUILayout.EndHorizontal();
+
+                m_SpriteColor = EditorGUILayout.ColorField(m_SpriteColor);
 
                 if (m_Sprites == null) {
                     m_Sprites = new List<Sprite>();
@@ -100,7 +104,7 @@ namespace ZFrame.Editors
                             }
 
                             if (Event.current.type == EventType.Repaint) {
-                                UISpriteEditor.DrawSprite(sprite, rect, Color.white, GUIStyle.none);
+                                UISpriteEditor.DrawSprite(sprite, rect, m_SpriteColor, GUIStyle.none);
 
                                 // Draw the selection
                                 if (selectedSprite == spriteName) {

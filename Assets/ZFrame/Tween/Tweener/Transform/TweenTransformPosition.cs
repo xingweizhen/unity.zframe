@@ -7,19 +7,26 @@ namespace ZFrame.Tween
     [TweenMenu("Transform/Position", "Transform Position")]
     public class TweenTransformPosition : TweenTransformProperty
     {
-        public override void ResetStatus()
+        protected override Vector3 GetCurrentValue()
         {
-            m_From = target ? m_Space  == Space.World ? target.position : target.localPosition : Vector3.zero;
-            m_To = m_From;
+            return target ?
+                m_Space == Space.World ? target.position : target.localPosition :
+                Vector3.zero;
         }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            if (m_Space == Space.World) {
-                return target ? target.TweenPosition(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (m_Space == Space.World) {
+                    if (reset) target.position = m_From;
+                    return target.TweenPosition(m_To, duration).PlayForward(forward);
+                } else {
+                    if (reset) target.localPosition = m_From;
+                    return target.TweenLocalPosition(m_To, duration).PlayForward(forward);
+                }
             }
 
-            return target ? target.TweenLocalPosition(m_From, m_To, duration).PlayForward(forward) : null;
+            return null;
         }
 
 #if UNITY_EDITOR

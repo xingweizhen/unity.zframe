@@ -27,6 +27,11 @@ namespace ZFrame.Editors
         //    +- fff/
         //       +- f1                 -> fff/f1
 
+        private static string GetDirectoryName(string path)
+        {
+            return Path.GetDirectoryName(path).Replace('\\', '/');
+        }
+
         /// <summary>
         /// 目录下的资源以各自的名称独立命名
         /// </summary>
@@ -131,10 +136,13 @@ namespace ZFrame.Editors
             // BUNDLE/Launch/xxxx.prefab => launch
             foreach (var path in bundleDirs) {
                 if (stdAssetPath.Contains(path)) {
-                    var assetDir = Path.GetDirectoryName(stdAssetPath);
-                    if (Path.GetDirectoryName(assetDir).EndsWith(path)) {
-                        AutoSetAssetBundleName(assetPath, Path.GetFileName(assetDir));
-                        return;
+                    var assetDir = GetDirectoryName(stdAssetPath);
+                    for (var assetDirParent = string.Empty; assetDir.Contains(path); assetDir = assetDirParent) {
+                        assetDirParent = GetDirectoryName(assetDir);
+                        if (assetDirParent.EndsWith(path)) {
+                            AutoSetAssetBundleName(assetPath, Path.GetFileName(assetDir));
+                            return;
+                        }
                     }
                     goto NO_NAME;
                 }
@@ -143,9 +151,9 @@ namespace ZFrame.Editors
             // CAGETORY/FX/Orb/xxxx.prefab => fx/orb
             foreach (var path in categoryDirs) {
                 if (stdAssetPath.Contains(path)) {
-                    var assetDir = Path.GetDirectoryName(stdAssetPath);
-                    var assetCategory = Path.GetDirectoryName(assetDir);
-                    if (Path.GetDirectoryName(assetCategory).EndsWith(path)) {
+                    var assetDir = GetDirectoryName(stdAssetPath);
+                    var assetCategory = GetDirectoryName(assetDir);
+                    if (GetDirectoryName(assetCategory).EndsWith(path)) {
                         AutoSetAssetBundleName(assetPath, Path.GetFileName(assetCategory) + "/" + Path.GetFileName(assetDir));
                         return;
                     }
@@ -156,8 +164,8 @@ namespace ZFrame.Editors
             // OBO/Atlas/common.spriteatlas => atlas/common
             foreach (var path in oboDirs) {
                 if (stdAssetPath.Contains(path)) {
-                    var assetDir = Path.GetDirectoryName(stdAssetPath);
-                    if (Path.GetDirectoryName(assetDir).EndsWith(path)) {
+                    var assetDir = GetDirectoryName(stdAssetPath);
+                    if (GetDirectoryName(assetDir).EndsWith(path)) {
                         AutoSetAssetBundleName(assetPath, Path.GetFileName(assetDir) + "/" + Path.GetFileNameWithoutExtension(stdAssetPath));
                         return;
                     }

@@ -60,6 +60,7 @@ namespace ZFrame.UGUI
                 go.AddComponent<Grid>().cellSize = new Vector3(10, 10, 10);
 
                 var cv = go.GetComponent<Canvas>();
+                cv.additionalShaderChannels = (AdditionalCanvasShaderChannels)(-1);
                 cv.renderMode = RenderMode.ScreenSpaceCamera;
                 cv.worldCamera = camera;
 

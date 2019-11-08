@@ -620,6 +620,7 @@ namespace ZFrame.Tween
 
         public ZTweener Stop(bool complete = false)
         {
+            m_Stopped = true;
             return this;
         }
 
@@ -898,6 +899,50 @@ namespace ZFrame.Tween
         public static object TweenScaling(this Transform self, Vector3 from, Vector3 to, float duration)
         {
             return m_Kit.TweenScaling(self, from, to, duration);
+        }
+        #endregion
+
+        #region Tween Render Material Property
+        private static MaterialPropertyBlock __Block;
+        public static MaterialPropertyBlock sharedBlock { get { if (__Block == null) __Block = new MaterialPropertyBlock(); return __Block; } }
+
+        public static object TweenRange(this Renderer self, float to, float duration, int propertyId)
+        {
+            sharedBlock.Clear();
+            self.GetPropertyBlock(sharedBlock);
+            var from = sharedBlock.GetFloat(propertyId);
+            return m_Kit.TweenRange(self, from, to, duration, propertyId);
+        }
+
+        public static object TweenRange(this Renderer self, float from, float to, float duration, int propertyId)
+        {
+            return m_Kit.TweenRange(self, from, to, duration, propertyId);
+        }
+
+        public static object TweenColor(this Renderer self, Color to, float duration, int propertyId)
+        {
+            sharedBlock.Clear();
+            self.GetPropertyBlock(sharedBlock);
+            var from = sharedBlock.GetColor(propertyId);
+            return m_Kit.TweenColor(self, from, to, duration, propertyId);
+        }
+
+        public static object TweenColor(this Renderer self, Color from, Color to, float duration, int propertyId)
+        {
+            return m_Kit.TweenColor(self, from, to, duration, propertyId);
+        }
+
+        public static object TweenVector(this Renderer self, Vector4 to, float duration, int propertyId)
+        {
+            sharedBlock.Clear();
+            self.GetPropertyBlock(sharedBlock);
+            var from = sharedBlock.GetColor(propertyId);
+            return m_Kit.TweenVector(self, from, to, duration, propertyId);
+        }
+
+        public static object TweenVector(this Renderer self, Vector4 from, Vector4 to, float duration, int propertyId)
+        {
+            return m_Kit.TweenVector(self, from, to, duration, propertyId);
         }
         #endregion
 

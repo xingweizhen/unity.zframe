@@ -7,15 +7,16 @@ namespace ZFrame.Tween
     [TweenMenu("Transform/LocalScale", "Transform LocalScale")]
     public class TweenTransformLocalScale : TweenVector3<Transform>
     {
-        public override void ResetStatus()
-        {
-            m_From = target ? target.localScale : Vector3.zero;
-            m_To = m_From;
-        }
+        protected override Vector3 GetCurrentValue() { return target ? target.localScale : Vector3.zero; }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            return target ? target.TweenScaling(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (reset) target.localScale = m_From;
+                return target.TweenScaling(m_To, duration).PlayForward(forward);
+            }
+
+            return null;
         }
 
 #if UNITY_EDITOR

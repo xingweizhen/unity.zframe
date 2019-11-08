@@ -192,6 +192,10 @@ namespace ZFrame.Tween
         {
             m_PropId = Shader.PropertyToID(propertyName);
         }
+        public void SetPropertyId(int propertyId)
+        {
+            m_PropId = propertyId;
+        }
     }
 
     public sealed class MaterialPropertyGetAndSetFloat : MaterialPropertyGetAndSet<MaterialPropertyGetAndSetFloat, float>
@@ -279,10 +283,12 @@ namespace ZFrame.Tween
     public partial class ZTweener
     {
         public bool backward;
+        private bool m_Stopped;
 
         private TweenGetAndSet m_Accessor;
         private TweenParameter m_Parameter;
-        private float m_Time;        
+        private float m_Time;
+        private int m_Loop;
         private bool m_Started;
 
         private CallbackOnUpdate m_OnStart, m_OnUpdate;
@@ -294,6 +300,7 @@ namespace ZFrame.Tween
             m_Accessor = gs;
             m_Parameter = param;            
             m_Started = false;
+            m_Stopped = false;
         }
 
         public void Recycle()
@@ -308,11 +315,16 @@ namespace ZFrame.Tween
 
         public bool UpdateValue(UpdateType updateType)
         {
+            if (m_Stopped) {
+                return true;
+            }
+
             if (m_Parameter.updateType != updateType) return false;
 
             if (!m_Started) {
                 m_Time = m_Parameter.ignoreTimescale ? Time.unscaledTime : Time.time;
                 m_Time += m_Parameter.delay;
+                m_Loop = 0;
 
                 m_Started = true;
                 if (m_OnStart != null) m_OnStart.Invoke(this);
@@ -322,7 +334,7 @@ namespace ZFrame.Tween
             var pass = time - m_Time;
             if (pass < 0) return false;
 
-            pass /= m_Parameter.duration;
+            if (m_Parameter.duration > 0) pass /= m_Parameter.duration; else pass = 1f;
             var loop = (int)pass;
             if (loop > 0) {
                 pass = backward ? 0 : 1;
@@ -330,8 +342,10 @@ namespace ZFrame.Tween
 
                 switch (m_Parameter.loopType) {
                     case LoopType.Yoyo: backward = !backward;break;
-                    case LoopType.Incremental: /* TODO */ break;
+                    case LoopType.Incremental: m_Loop += 1; break;
                 }
+
+                if (!backward) m_Time += m_Parameter.delay;
 
                 if (m_Parameter.loops > 0) {
                     m_Parameter.loops -= loop;
@@ -343,7 +357,7 @@ namespace ZFrame.Tween
             }
 
             pass = EaseAlgorithm[(int)m_Parameter.ease](0, 1, pass);
-            m_Accessor.Evaluate(target, pass);
+            m_Accessor.Evaluate(target, m_Loop + pass);
             if (m_OnUpdate != null) m_OnUpdate.Invoke(this);
 
             if (m_Parameter.loops == 0) {
@@ -385,7 +399,8 @@ namespace ZFrame.Tween
 
         object ITweenKit.SetTimeScale(object self, float timeScale)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
+            return self;
         }
 
         object ITweenKit.SetUpdate(object self, UpdateType updateType, bool ignoreTimeScale)
@@ -447,6 +462,18 @@ namespace ZFrame.Tween
 
         object ITweenKit.TweenEulerAngles(Transform self, Vector3 from, Vector3 to, float duration, Space space)
         {
+            from.x = Mathf.Repeat(from.x, 360);
+            from.y = Mathf.Repeat(from.y, 360);
+            from.z = Mathf.Repeat(from.z, 360);
+            to.x = Mathf.Repeat(to.x, 360);
+            to.y = Mathf.Repeat(to.y, 360);
+            to.z = Mathf.Repeat(to.z, 360);
+
+            var diff = to - from;
+            if (diff.x > 180) from.x += 360; else if (diff.x < -180) from.x -= 360;
+            if (diff.y > 180) from.y += 360; else if (diff.y < -180) from.y -= 360;
+            if (diff.z > 180) from.z += 360; else if (diff.z < -180) from.z -= 360;
+
             var gs = TransformEulerAnglesGetAndSet.Get(from, to);
             gs.space = space;
             return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
@@ -539,24 +566,24 @@ namespace ZFrame.Tween
             return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
         }
 
-        object ITweenKit.TweenRange(Renderer self, float from, float to, float duration, string propertyName)
+        object ITweenKit.TweenRange(Renderer self, float from, float to, float duration, int propertyId)
         {
             var gs = MaterialPropertyGetAndSetFloat.Get(from, to);
-            gs.SetPropertyName(propertyName);
+            gs.SetPropertyId(propertyId);
             return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
         }
 
-        object ITweenKit.TweenVector(Renderer self, Vector4 from, Vector4 to, float duration, string propertyName)
+        object ITweenKit.TweenVector(Renderer self, Vector4 from, Vector4 to, float duration, int propertyId)
         {
             var gs = MaterialPropertyGetAndSetVector.Get(from, to);
-            gs.SetPropertyName(propertyName);
+            gs.SetPropertyId(propertyId);
             return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
         }
 
-        object ITweenKit.TweenColor(Renderer self, Color from, Color to, float duration, string propertyName)
+        object ITweenKit.TweenColor(Renderer self, Color from, Color to, float duration, int propertyId)
         {
             var gs = MaterialPropertyGetAndSetColor.Get(from, to);
-            gs.SetPropertyName(propertyName);
+            gs.SetPropertyId(propertyId);
             return ZTweenMgr.Instance.Begin(self, gs, new TweenParameter(duration));
         }
     }

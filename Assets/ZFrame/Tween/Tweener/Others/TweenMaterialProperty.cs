@@ -10,10 +10,6 @@ namespace ZFrame.Tween
     [TweenMenu("Others/Material Property", "Material Property")]
     public sealed class TweenMaterialProperty : TweenComponent<Renderer, Vector4>
     {
-        private static MaterialPropertyBlock __Block;
-        public static MaterialPropertyBlock sharedBlock { get { if (__Block == null) __Block = new MaterialPropertyBlock(); return __Block; } }
-        public static void SharedPropertyBlock(MaterialPropertyBlock block) { __Block = block; }
-
         public enum PropertyType { Color, Vector, Float, Range, TexEnv }
 
         [SerializeField]
@@ -48,32 +44,16 @@ namespace ZFrame.Tween
 
         private float GetFloat()
         {
-            sharedBlock.Clear();
-            target.GetPropertyBlock(sharedBlock);
-            return sharedBlock.GetFloat(propertyId);
+            ZTween.sharedBlock.Clear();
+            target.GetPropertyBlock(ZTween.sharedBlock);
+            return ZTween.sharedBlock.GetFloat(propertyId);
         }
-
-        private void SetFloat(float value)
-        {
-            sharedBlock.Clear();
-            target.GetPropertyBlock(sharedBlock);
-            sharedBlock.SetFloat(propertyId, value);
-            target.SetPropertyBlock(sharedBlock);
-        }
-
+        
         private Vector4 GetVector()
         {
-            sharedBlock.Clear();
-            target.GetPropertyBlock(sharedBlock);
-            return sharedBlock.GetVector(propertyId);
-        }
-
-        private void SetVector(Vector4 value)
-        {
-            sharedBlock.Clear();
-            target.GetPropertyBlock(sharedBlock);
-            sharedBlock.SetVector(propertyId, value);
-            target.SetPropertyBlock(sharedBlock);
+            ZTween.sharedBlock.Clear();
+            target.GetPropertyBlock(ZTween.sharedBlock);
+            return ZTween.sharedBlock.GetVector(propertyId);
         }
 
         private void SetCurrentValue()
@@ -91,6 +71,21 @@ namespace ZFrame.Tween
 
             }
         }
+
+        protected override Vector4 GetCurrentValue()
+        {
+            switch (m_PropertyType) {
+                case PropertyType.Float:
+                case PropertyType.Range:
+                    return new Vector4(GetFloat(), 0);
+                case PropertyType.Color:
+                case PropertyType.Vector:
+                case PropertyType.TexEnv:
+                    return GetVector();
+                default:return Vector4.zero;
+            }
+        }
+
         public override void ResetStatus()
         {
             if (target && target.sharedMaterial && target.sharedMaterial.HasProperty(m_PropertyName)) {
@@ -101,17 +96,18 @@ namespace ZFrame.Tween
             m_To = m_From;
         }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
             if (target) {
                 switch (m_PropertyType) {
                     case PropertyType.Float:
                     case PropertyType.Range:
-                        return target.TweenAny(GetFloat, SetFloat, m_From.x, m_To.x, duration).PlayForward(forward);
+                        return target.TweenRange(reset ? m_From.x : GetFloat(), m_To.x, duration, propertyId).PlayForward(forward);
                     case PropertyType.Color:
+                        return target.TweenColor(reset ? m_From : GetVector(), m_To, duration, propertyId).PlayForward(forward);
                     case PropertyType.Vector:
                     case PropertyType.TexEnv:
-                        return target.TweenAny(GetVector, SetVector, m_From, m_To, duration).PlayForward(forward);
+                        return target.TweenVector(reset ? m_From : GetVector(), m_To, duration, propertyId).PlayForward(forward);
                 }
             }
 

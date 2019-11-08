@@ -8,15 +8,16 @@ namespace ZFrame.Tween
     [TweenMenu("UI and 2D/FillAmount(Image)", "Image FillAmount")]
     public class TweenImageFillAmount : TweenFloat<Image>
     {
-        public override void ResetStatus()
-        {
-            m_From = target ? target.fillAmount : 1;
-            m_To = 1 - m_From;
-        }
+        protected override float GetCurrentValue() { return target ? target.fillAmount : 1; }
 
-        protected override object StartTween(bool reset, bool forward)
+        protected override object StartTween(bool forward)
         {
-            return target ? target.TweenFill(m_From, m_To, duration).PlayForward(forward) : null;
+            if (target) {
+                if (reset) target.fillAmount = m_From;
+                return target.TweenFill(m_To, duration).PlayForward(forward);
+            }
+
+            return null;
         }
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TweenImageFillAmount))]

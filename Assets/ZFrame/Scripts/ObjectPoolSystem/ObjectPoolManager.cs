@@ -145,19 +145,21 @@ public class ObjectPoolManager : MonoBehaviour
             DestroyGameObject(m_ScenePool, obj);
         }
     }
-    private static bool IsObjectPooled(ObjectPoolManager mgr, GameObject obj)
+    private static ObjectPool IsObjectPooled(ObjectPoolManager mgr, GameObject obj)
     {
-        return obj && mgr.instance2pool.ContainsKey(obj);
+        ObjectPool pool;
+        mgr.instance2pool.TryGetValue(obj, out pool);
+        return pool;
     }
 
-    public static bool IsPooled(GameObject obj)
+    public static ObjectPool IsPooled(GameObject obj)
     {
-        return instance && IsObjectPooled(instance, obj);
+        return instance ? IsObjectPooled(instance, obj) : null;
     }
 
-    public static bool IsPooledScenely(GameObject obj)
+    public static ObjectPool IsPooledScenely(GameObject obj)
     {
-        return m_ScenePool && IsObjectPooled(m_ScenePool, obj);
+        return m_ScenePool ? IsObjectPooled(m_ScenePool, obj) : null;
     }
 
     private static PoolStatus GetObjectPoolStatus(ObjectPoolManager mgr, GameObject obj)

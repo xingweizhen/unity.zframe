@@ -21,8 +21,14 @@ namespace ZFrame
         [SerializeField] private Vector3 m_Origin;
 
         [SerializeField] private Canvas[] m_Canvases;
-        [SerializeField] private KeyCode[] m_Keys;
+        
+        private HashSet<KeyCode> m_Keys = new HashSet<KeyCode>();
         public event System.Action<KeyCode> onKey;
+        public void AddKeyCode(KeyCode key)
+        {
+            if (key != KeyCode.None)
+                m_Keys.Add(key);
+        }
 
         // private DeviceOrientation m_CurScreenOrientation;
 
@@ -49,13 +55,7 @@ namespace ZFrame
 
         private KeyCode GetKeyDown()
         {
-            for (int i = 0; i < m_Keys.Length; ++i) {
-                var key = m_Keys[i];
-                if (Input.GetKeyDown(key)) {
-                    return key;
-                }
-            }
-
+            foreach (var key in m_Keys) if (Input.GetKeyDown(key)) return key; 
             return KeyCode.None;
         }
 
@@ -219,6 +219,13 @@ namespace ZFrame
             if (Input.GetKeyDown(KeyCode.F2)) {
                 m_ShowWindow = !m_ShowWindow;
             }
+
+#if UNITY_EDITOR || SHOW_FPS
+            if (Input.GetKeyDown(KeyCode.F8)) {
+                var fps = GetComponent(typeof(ShowFPS)) as ShowFPS;
+                fps.enabled = !fps.enabled;
+            }
+#endif
 
             var customKey = GetKeyDown();
             if (customKey != KeyCode.None && onKey != null) {

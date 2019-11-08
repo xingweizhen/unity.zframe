@@ -6,7 +6,7 @@ using TinyJSON;
 
 namespace ZFrame.UGUI
 {
-    [CreateAssetMenu(menuName = "UGUI/本地化文件")]
+    [SettingsMenu("Resources", "本地化文件")]
     public class Localization : ScriptableObject
     {
         public const char SEP = ',';

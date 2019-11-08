@@ -77,7 +77,6 @@ public static class LuaExt
     public static void RawGetI(this ILuaState self, int index, int n)
     {
         LuaDLL.xlua_rawgeti(self, index, n);
-        //LuaDLL.lua_rawgeti(self, index, n);
     }
 
     /// <summary>
@@ -88,7 +87,6 @@ public static class LuaExt
     public static void RawSetI(this ILuaState self, int index, int n)
     {
         LuaDLL.xlua_rawseti(self, index, n);
-        //LuaDLL.lua_rawseti(self, index, n);
     }
 
     /// <summary>

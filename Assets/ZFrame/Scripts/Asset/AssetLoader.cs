@@ -750,6 +750,8 @@ namespace ZFrame.Asset
         /// </summary>
         public virtual AsyncLoadingTask ScheduleTask(AsyncLoadingTask task)
         {
+            if (string.IsNullOrEmpty(task.bundleName)) Log.Format(LogLevel.W, "任务包路径为空：{0}", task);
+
             if (TryGetAssetBundle(task.bundleName, out task.bundle)) {
                 Info("Loaded: {0}", task);
                 if (task.needsAsset) {

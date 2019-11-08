@@ -114,12 +114,12 @@ namespace ZFrame.Tween
             if (!m_Selectable) m_Selectable = GetComponent<Selectable>();
         }
 
-        private void TweenAll(bool reset, bool forward)
+        private void TweenAll(bool forward)
         {
             var list = ListPool<Component>.Get();
             GetComponents(typeof(TweenObject), list);
             for (var i = 0; i < list.Count; ++i) {
-                ((TweenObject)list[i]).DoTween(reset, forward);
+                ((TweenObject)list[i]).DoTween(forward);
             }
             ListPool<Component>.Release(list);
         }
@@ -128,9 +128,9 @@ namespace ZFrame.Tween
         {
             var mask = (int)evt;
             if ((m_Forward & mask) != 0) {
-                TweenAll(true, true);
+                TweenAll(true);
             } else if ((m_Backward & mask) != 0) {
-                TweenAll(false, false);
+                TweenAll(false);
             } else return false;
 
             return true;

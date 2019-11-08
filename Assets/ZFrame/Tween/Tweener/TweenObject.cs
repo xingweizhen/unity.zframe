@@ -25,6 +25,7 @@ namespace ZFrame.Tween
     {
         private static List<TweenGroup> _Groups = new List<TweenGroup>();
 
+        public bool reset = true;
         public TweenParameter parameter;
 
         protected TweenObject()
@@ -57,7 +58,7 @@ namespace ZFrame.Tween
 #if UNITY_EDITOR
             if (!Application.isPlaying) return;
 #endif
-            if (!FindGroup() && tweenAutomatically) DoTween(true, true);
+            if (!FindGroup() && tweenAutomatically) DoTween(true);
         }
 
         protected virtual void OnDisable()
@@ -67,7 +68,7 @@ namespace ZFrame.Tween
             }
         }
 
-        public abstract bool DoTween(bool reset, bool forward);
+        public abstract bool DoTween(bool forward);
         
         /// <summary>
         /// 重置数值为当前值
@@ -95,13 +96,15 @@ namespace ZFrame.Tween
 
         internal abstract class Editor : UnityEditor.Editor
         {
+            private SerializedProperty m_Reset;
             private SerializedProperty m_Duration, m_UpdateType, m_Ease, m_Delay, m_Loops, m_IgnoreTimescale, m_LoopType;
             private SerializedProperty tweenAutomatically;
 
             protected virtual void OnEnable()
             {
-                var parameter = serializedObject.FindProperty("parameter");
+                m_Reset = serializedObject.FindProperty("reset");
 
+                var parameter = serializedObject.FindProperty("parameter");
                 m_Delay = parameter.FindPropertyRelative("delay");
                 m_Duration = parameter.FindPropertyRelative("duration");
                 m_Ease = parameter.FindPropertyRelative("ease");
@@ -128,6 +131,7 @@ namespace ZFrame.Tween
 
             protected virtual void OnContentGUI()
             {
+                EditorGUILayout.PropertyField(m_Reset);
                 EditorGUILayout.PropertyField(m_Delay);
                 EditorGUILayout.PropertyField(m_Duration);
                 EditorGUILayout.PropertyField(m_Ease);
